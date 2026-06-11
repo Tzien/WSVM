@@ -1,5 +1,11 @@
 <template>
-@{var BasicTag = string.Empty;var Register = string.Empty;var SpecialStr = string.Empty;}
+@{
+var BasicTag = string.Empty;
+var Register = string.Empty;
+var SpecialStr = string.Empty;
+var GeneralWidth = string.IsNullOrWhiteSpace(Model.FormAttribute.GeneralWidth) || Model.FormAttribute.GeneralWidth == "600px" ? "800px" : Model.FormAttribute.GeneralWidth;
+var DrawerWidth = string.IsNullOrWhiteSpace(Model.FormAttribute.DrawerWidth) || Model.FormAttribute.DrawerWidth == "600px" ? "800px" : Model.FormAttribute.DrawerWidth;
+}
 @switch(Model.FormAttribute.PopupType){
 @*全屏弹窗*@
 case "fullScreen":
@@ -11,13 +17,13 @@ break;
 case "general":
 BasicTag = "BasicModal";
 Register = "registerModal";
-SpecialStr = string.Format(" width=\"{0}\" :minHeight=\"100\"",Model.FormAttribute.GeneralWidth);
+SpecialStr = string.Format(" width=\"{0}\" :minHeight=\"100\"", GeneralWidth);
 break;
 @*右侧弹窗*@
 case "drawer":
 BasicTag = "BasicDrawer";
 Register = "registerDrawer";
-SpecialStr = string.Format(" width=\"{0}\" showFooter",Model.FormAttribute.DrawerWidth);
+SpecialStr = string.Format(" width=\"{0}\" showFooter", DrawerWidth);
 break;
 }
   <@BasicTag v-bind="$attrs" @@register="@Register" :title="title"@SpecialStr :showOkBtn="false">

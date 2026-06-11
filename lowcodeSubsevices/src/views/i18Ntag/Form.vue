@@ -1,5 +1,5 @@
 ﻿<template>
-  <BasicModal v-bind="$attrs" @register="registerModal"  width="600px" :minHeight="100" okText="确定" cancelText="取消" @ok="handleSubmit" :closeFunc="onClose">
+  <BasicModal v-bind="$attrs" @register="registerModal"  width="800px" :minHeight="100" okText="确定" cancelText="取消" @ok="handleSubmit" :closeFunc="onClose">
     <template #title>
 	    <a-space :size="10">
             <div class="text-16px font-medium">{{ title }}</div>
