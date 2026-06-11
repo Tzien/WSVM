@@ -549,9 +549,9 @@ function getData(id) {
       const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
       mapped[pascalKey] = raw[k];
     });
-@foreach (var column in Model.TableField) {
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
 @if (column.ceriKey == "datePicker") {
-    @:if (mapped.@(column.LowerColumnName)) mapped.@(column.LowerColumnName) = dayjs(mapped.@(column.LowerColumnName)).valueOf();
+    @:if (mapped.@(column.LowerName)) mapped.@(column.LowerName) = dayjs(mapped.@(column.LowerName)).valueOf();
 }
 }
     Object.assign(state.dataForm, mapped);
@@ -591,9 +591,9 @@ function getData(id) {
 }
   function buildSubmitData() {
     const data = cloneDeep(state.dataForm);
-@foreach (var column in Model.TableField) {
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
 @if (column.ceriKey == "datePicker") {
-    @:if (data.@(column.LowerColumnName) || data.@(column.LowerColumnName) === 0) data.@(column.LowerColumnName) = formatDate(!isNaN(Number(data.@(column.LowerColumnName))) ? Number(data.@(column.LowerColumnName)) : data.@(column.LowerColumnName));
+    @:if (data.@(column.LowerName) || data.@(column.LowerName) === 0) data.@(column.LowerName) = formatDate(!isNaN(Number(data.@(column.LowerName))) ? Number(data.@(column.LowerName)) : data.@(column.LowerName));
 }
 }
     if (!data.@(Model.PrimaryKeyField)) delete data.@(Model.PrimaryKeyField);
