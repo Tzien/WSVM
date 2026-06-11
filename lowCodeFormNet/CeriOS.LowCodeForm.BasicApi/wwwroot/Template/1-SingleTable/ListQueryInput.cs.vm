@@ -1,0 +1,38 @@
+﻿using JNPF.Common.Filter;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@(Model.ClassName);
+
+/// <summary>
+/// @(Model.BusName)列表查询输入.
+/// </summary>
+public class @(Model.ClassName)ListQueryInput : PageInputBase
+{
+     [JsonExtensionData]
+     public Dictionary<string, JsonElement> Extra { get; set; }
+
+@if(Model.HasSuperQuery)
+{
+    @:/// <summary>
+    @:/// 高级查询.
+    @:/// </summary>
+    @:public string superQueryJson { get; set; }
+@:
+}
+    /// <summary>
+    /// 选择导出数据ids.
+    /// </summary>-
+    public string selectIds { get; set; }
+
+    /// <summary>
+    /// 选择导出数据key.
+    /// </summary>
+    public string selectKey { get; set; }
+
+    /// <summary>
+    /// 导出类型.
+    /// </summary>
+    public int dataType { get; set; }
+}

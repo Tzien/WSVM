@@ -1,0 +1,139 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Language" Version="6.0.36" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.5.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageReference Include="MiniProfiler.Shared" Version="4.5.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Ben.Demystifier">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\netStandard2.1\Ben.Demystifier.dll</HintPath>
+    </Reference>
+    <Reference Include="CSRedisCore">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\netStandard2.0\CSRedisCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Authorization">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Authorization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Hosting.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Hosting.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Hosting.Server.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Hosting.Server.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Extensions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Features">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Localization">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.AspNetCore.Localization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Core">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Localization">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.AspNetCore.Mvc.Localization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.RazorPages">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.AspNetCore.Mvc.RazorPages.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.ViewFeatures">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.ViewFeatures.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Routing.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Routing.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.StaticFiles">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.StaticFiles.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Memory">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Caching.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Binder">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Configuration.Binder.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Configuration.Json">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Configuration.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyInjection">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.Extensions.DependencyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.DependencyModel">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.DependencyModel.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Features">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Features.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.FileProviders.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.FileProviders.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.FileSystemGlobbing">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.FileSystemGlobbing.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Hosting.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Hosting.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Http">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Localization.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.Extensions.Localization.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.Extensions.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Console">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\6.0\Microsoft.Extensions.Logging.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options.ConfigurationExtensions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Options.ConfigurationExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options.DataAnnotations">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Options.DataAnnotations.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

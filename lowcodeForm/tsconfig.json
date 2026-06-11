@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "jsx": "preserve", // 或者 "react-jsx", "react", 视项目而定
+    "allowJs": true, // 如果你用的是 .js 文件中写 JSX
+    "checkJs": true, // 可选：在 JS 中也进行类型检查
+    "noEmit": true, //只需要 TS 检查，不必生成 JS 文件
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "#/*": ["types/*"]
+    }
+  },
+  "include": ["src", "src/types"]
+}

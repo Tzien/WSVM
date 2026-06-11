@@ -1,0 +1,18 @@
+using CeriOS.@(Model.NameSpace).Entitys.Dto.Dictbaseinfo;
+
+namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
+
+/// <summary>
+/// @(Model.BusName)更新输入.
+/// </summary>
+public class @(Model.ClassName)UpInput : @(Model.ClassName)CrInput
+{
+@foreach (var column in Model.TableField){
+if (@column.PrimaryKey){
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public @column.NetType @column.LowerColumnName { get; set; }
+}
+}
+}

@@ -1,0 +1,167 @@
+/* 设置header颜色样式 */
+.darkColor {
+  /* background-color: rgb(0, 21, 41) !important; */
+  background-color: #043684 !important;
+}
+.lightColor {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+.SubVue3Demo .SubSider {
+  position: relative !important;
+}
+
+.SubVue3Demo .SubSider.darkColor {
+  background-color: #043684 !important;
+}
+
+.SubVue3Demo .SubSider.lightColor {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+.SubVue3Demo .SubSider .SubMenuStyle {
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
+  background-color: #043684 !important;
+}
+
+.SubVue3Demo .SubSider .SubMenuStyle .ant-menu-sub {
+  background-color: #051a5a !important;
+}
+
+.SubVue3Demo .SubSider .SubMenuStyle .ant-menu-item-selected {
+  background: linear-gradient(to right, #80c3f7, #2e72ba, #2a6cb3) !important;
+  border-radius: 5px;
+}
+
+.SubVue3Demo .SubSider .MenuColBtn {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to top, #1a335b, #053784);
+  /* 防止其他样式覆盖，导致折叠按钮不再靠右 */
+  justify-content: flex-end !important;
+}
+
+.SubVue3Demo .SubSider .MenuColBtn .MenuColBtnIcon {
+  color: #fff;
+  font-size: 18px;
+  margin: 0 10px;
+}
+
+.SubVue3Demo .SubSider .RightIcon {
+  justify-content: flex-end;
+}
+
+.SubVue3Demo .SubSider .CenterIcon {
+  justify-content: center;
+}
+
+.SubVue3Demo .SubFooterCss {
+  text-align: right;
+  height: 35px;
+  line-height: 35px;
+  background-color: #eef3f9 !important;
+  bottom: 0px;
+  right: 0px;
+  padding: 0px !important;
+}
+
+.darkColorFont {
+  color: #fff;
+}
+
+.ant-btn-primary {
+  background-color: #2461a6;
+}
+
+.surely-table-header-cell,
+.surely-table-header-scrollbar,
+.surely-table-cell-group-title {
+  background-color: #dee7f5 !important;
+  font-weight: bold !important;
+}
+
+.surely-table-header {
+  border-radius: 0px !important;
+}
+
+/* 普通行悬停背景色 */
+.surely-table-row-hover {
+  background-color: rgba(230, 230, 230, 0.9) !important;
+}
+
+/* 选中行背景色 */
+.surely-table-row.surely-table-row-selected {
+  background-color: #cde6f9 !important;
+}
+
+/* 选中行悬停背景色 */
+.surely-table-row.surely-table-row-selected.surely-table-row-hover {
+  background-color: #b3cee7 !important;
+}
+
+/* 斑马纹深色 */
+.surely-table.surely-table-stripe .surely-table-body .surely-table-row-odd:not(.surely-table-row-selected) {
+  background: #f1f4f9 !important;
+}
+
+/* 斑马纹深色悬停背景色  */
+.surely-table.surely-table-stripe
+  .surely-table-body
+  .surely-table-row-odd:not(.surely-table-row-selected).surely-table-row-hover {
+  background: rgba(230, 230, 230, 0.9) !important;
+}
+
+/* 页码样式 */
+/* 所有页码项（包括上一页/下一页） */
+.ant-pagination-prev,
+.ant-pagination-item,
+
+.ant-pagination-next,
+.ant-select-selector {
+	border: 1px solid rgba(0, 91, 172, 0.55) !important;
+	background: white !important;
+	border-radius: 4px !important;
+}
+
+.ant-pagination-options .ant-select-selector {
+	border: 1px solid rgba(0, 91, 172, 0.55) !important;
+	background: white !important;
+	border-radius: 4px !important;
+}
+
+/* 当前选中页 */
+.ant-pagination-item-active {
+  background: #005bac !important;
+  border-color: #005bac !important;
+}
+
+/* 当前选中页的文字颜色 */
+.ant-pagination-item-active a {
+  color: white !important;
+}
+
+/* 悬浮效果 */
+.ant-pagination-prev:hover,
+.ant-pagination-next:hover,
+.ant-pagination-item:hover,
+.ant-select-selector:hover {
+  border-color: #005bac !important;
+}
+
+/* 上一页/下一页按钮居中 */
+.ant-pagination-item-link .anticon,
+.ant-pagination-next .anticon {
+  position: relative;
+  top: -2px;
+}
+
+.ml-10{
+  margin-left: 10px;
+}

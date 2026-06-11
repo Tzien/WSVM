@@ -1,0 +1,26 @@
+{
+ "ConnectionStrings": {
+   "ConnectionConfigs": [
+    {
+      "ConfigId": "default",
+      "DBName": "jnpf",
+      "DBType": "MySql", //MySql;SqlServer;Oracle;PostgreSQL;Dm;Kdbndp;Sqlite;
+      "Host": "192.168.57.139",
+      "Port": "3306",
+      "UserName": "root",
+      "Password": "123456",
+      "DBSchema": "public"
+    },
+    {
+      "ConfigId": "JNPF-Job", // 不可修改
+      "DBName": "jnpf",
+      "DBType": "MySql", //MySql;SqlServer;Oracle;PostgreSQL;Dm;Kdbndp;Sqlite;
+      "Host": "192.168.57.139",
+      "Port": "3306",
+      "UserName": "root",
+      "Password": "123456",
+      "DBSchema": "public"
+    }
+   ]
+ } 
+}

@@ -1,0 +1,1521 @@
+﻿using CeriOS.Core.Common.DB;
+using JNPF.Common.Dtos;
+using JNPF.Common.Filter;
+using JNPF.Common.Security;
+using CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
+using CeriOS.@(Model.NameSpace).Entitys;
+using CeriOS.@(Model.NameSpace).Interfaces;
+using CeriOS.@(Model.NameSpace).Entitys.Dto.Dictbaseinfo;
+using Mapster;
+using Microsoft.AspNetCore.Mvc;
+using SqlSugar;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+namespace Application.Services;
+
+/// <summary>
+/// 业务实现：@(Model.BusName).
+/// </summary>
+[ApiDescriptionSettings(Tag = "@(Model.Type == 3 ? Model.NameSpace + "Form" : Model.NameSpace)", Name = "@Model.ClassName", Order = 200)]
+[Route("api/[controller]")]
+public class @(Model.ClassName)Service : ControllerBase, I@(Model.ClassName)Service
+{
+    public Repository<@(Model.ClassName)Entity> _db { get; set; }
+
+    /// <summary>
+    /// 初始化一个<see cref="@(Model.ClassName)Service"/>类型的新实例.
+    /// </summary>
+    public @(Model.ClassName)Service(Repository<@(Model.ClassName)Entity> db)
+    {
+       _db = db;
+    }
+
+        private static IDictionary<string, JsonElement> GetExtraFilters(object input)
+   {
+       if (input == null) return null;
+       var type = input.GetType();
+       var prop = type.GetProperty("Extra");
+       if (prop == null) prop = type.GetProperty("extra");
+       if (prop == null) return null;
+       return prop.GetValue(input) as IDictionary<string, JsonElement>;
+   }
+
+@foreach(var item in Model.Function)
+{
+@switch(item.FullName)
+{
+@*信息方法*@
+case "info":
+@:
+    @:/// <summary>
+    @:/// 获取@(Model.BusName).
+    @:/// </summary>
+    @:/// <param name="id">主键值.</param>
+    @:/// <returns></returns>
+    @:[HttpGet("{id}")]
+    @:public async Task<dynamic> GetInfo(@(Model.PrimaryKeyPolicy == 1 ? "string" : Model.EnableFlow ? "string" : "long") id)
+    @:{
+        @:var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<@(Model.ClassName)InfoOutput>();
+        @:return new
+        @:{
+           @: code = 200,
+           @: msg = "获取成功",
+           @: data
+       @: };      
+    @:}
+break;
+@*流程保存*@
+case "save":
+@:
+    @:/// <summary>
+    @:/// 保存.
+    @:/// </summary>
+    @:/// <param name="id">主键值.</param>
+    @:/// <param name="input">表单数据.</param>
+    @:/// <returns></returns>
+    @:[HttpPost("{id}")]
+    @:public async Task Save(string id, [FromBody] @(Model.ClassName)CrInput input)
+    @:{
+        @:input = CodeGenHelper.SetEmptyStringNull(input);
+@*跨库*@
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+@:
+}
+        @:var entity = input.Adapt<@(Model.ClassName)Entity>();
+@if(Model.PrimaryKeyPolicy == 1){
+        @:entity.@(Model.PrimaryKey) = id;
+}
+@if(Model.EnableFlow){
+        @:entity.FlowTaskId = id;
+}
+        @:if (await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()." : "_repository.Is")AnyAsync(x => x.@(Model.PrimaryKeyPolicy == 1 ? Model.PrimaryKey : "FlowTaskId").Equals(id)@(Model.PrimaryKeyPolicy == 2 ? " || x." + Model.PrimaryKey + ".Equals(id)" : "")))
+        @:{
+@if(Model.PrimaryKeyPolicy  == 2)
+{
+            @:entity.@(Model.PrimaryKey) = (await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()." : "_repository.Get")FirstAsync(it=> it.FlowTaskId.Equals(entity.FlowTaskId)@(Model.PrimaryKeyPolicy == 2 ? " || it." + Model.PrimaryKey + ".Equals(entity.FlowTaskId)" : ""))).@(Model.PrimaryKey);
+}
+@{ GetAndModifyDataMethodTemplate(); }
+        @:}
+        @:else
+        @:{
+@{ GetTheNewDataMethodTemplate(); }
+        @:}
+    @:}
+break;
+@*详情*@
+case "detail":
+@:
+    @:/// <summary>
+    @:/// @(Model.BusName)详情.
+    @:/// </summary>
+    @:/// <param name="id">主键值.</param>
+    @:/// <returns></returns>
+    @:[HttpGet("Detail/{id}")]
+    @:public async Task<dynamic> GetDetails(@(Model.PrimaryKeyPolicy == 1 ? "string" : "long") id)
+    @:{
+          @:var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<DictbaseinfoDetailOutput>();
+          @:return new
+          @:{
+             @:code = 200,
+             @:msg = "获取成功",
+             @:data
+          @:};         
+    @:}
+break;
+@*分页列表*@
+case "page":
+@:
+    @:/// <summary>
+    @:/// 获取@(Model.BusName)列表.
+    @:/// </summary>
+    @:/// <param name="input">请求参数.</param>
+    @:/// <returns></returns>
+@if(item.IsInterface)
+{
+    @:[HttpPost("List")]
+}
+    @:@(item.IsInterface ? "public" : "private") async Task<dynamic> GetList(@(item.IsInterface ? "[FromBody] " : "")@(Model.ClassName)ListQueryInput input)
+    @:{
+        @:var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(@(Model.ClassName)Entity));
+        @:var selectIds = input.selectIds?.Split(",").ToList();
+      @:var query = _db.Context.Queryable<@(Model.ClassName)Entity>();
+       @:var extra = GetExtraFilters(input);
+       
+       @:if (extra != null && extra.Count > 0)
+        @:{
+          @:Dictionary<string, int> searchTypes = null;
+          @:if (extra.TryGetValue("__searchTypes", out var __stEl) && __stEl.ValueKind == JsonValueKind.Object)
+          @:{
+              @:try
+              @:{
+                  @:searchTypes = JsonSerializer.Deserialize<Dictionary<string, int>>(__stEl.GetRawText());
+              @:}
+              @:catch
+              @:{
+              @:}
+          @:}
+
+          @:var columnMap = entityInfo.Columns
+                @:.Where(o => !string.IsNullOrWhiteSpace(o?.PropertyName) && !string.IsNullOrWhiteSpace(o?.DbColumnName))
+                @:.GroupBy(o => o.PropertyName, System.StringComparer.OrdinalIgnoreCase)
+                @:.ToDictionary(g => g.Key, g => g.First().DbColumnName, System.StringComparer.OrdinalIgnoreCase);
+
+                 @:foreach (var col in entityInfo.Columns)
+            @:{
+                @:if (string.IsNullOrWhiteSpace(col?.DbColumnName) || string.IsNullOrWhiteSpace(col?.PropertyName)) continue;
+
+                @:if (!columnMap.ContainsKey(col.DbColumnName))
+                @:{
+                   @: columnMap[col.DbColumnName] = col.DbColumnName;
+               @: }
+         @:   }
+
+         @: var conditions = new List<IConditionalModel>();
+          @:foreach (var kv in extra)
+            @:{
+               @: var rawField = kv.Key;
+               @: if (string.IsNullOrWhiteSpace(rawField)) continue;
+               @: if (rawField.Equals("__searchTypes", System.StringComparison.OrdinalIgnoreCase)) continue;
+                @:if (!columnMap.TryGetValue(rawField, out var field) || string.IsNullOrWhiteSpace(field)) continue;
+
+                @:var v = kv.Value;
+               @: if (v.ValueKind == JsonValueKind.Null || v.ValueKind == JsonValueKind.Undefined) continue;
+
+               @: if (v.ValueKind == JsonValueKind.String)
+               @: {
+                  @:  var s = v.GetString();
+                  @:  if (string.IsNullOrWhiteSpace(s)) continue;
+                   @: var __st = 0;
+                   @: if (searchTypes != null && searchTypes.TryGetValue(rawField, out var __t)) __st = __t;
+                   @: if (__st == 1)
+                   @: {
+                   @:     conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.Equal, FieldValue = s });
+                   @: }
+                   @: else
+                   @: {
+                   @:     conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.Like, FieldValue = $"%{s}%" });
+                   @: }
+                   @: continue;
+              @:  }
+
+                @:if (v.ValueKind == JsonValueKind.Number || v.ValueKind == JsonValueKind.True || v.ValueKind == JsonValueKind.False)
+                @:{
+                    @:conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.Equal, FieldValue = v.ToString() });
+                    @:continue;
+                @:}
+
+                @:if (v.ValueKind == JsonValueKind.Array)
+                @:{
+                    @:var list = v.EnumerateArray()
+                        @:.Select(o => o.ToString())
+                        @:.Where(o => !string.IsNullOrWhiteSpace(o))
+                        @:.ToList();
+                    @:if (list.Count == 0) continue;
+                    @:conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.In, FieldValue = string.Join(",", list) });
+                    @:continue;
+                @:}
+            @:}
+
+            @:if (conditions.Count > 0)
+            @:{
+                @:query = query.Where(conditions);
+            @:}
+        @:}
+
+       @: var __currentPage = input.currentPage <= 0 ? 1 : input.currentPage;
+       @: var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
+       @: var __totalCount = await query.CountAsync();
+       @: var data = await query.ToPagedListAsync(__currentPage, __pageSize);
+   @:   var inlineEditorList = data.list.Adapt<List<@(Model.ClassName)ListOutput>>();
+
+   @:     return new
+    @:    {
+    @:       list = inlineEditorList,
+    @:       pagination = new
+   @:        {
+     @:          currentPage = __currentPage,
+     @:          pageSize = __pageSize,
+     @:          total = __totalCount,
+   @:        }
+   @:     };
+    @:}
+break;
+@*无分页列表*@
+case "noPage":
+@:
+    @:/// <summary>
+    @:/// 获取@(Model.BusName)无分页列表.
+    @:/// </summary>
+    @:/// <param name="input">请求参数.</param>
+    @:/// <returns></returns>
+@if(item.IsInterface)
+{
+    @:[HttpPost("@(Model.IsTreeTable ? "Tree" : "")List")]
+}
+    @:@(item.IsInterface ? "public" : "private") async Task<dynamic> GetNoPagingList(@(item.IsInterface ? "[FromBody] " : "")@(Model.ClassName)ListQueryInput input)
+    @:{
+@if(Model.DbLinkId != "0")
+{
+        @:var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("@(Model.DbLinkId)"));
+        @:_sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
+@:
+}
+@if(Model.EnableFlow)
+{
+        @:var flowIdList = await _controlParsing.GetFlowIdListByTemplateId(input.flowId);
+}
+@if(Model.UseDataPermission)
+{
+        @:var authorizeWhere = new List<IConditionalModel>();
+@:
+        @:// 数据权限过滤
+        @:if (_userManager.User.IsAdministrator == 0)
+        @:{
+            @:authorizeWhere = await _userManager.GetConditionAsync<@(Model.ClassName)ListOutput>(input.menuId, "@(Model.OriginalPrimaryKey)", _userManager.UserOrigin.Equals("pc") ? @(Model.PcUseDataPermission) : @(Model.AppUseDataPermission), @(Model.PrimaryKeyPolicy));
+        @:}
+@:
+}
+@if(Model.IsSearchMultiple || Model.HasSuperQuery)
+{
+        @:var entityInfo = @(Model.DbLinkId != "0" ? "_sqlSugarClient" : "_repository.AsSugarClient()").EntityMaintenance.GetEntityInfo<@(Model.ClassName)Entity>();
+}
+@if(Model.PcDefaultSortConfig)
+{
+        @:if (_userManager.UserOrigin.Equals("pc"))
+        @:{
+            @:input.sidx = CodeGenHelper.CodeGenDefaultSort(input.sidx, string.Empty, entityInfo, 0);
+            @:input.sort = string.Empty;
+        @:}
+}
+@if(Model.AppDefaultSortConfig)
+{
+        @:if (!_userManager.UserOrigin.Equals("pc"))
+        @:{
+            @:input.sidx = CodeGenHelper.CodeGenDefaultSort(input.sidx, string.Empty, entityInfo, 0);
+            @:input.sort = string.Empty;
+        @:}
+}
+@if(Model.HasSuperQuery)
+{
+        @:var superQuery = SuperQueryHelper.GetSuperQueryInput(input.superQueryJson, string.Empty, entityInfo, 0);
+        @:superQuery = await _controlParsing.ReplaceDynamicQuery<ConvertSuper>(superQuery);
+        @:List<IConditionalModel> mainConditionalModel = SuperQueryHelper.GetSuperQueryJson(superQuery);
+}
+@{ GetListQueryFieldTemplate(); }
+        @:var list = await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()" : "_repository.AsQueryable()")
+@{ GetTheListQueryCriteriaTemplate(); }
+@if(Model.UseDataPermission)
+{
+            @:.Where(authorizeWhere)
+}
+@if(Model.DataRuleJson != null && Model.DataRuleJson != "[]")
+{
+            @:.Where(dataRuleList.FirstOrDefault()?.conditionalModel)
+}
+@if(Model.HasSuperQuery)
+{
+            @:.Where(mainConditionalModel)
+}
+@if(Model.IsLogicalDelete)
+{
+            @:.Where(it => it.DeleteMark == null)
+}
+@if(Model.EnableFlow)
+{
+            @:.Where(it => flowIdList.Contains(it.FlowId))
+}else{
+            @:.Where(it => it.FlowId==null)
+}
+            @:.Select(it => new @(Model.ClassName)ListOutput
+            @:{
+@{ GetTheListDisplayFieldTemplate(); }
+            @:}).MergeTable().OrderByIF(string.IsNullOrEmpty(input.sidx), it => it.@(Model.LowerPrimaryKey)).OrderByIF(!string.IsNullOrEmpty(input.sidx), input.sidx + " " + input.sort).ToListAsync();
+@if(Model.IsConversion)
+{
+@:
+        @:await _repository.AsSugarClient().ThenMapperAsync(list, async item =>
+        @:{
+            @:var linkageParameters = new List<DataInterfaceParameter>();
+@{ GetListDataConversionTemplate(); }
+        @:});
+}
+@if(Model.IsTreeTable || Model.ParsCeriKeyConstList.Count > 0)
+{
+@:
+        @:var resData = list.ToObject<List<Dictionary<string, object>>>(CommonConst.options);
+}
+@if(Model.ParsCeriKeyConstList.Count > 0)
+{
+        @:List<FieldsModel> fieldList = new List<FieldsModel>();
+        @:fieldList.AddRange(ExportImportDataHelper.GetDataConversionTemplateParsing<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity()));
+@foreach (var jnpfKeyConst in Model.ParsCeriKeyConstList)
+{
+        @:resData = await _controlParsing.GetParsDataList(resData, "@(jnpfKeyConst[1])", "@(jnpfKeyConst[0])", _userManager.TenantId, fieldList);
+}
+@:
+}
+@if(Model.IsTreeTable)
+{
+        @:if (_userManager.UserOrigin.Equals("pc"))
+        @:{
+            @:resData = CodeGenHelper.GetTreeList(resData, "@(Model.ParentField)", "@(Model.TreeShowField)");
+        @:}
+@:
+}
+@if(Model.IsTreeTable || Model.ParsCeriKeyConstList.Count > 0)
+{
+        @:list = resData.ToObject<List<@(Model.ClassName)ListOutput>>(CommonConst.options);
+}
+@if(Model.TableType == 3)
+{
+@:
+        @:return _userManager.UserOrigin.Equals("pc") ? CodeGenHelper.GetGroupList(list.ToJsonStringOld().ToObjectOld<List<Dictionary<string, object>>>(), "@(Model.GroupField)", "@(Model.GroupShowField)") : list;
+}else{
+@:
+        @:return list;
+}
+    @:}
+break;
+@*新增*@
+case "add":
+@:
+    @:/// <summary>
+    @:/// 新建@(Model.BusName).
+    @:/// </summary>
+    @:/// <param name="input">参数.</param>
+    @:/// <returns></returns>
+    @:[HttpPost("")]
+    @:public async Task<dynamic> Create([FromBody] @(Model.ClassName)CrInput input)
+    @:{
+        @:if (input == null)
+        @:{
+            @:return new
+            @:{
+                @:code = 400,
+                @:msg = "参数为空",
+                @:data = (object)null
+            @:};
+        @:}
+        @:var entity = input.Adapt<@(Model.ClassName)Entity>();
+@if(Model.PrimaryKeyPolicy == 1)
+{
+        @:entity.@(Model.PrimaryKey) = GuidHelper.BuildGuid();
+}
+        @:var isOk = await _db.InsertAsync(entity);
+        @:if (!isOk)
+        @:{
+            @:return new
+            @:{
+                @:code = 200,
+               @: msg = "保存失败",
+                @:data = (object)null
+           @: };
+       @: };
+
+       @: return new
+        @: {
+         @:    code = 200,
+          @:   msg = "保存成功",
+         @:    data = (object)null
+      @:   };
+    @:}
+break;
+@*编辑*@
+case "edit":
+@:
+    @:/// <summary>
+    @:/// 更新@(Model.BusName).
+    @:/// </summary>
+    @:/// <param name="id">主键值.</param>
+    @:/// <param name="input">参数.</param>
+    @:/// <returns></returns>
+    @:[HttpPut("{id}")]
+    @:public async Task<dynamic> Update(@(Model.PrimaryKeyPolicy == 1 ? "string" : "long") id, [FromBody] @(Model.ClassName)UpInput input)
+    @:{
+       
+        @:var entity = input.Adapt<@(Model.ClassName)Entity>();
+        @:var isOk = await _db.UpdateAsync(entity);
+        @:if (!isOk)
+        @:{
+            @:return new
+            @:{
+                @:code = 200,
+                @: msg = "保存失败",
+                @:data = (object)null
+            @:};
+       @: };
+
+       @:return new
+       @:{
+           @:code = 200,
+           @:msg = "保存成功",
+           @:data = (object)null
+       @:};
+    @:}
+break;
+@*删除*@
+case "remove":
+@:
+    @:/// <summary>
+    @:/// 删除@(Model.BusName).
+    @:/// </summary>
+    @:/// <returns></returns>
+    @:[HttpDelete("{id}")]
+    @:public async Task<dynamic> Delete(@(Model.PrimaryKeyPolicy == 1 ? "string" : "long") id)
+    @:{
+        @:var isOk = await _db.Context.Deleteable<@(Model.ClassName)Entity>().Where(it => it.@(Model.PrimaryKey).Equals(id))@(Model.IsLogicalDelete ? ".IsLogic()" : "").ExecuteCommandAsync(@(Model.IsLogicalDelete ? "\"F_Delete_Mark\",1, \"F_DELETE_TIME\", \"F_DELETE_USER_ID\", _userManager.UserId" : ""));   
+        
+        @:if (isOk == 0)
+        @:{
+            @:return new
+            @:{
+                @:code = 200,
+               @: msg = "删除失败",
+                @:data = (object)null
+           @: };
+        @:};
+
+         @:return new
+         @:{
+             @:code = 200,
+            @: msg = "删除成功",
+            @: data = (object)null
+        @:};
+    @:}
+
+@*批量删除*@
+@:
+    @:/// <summary>
+    @:/// 批量删除@(Model.BusName).
+    @:/// </summary>
+    @:/// <param name="input">主键数组.</param>
+    @:/// <returns></returns>
+    @:[HttpPost("batchRemove")]
+    @:public async Task<dynamic> BatchRemove([FromBody] List<string>? delids)
+    @:{
+
+        @:var ids = delids ?? new List<string>();
+        @:if (ids.Count > 0)
+        @:{
+            @:var entitys = await _db.Context.Queryable<@(Model.ClassName)Entity>().In(it => it.id, ids).ToListAsync();
+            @:if (entitys.Count > 0)
+            @:{
+                 @:// 批量删除@(Model.BusName)
+                @:await _db.Context.Deleteable<@(Model.ClassName)Entity>().In(it => it.id, ids).ExecuteCommandAsync();
+            @:}
+        @:}
+
+        @:return new
+        @:{
+            @:code = 200,
+            @:msg = "删除成功",
+            @:data = (object)null
+        @:};
+
+    @:}
+break;
+@*导出*@
+case "download":
+@:
+    @:/// <summary>
+    @:/// 导出@(Model.BusName).
+    @:/// </summary>
+    @:/// <param name="input">请求参数.</param>
+    @:/// <returns></returns>
+    @:[HttpPost("Actions/Export")]
+    @:public async Task<dynamic> Export([FromBody] @(Model.ClassName)ListQueryInput input)
+    @:{
+@if(Model.TableType == 3)
+{
+        @:var exportData = new List<Dictionary<string, object>>();
+        @:if (input.dataType == 0)
+            @:exportData = await GetList(input);
+        @:else
+            @:exportData = await GetNoPagingList(input);
+}else{
+        @:var exportData = new List<@(Model.ClassName)ListOutput>();
+        @:if (input.dataType == 0)
+            @:exportData = Clay.Object(await GetList(input)).Solidify<PageResult<@(Model.ClassName)ListOutput>>().list;
+        @:else
+            @:exportData = await GetNoPagingList(input);
+}
+        @:var excelName = string.Format("{0}_{1:yyyyMMddHHmmss}", _controlParsing.GetModuleNameById(input.menuId), DateTime.Now);
+        @:_cacheManager.Set(excelName + ".xls", string.Empty);
+        @:return _exportImportDataHelper.GetDataExport(excelName,input.selectKey, _userManager.UserId,exportData.ToJsonString().ToObjectOld<List<Dictionary<string, object>>>(), paramList, @((Model.TableType == 3).ToString().ToLower()));
+    @:}
+break;
+@*导入*@
+case "upload":
+@:
+    @:/// <summary>
+    @:/// 下载模板.
+    @:/// </summary>
+    @:/// <returns></returns>
+    @:[HttpGet("TemplateDownload")]
+    @:public async Task<dynamic> TemplateDownload(string menuId)
+    @:{
+        @:List<FieldsModel> fieldList = new List<FieldsModel>();
+        @:fieldList.AddRange(ExportImportDataHelper.GetDataConversionTemplateParsing<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity()));
+        @:List<Dictionary<string, object>>? dataList = new List<Dictionary<string, object>>();
+@:
+        @:// 赋予默认值
+        @:var dicItem = ExportImportDataHelper.GetTemplateHeader<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity(), 1);
+@:
+        @:dicItem.Add("id", "id");
+        @:dataList.Add(dicItem);
+@:
+        @:var excelName = string.Format("{0}导入模板", _controlParsing.GetModuleNameById(menuId));
+        @:_cacheManager.Set(excelName + ".xls", string.Empty);
+        @:return _exportImportDataHelper.GetTemplateExport(excelName, string.Join(",", uploaderKey), _userManager.UserId, dataList, fieldList, paramList);
+    @:}
+@:
+    @:/// <summary>
+    @:/// Excel导入.
+    @:/// </summary>
+    @:/// <param name="file"></param>
+    @:/// <returns></returns>
+    @:[HttpPost("Uploader")]
+    @:public async Task<dynamic> Uploader(IFormFile file)
+    @:{
+        @:var _filePath = _fileManager.GetPathByType(string.Empty);
+        @:var _fileName = DateTime.Now.ToString("yyyyMMdd") + "_" + GuidHelper.BuildGuid() + Path.GetExtension(file.FileName);
+        @:var stream = file.OpenReadStream();
+        @:await _fileManager.UploadFileByType(stream, _filePath, _fileName);
+        @:return new { name = _fileName, url = string.Format("/api/File/Image/{0}/{1}", string.Empty, _fileName) };
+    @:}
+@:
+    @:/// <summary>
+    @:/// 导入预览.
+    @:/// </summary>
+    @:/// <returns></returns>
+    @:[HttpGet("ImportPreview")]
+    @:public async Task<dynamic> ImportPreview(string fileName)
+    @:{
+        @:List<FieldsModel> fieldList = new List<FieldsModel>();
+        @:fieldList.AddRange(ExportImportDataHelper.GetTemplateParsing<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity()));
+        @:var entityInfo = _repository.AsSugarClient().EntityMaintenance.GetEntityInfo<@(Model.ClassName)Entity>();
+        @:List<DbTableRelationModel> tables = new List<DbTableRelationModel>() { ExportImportDataHelper.GetTableRelation(entityInfo, "1") };
+        @:DbLinkEntity link = _dataBaseManager.GetTenantDbLink(_userManager.TenantId, _userManager.TenantDbName); // 当前数据库连接
+        @:var tInfo = new TemplateParsingBase(link, fieldList, tables, "@(Model.OriginalPrimaryKey)", @(Model.WebType), @(Model.PrimaryKeyPolicy), uploaderKey.ToList(), "@(Model.ImportDataType)", @(Model.IsLogicalDelete.ToString().ToLower())@(Model.EnableFlow ? ", 1, \"" + Model.FormId + "\"" : ""));
+        @:return await _exportImportDataHelper.GetImportPreviewData(tInfo, fileName);
+    @:}
+@:
+    @:/// <summary>
+    @:/// 导入数据.
+    @:/// </summary>
+    @:/// <param name="input"></param>
+    @:/// <returns></returns>
+    @:[HttpPost("ImportData")]
+    @:[UnitOfWork]
+    @:public async Task<dynamic> ImportData([FromBody] DataImportInput input)
+    @:{
+        @:List<FieldsModel> fieldList = new List<FieldsModel>();
+        @:fieldList.AddRange(ExportImportDataHelper.GetTemplateParsing<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity()));
+        @:var entityInfo = _repository.AsSugarClient().EntityMaintenance.GetEntityInfo<@(Model.ClassName)Entity>();
+        @:List<DbTableRelationModel> tables = new List<DbTableRelationModel>() { ExportImportDataHelper.GetTableRelation(entityInfo, "1") };
+        @:DbLinkEntity link = _dataBaseManager.GetTenantDbLink(_userManager.TenantId, _userManager.TenantDbName); // 当前数据库连接
+        @:var tInfo = new TemplateParsingBase(link, fieldList, tables, "@(Model.OriginalPrimaryKey)", @(Model.WebType), @(Model.PrimaryKeyPolicy), uploaderKey.ToList(), "@(Model.ImportDataType)", @(Model.IsLogicalDelete.ToString().ToLower())@(Model.EnableFlow ? ", 1, \"" + Model.FormId + "\"" : ""));
+@:
+        @:object[]? res = await _exportImportDataHelper.ImportMenuData(tInfo, input @(Model.EnableFlow ? ", \"" + Model.FormId + "\"" : ""));
+        @:var addlist = res.First() as List<Dictionary<string, object>>;
+        @:var errorlist = res.Last() as List<Dictionary<string, object>>;
+        @:var result = new DataImportOutput()
+        @:{
+            @:snum = addlist.Count,
+            @:fnum = errorlist.Count,
+            @:failResult = errorlist,
+            @:resultType = errorlist.Count < 1 ? 0 : 1
+        @:};
+@:
+        @:return result;
+    @:}
+@:
+    @:/// <summary>
+    @:/// 导入数据的错误报告.
+    @:/// </summary>
+    @:/// <param name="list"></param>
+    @:/// <returns></returns>
+    @:[HttpPost("ImportExceptionData")]
+    @:[UnitOfWork]
+    @:public async Task<dynamic> ExportExceptionData([FromBody] DataImportInput list)
+    @:{
+        @:List<FieldsModel> fieldList = new List<FieldsModel>();
+        @:fieldList.AddRange(ExportImportDataHelper.GetTemplateParsing<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity()));
+        @:var entityInfo = _repository.AsSugarClient().EntityMaintenance.GetEntityInfo<@(Model.ClassName)Entity>();
+        @:List<DbTableRelationModel> tables = new List<DbTableRelationModel>() { ExportImportDataHelper.GetTableRelation(entityInfo, "1") };
+        @:DbLinkEntity link = _dataBaseManager.GetTenantDbLink(_userManager.TenantId, _userManager.TenantDbName); // 当前数据库连接
+        @:var tInfo = new TemplateParsingBase(link, fieldList, tables, "@(Model.OriginalPrimaryKey)", @(Model.WebType), @(Model.PrimaryKeyPolicy), uploaderKey.ToList(), "@(Model.ImportDataType)", @(Model.IsLogicalDelete.ToString().ToLower()));
+        @:tInfo.FullName = _controlParsing.GetModuleNameById(list.menuId);
+@:
+        @:// 错误数据
+        @:tInfo.selectKey.Add("errorsInfo");
+        @:tInfo.AllFieldsModel.Add(new FieldsModel() { __vModel__ = "errorsInfo", __config__ = new ConfigModel() { label = "异常原因" } });
+        @:for (var i = 0; i < list.list.Count(); i++) list.list[i].Add("id", i);
+@:
+        @:var result = ExportImportDataHelper.GetCreateFirstColumnsHeader(tInfo.selectKey, list.list, paramList);
+        @:var firstColumns = result.Item1;
+        @:var resultList = result.Item2;
+        @:var fName = string.Format("{0}错误报告{1:yyyyMMddHHmmss}", tInfo.FullName, DateTime.Now);
+        @:_cacheManager.Set(fName + ".xls", string.Empty);
+        @:return firstColumns.Any()
+            @:? await _exportImportDataHelper.ExcelCreateModel(tInfo, resultList, fName, firstColumns)
+            @:: await _exportImportDataHelper.ExcelCreateModel(tInfo, resultList, fName);
+    @:}
+break;
+}
+}
+}
+@{
+@*获取列表数据转换模板*@
+    void GetListDataConversionTemplate()
+    {
+@foreach (var column in Model.TableField)
+{
+@{var dataCount = column.StaticData != null ? column.StaticData.Count : 0;}
+@if(column.IsConversion && column.IsShow)
+{
+@switch(column.ceriKey)
+{
+case "location":
+            @:if(item.@(column.LowerColumnName).IsNotEmptyOrNull()) item.@(column.LowerColumnName) = item.@(column.LowerColumnName).ToObject<Dictionary<string, string>>()["fullAddress"];
+@:
+break;
+case "uploadFile":
+case "uploadImg":
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:item.@(column.LowerColumnName) = item.@(column.LowerColumnName).ToString().ToObject<List<FileControlsModel>>();
+            @:}
+            @:else
+            @:{
+                @:item.@(column.LowerColumnName) = new List<FileControlsModel>();
+            @:}
+@:
+break;
+case "select":
+            @:// @column.ColumnComment
+@switch(column.ControlsDataType)
+{
+case "static":
+            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => item.@(column.LowerColumnName).Equals(it.id))?.fullName;
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+}
+            @:}
+break;
+case "dictionary":
+@if(column.IsMultiple)
+{
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
+            @:}
+}
+break;
+case "dynamic":
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(column.IsLinkage)
+{
+                @:linkageParameters = new List<DataInterfaceParameter>();
+@foreach(var linkage in column.LinkageConfig)
+{
+                @:linkageParameters.Add(new DataInterfaceParameter
+                @:{
+                    @:field = "@(linkage.field)",
+                    @:relationField = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : linkage.relationField),
+                    @:isSubTable = @(linkage.isSubTable.ToString().ToLower()),
+                    @:dataType = "@(linkage.dataType)",
+                    @:defaultValue = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : "\""+linkage.defaultValue+"\""),
+                    @:fieldName = "@(linkage.fieldName)",
+                    @:sourceType = @(linkage.sourceType)
+                @:});
+}
+}
+                @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", ""@(column.IsLinkage ? ", linkageParameters" : ""));
+@if(!column.IsMultiple)
+{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+}
+            @:}
+break;
+}
+@:
+break;
+case "checkbox":
+            @:// @column.ColumnComment
+@switch(column.ControlsDataType)
+{
+case "static":
+            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+            @:}
+break;
+case "dictionary":
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
+            @:}
+break;
+case "dynamic":
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(column.IsLinkage)
+{
+                @:linkageParameters = new List<DataInterfaceParameter>();
+@foreach(var linkage in column.LinkageConfig)
+{
+                @:linkageParameters.Add(new DataInterfaceParameter
+                @:{
+                    @:field = "@(linkage.field)",
+                    @:relationField = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : linkage.relationField),
+                    @:isSubTable = @(linkage.isSubTable.ToString().ToLower()),
+                    @:dataType = "@(linkage.dataType)",
+                    @:defaultValue = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : "\""+linkage.defaultValue+"\""),
+                    @:fieldName = "@(linkage.fieldName)",
+                    @:sourceType = @(linkage.sourceType)
+                @:});
+}
+}
+                @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", ""@(column.IsLinkage ? ", linkageParameters" : ""));
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+            @:}
+break;
+}
+@:
+break;
+case "radio":
+            @:// @column.ColumnComment
+@switch(column.ControlsDataType)
+{
+case "static":
+            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => item.@(column.LowerColumnName).Equals(it.id))?.fullName;
+            @:}
+break;
+case "dynamic":
+@if(column.IsLinkage)
+{
+                @:linkageParameters = new List<DataInterfaceParameter>();
+@foreach(var linkage in column.LinkageConfig)
+{
+                @:linkageParameters.Add(new DataInterfaceParameter
+                @:{
+                    @:field = "@(linkage.field)",
+                    @:relationField = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : linkage.relationField),
+                    @:isSubTable = @(linkage.isSubTable.ToString().ToLower()),
+                    @:dataType = "@(linkage.dataType)",
+                    @:defaultValue = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : "\""+linkage.defaultValue+"\""),
+                    @:fieldName = "@(linkage.fieldName)",
+                    @:sourceType = @(linkage.sourceType)
+                @:});
+}
+}
+            @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", "@(column.Children)"@(column.IsLinkage ? ", linkageParameters" : ""));
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName);
+            @:}
+break;
+}
+@:
+break;
+case "cascader":
+            @:// @column.ColumnComment
+@switch(column.ControlsDataType)
+{
+case "static":
+            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+        @if(column.ShowAllLevels){
+                @:item.@(column.LowerColumnName) = string.Join("@(column.Separator)", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+        }else{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName).FirstOrDefault();
+        }
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName)Excessive = new List<string>();
+                @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
+                @:{
+        @if(column.ShowAllLevels){
+                    @:@(column.LowerColumnName)Excessive.Add(string.Join("@(column.Separator)", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName).Contains(it.id)).Select(s => s.fullName)));
+        }else{
+                    @:@(column.LowerColumnName)Excessive.Add(@(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName).Contains(it.id)).Select(s => s.fullName).FirstOrDefault());
+        }
+                @:}
+@:
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Excessive);
+}
+            @:}
+break;
+case "dictionary":
+@if(!column.IsMultiple)
+{
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+        @if(column.ShowAllLevels){
+                @:item.@(column.LowerColumnName) = string.Join("@(column.Separator)", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
+        }else{
+                @:item.@(column.LowerColumnName) = await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).FirstAsync();
+        }
+            @:}
+}else{
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName)Excessive = new List<string>();
+                @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
+                @:{
+        @if(column.ShowAllLevels){
+                    @:@(column.LowerColumnName)Excessive.Add(string.Join("@(column.Separator)", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync()));
+        }else{
+                    @:@(column.LowerColumnName)Excessive.Add(await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).FirstAsync());
+        }
+                @:}
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Excessive);
+            @:}
+}
+break;
+case "dynamic":
+@if(column.IsLinkage)
+{
+                @:linkageParameters = new List<DataInterfaceParameter>();
+@foreach(var linkage in column.LinkageConfig)
+{
+                @:linkageParameters.Add(new DataInterfaceParameter
+                @:{
+                    @:field = "@(linkage.field)",
+                    @:relationField = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : linkage.relationField),
+                    @:isSubTable = @(linkage.isSubTable.ToString().ToLower()),
+                    @:dataType = "@(linkage.dataType)",
+                    @:defaultValue = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : "\""+linkage.defaultValue+"\""),
+                    @:fieldName = "@(linkage.fieldName)",
+                    @:sourceType = @(linkage.sourceType)
+                @:});
+}
+}
+            @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", "@(column.Children)"@(column.IsLinkage ? ", linkageParameters" : ""));
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+        @if(column.ShowAllLevels){
+                @:item.@(column.LowerColumnName) = string.Join("@(column.Separator)", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+        }else{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName).FirstOrDefault();
+        }
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName)Excessive = new List<string>();
+                @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
+                @:{
+        @if(column.ShowAllLevels){
+                    @:@(column.LowerColumnName)Excessive.Add(string.Join("@(column.Separator)", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName).Contains(it.id)).Select(it => it.fullName)));
+        }else{
+                    @:@(column.LowerColumnName)Excessive.Add(@(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName).Contains(it.id)).Select(it => it.fullName).FirstOrDefault());
+        }
+                @:}
+@:
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Excessive);
+}
+            @:}
+break;
+}
+@:
+break;
+case "organizeSelect":
+            @:// @column.ColumnComment
+            @:item.@(column.LowerColumnName) = _controlParsing.GetOrganizeName(@(column.IsMultiple.ToString().ToLower()),item.@(column.LowerColumnName));
+@:
+break;
+case "currOrganize":
+            @:// @column.ColumnComment
+            @:item.@(column.LowerColumnName) = _controlParsing.GetCurrOrganizeName("@(column.ShowLevel)",item.@(column.LowerColumnName));
+@:
+break;
+case "depSelect":
+            @:// @column.ColumnComment
+            @:item.@(column.LowerColumnName) = _controlParsing.GetDepartmentName(@(column.IsMultiple.ToString().ToLower()),item.@(column.LowerColumnName));
+@:
+break;
+case "posSelect":
+            @:// @column.ColumnComment
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<PositionEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
+            @:}
+@:
+break;
+case "userSelect":
+            @:// @column.ColumnComment
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<UserEntity>().Where(a => @(column.LowerColumnName + @column.upperJnpfKey).Contains(a.Id)).Select(it => it.RealName).ToListAsync());
+            @:}
+@:
+break;
+case "roleSelect":
+            @:// @column.ColumnComment
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<RoleEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
+            @:}
+@:
+break;
+case "groupSelect":
+            @:// @column.ColumnComment
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<GroupEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
+            @:}
+@:
+break;
+case "treeSelect":
+            @:// @column.ColumnComment
+@switch(column.ControlsDataType)
+{
+case "static":
+            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
+}
+            @:}
+break;
+case "dictionary":
+@if(column.IsMultiple)
+{
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(a => @(column.LowerColumnName + @column.upperJnpfKey).Contains(a.@(column.Value == "id" ? "Id" : "EnCode")) && a.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
+            @:}
+}
+break;
+case "dynamic":
+@if(column.IsLinkage)
+{
+                @:linkageParameters = new List<DataInterfaceParameter>();
+@foreach(var linkage in column.LinkageConfig)
+{
+                @:linkageParameters.Add(new DataInterfaceParameter
+                @:{
+                    @:field = "@(linkage.field)",
+                    @:relationField = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : linkage.relationField),
+                    @:isSubTable = @(linkage.isSubTable.ToString().ToLower()),
+                    @:dataType = "@(linkage.dataType)",
+                    @:defaultValue = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : "\""+linkage.defaultValue+"\""),
+                    @:fieldName = "@(linkage.fieldName)",
+                    @:sourceType = @(linkage.sourceType)
+                @:});
+}
+}
+            @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", "@(column.Children)"@(column.IsLinkage ? ", linkageParameters" : ""));
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(it => it.fullName));
+}
+            @:}
+break;
+}
+@:
+break;
+case "areaSelect":
+            @:// @column.ColumnComment
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join("/", await _repository.AsSugarClient().Queryable<ProvinceEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName)Excessive = new List<string>();
+                @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
+                @:{
+                    @:@(column.LowerColumnName)Excessive.Add(string.Join("/", await _repository.AsSugarClient().Queryable<ProvinceEntity>().Where(it => @(column.LowerColumnName).Contains(it.Id)).Select(it => it.FullName).ToListAsync()));
+                @:}
+@:
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Excessive);
+}
+            @:}
+@:
+break;
+case "popupTableSelect":
+            @:// @column.ColumnComment
+@if(column.IsLinkage)
+{
+            @:linkageParameters = new List<DataInterfaceParameter>();
+@foreach(var linkage in column.LinkageConfig)
+{
+            @:linkageParameters.Add(new DataInterfaceParameter
+            @:{
+                    @:field = "@(linkage.field)",
+                    @:relationField = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : linkage.relationField),
+                    @:isSubTable = @(linkage.isSubTable.ToString().ToLower()),
+                    @:dataType = "@(linkage.dataType)",
+                    @:defaultValue = @(linkage.sourceType==1 && linkage.relationField!="string.Empty" ? "item."+linkage.relationField : "\""+linkage.defaultValue+"\""),
+                    @:fieldName = "@(linkage.fieldName)",
+                    @:sourceType = @(linkage.sourceType)
+            @:});
+}
+}
+            @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", "@(column.Children)"@(column.IsLinkage ? ", linkageParameters" : ""));
+            @:if(item.@(column.LowerColumnName) != null)
+            @:{
+@if(!column.IsMultiple)
+{
+                @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
+}else{
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(it => it.fullName));
+}
+            @:}
+@:
+break;
+}
+}
+}
+    }
+}
+@{
+@*获取列表展示字段模板*@
+    void GetTheListDisplayFieldTemplate()
+    {
+@*循环展示字段*@
+@foreach (var column in Model.TableField){
+@if (column.PrimaryKey){
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}else if(column.IsShow){
+@switch(column.ceriKey)
+{
+case "datePicker":
+                @:@(column.LowerColumnName) = it.@(column.ColumnName).Value.ToString("@(column.Format)"),
+break;
+case "createTime":
+case "modifyTime":
+                @:@(column.LowerColumnName) = it.@(column.ColumnName).Value.ToString("yyyy-MM-dd HH:mm:ss"),
+break;
+case "switch":
+                @:@(column.LowerColumnName) = SqlFunc.IIF(SqlFunc.ToInt32(it.@(column.ColumnName)) == 1, "@(column.ActiveTxt)", "@(column.InactiveTxt)"),
+break;
+
+case "modifyUser":
+case "createUser":
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<UserEntity>()@(Model.DbLinkId != "0" ? ".AS(\"" + Model.DefaultDbName + ".BASE_USER\")" : "").EnableTableFilter().Where(u => u.Id.Equals(it.@(column.ColumnName))).Select(u => SqlFunc.MergeString(u.RealName, "/", u.Account)),
+break;
+case "currPosition":
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<PositionEntity>()@(Model.DbLinkId != "0" ? ".AS(\"" + Model.DefaultDbName + ".BASE_POSITION\")" : "").EnableTableFilter().Where(p => p.Id.Equals(it.@(column.ColumnName))).Select(p => p.FullName),
+break;
+case "userSelect":
+@if(!column.IsMultiple)
+{
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<UserEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".BASE_USER\")" : "").EnableTableFilter().Where(u => u.Id.Equals(it.@(column.ColumnName))).Select(u => u.RealName),
+}else{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+break;
+case "posSelect":
+@if(!column.IsMultiple)
+{
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<PositionEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".BASE_POSITION\")" : "").EnableTableFilter().Where(p => p.Id.Equals(it.@(column.ColumnName))).Select(p => p.FullName),
+}else{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+break;
+case "depSelect":
+@if(!column.IsMultiple)
+{
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<OrganizeEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".BASE_ORGANIZE\")" : "").EnableTableFilter().Where(o => o.Id.Equals(it.@(column.ColumnName))).Select(o => o.FullName),
+}else{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+break;
+case "roleSelect":
+@if(!column.IsMultiple)
+{
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<RoleEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".BASE_ROLE\")" : "").EnableTableFilter().Where(r => r.Id.Equals(it.@(column.ColumnName))).Select(r => r.FullName),
+}else{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+break;
+case "groupSelect":
+@if(!column.IsMultiple)
+{
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<GroupEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".BASE_GROUP\")" : "").EnableTableFilter().Where(g => g.Id.Equals(it.@(column.ColumnName))).Select(g => g.FullName),
+}else{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+break;
+case "select":
+case "radio":
+case "treeSelect":
+@switch(column.ControlsDataType)
+{
+case "dictionary":
+@if(!column.IsMultiple)
+{
+                @:@(column.LowerColumnName) = SqlFunc.Subqueryable<DictionaryDataEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".BASE_DICTIONARY_DATA\")" : "").EnableTableFilter().Where(dic => dic.@(column.Value == "id" ? "Id" : "EnCode").Equals(it.@(column.ColumnName)) && dic.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(dic => dic.FullName),
+}else{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+break;
+default:
+                @:@(column.LowerColumnName) = it.@column.ColumnName@(column.NetType.Contains("int") ? ".ToString()" : ""),
+break;
+}
+break;
+default:
+                @:@(column.LowerColumnName) = it.@column.ColumnName@(column.NetType.Contains("int") ? ".ToString()" : ""),
+break;
+}
+}
+}
+@foreach (var column in Model.TableField)
+{
+@switch(column.ceriKey)
+{
+case "treeSelect":
+@if(column.IsTreeParentField && Model.TableType == 5)
+{
+@if(!column.IsShow)
+{
+                @:@(column.LowerColumnName) = it.@column.ColumnName,
+}
+                @:@(column.LowerColumnName)_pid = it.@column.ColumnName,
+}
+break;
+}
+}
+@if(Model.EnableFlow)
+{
+                @:flowId = it.FlowId,
+                @:flowTaskId = it.FlowTaskId,
+                @:flowState = SqlFunc.Subqueryable<WorkFlowTaskEntity>()@(Model.DbLinkId != "0" ? ".AS(\""+ Model.DefaultDbName +".WORKFLOW_TASK\")" : "").EnableTableFilter().Where(f => f.Id.Equals(it.FlowTaskId)).Select(f => f.Status),
+}
+    }
+}
+@{
+@*获取列表查询字段模板*@
+    void GetListQueryFieldTemplate()
+    {
+        @:var selectIds = input.selectIds?.Split(",").@(Model.PrimaryKeyPolicy==2 ? "ToObject<List<long?>>" : "ToList")();
+@foreach(var column in Model.TableField)
+{
+@*是查询条件*@
+@if(column.QueryWhether)
+{
+@switch(column.QueryType)
+{
+case 1:
+@switch(column.ceriKey)
+{
+case "select":
+case "depSelect":
+case "roleSelect":
+case "userSelect":
+case "posSelect":
+case "groupSelect":
+@if(column.QueryMultiple)
+{
+        @:var @(column.LowerColumnName)DbColumnName = entityInfo.Columns.Find(it => it.PropertyName == "@(column.ColumnName)").DbColumnName;
+}
+break;
+case "usersSelect":
+        @:var @(column.LowerColumnName)UsersSelectWhere = _controlParsing.GetUsersSelectQueryWhere("@(column.OriginalColumnName)", input.@(column.LowerColumnName));
+break;
+case "organizeSelect":
+@if(column.QueryMultiple)
+{
+        @:var @(column.LowerColumnName) = input.@(column.LowerColumnName).ParseToNestedList();
+        @:var @(column.LowerColumnName)DbColumnName = entityInfo.Columns.Find(it => it.PropertyName == "@(column.ColumnName)").DbColumnName;
+}else{
+        @:var @(column.LowerColumnName) = input.@(column.LowerColumnName)?.Last();
+}
+break;
+case "cascader":
+case "areaSelect":
+        @:var @(column.LowerColumnName) = input.@(column.LowerColumnName)?.Last();
+break;
+default:
+@if(column.IsMultiple)
+{
+        @:var @(column.LowerColumnName) = input.@(column.LowerColumnName)?.Last();
+}
+break;
+}
+break;
+case 3:
+@switch(column.ceriKey)
+{
+case "inputNumber":
+case "calculate":
+case "rate":
+case "slider":
+        @:var start@(column.ColumnName) = input.@(column.LowerColumnName)?.FirstOrDefault()?.ParseToDecimal() == null ? decimal.MinValue : input.@(column.LowerColumnName)?.First();
+        @:var end@(column.ColumnName) = input.@(column.LowerColumnName)?.LastOrDefault()?.ParseToDecimal() == null ? decimal.MaxValue : input.@(column.LowerColumnName)?.Last();
+break;
+}
+break;
+}
+}
+}
+    }
+@*获取列表查询条件模板*@
+    void GetTheListQueryCriteriaTemplate()
+    {
+            @:.WhereIF(selectIds!=null && selectIds.Any() && input.dataType.Equals(2), it => selectIds.Contains(it.@(Model.PrimaryKey)))
+@if(Model.PcKeywordSearchColumn!="")
+{
+            @:.WhereIF(_userManager.UserOrigin.Equals("pc") && input.jnpfKeyword.IsNotEmptyOrNull(), it => @(Model.PcKeywordSearchColumn))
+}
+@if(Model.AppKeywordSearchColumn!="")
+{
+            @:.WhereIF(!_userManager.UserOrigin.Equals("pc") && input.jnpfKeyword.IsNotEmptyOrNull(), it => @(Model.AppKeywordSearchColumn))
+}
+@*循环查询条件*@
+@foreach(var table in Model.TableField)
+{
+@*是否查询条件*@
+@if(table.QueryWhether)
+{
+@*查询方式*@
+@switch(table.QueryType)
+{
+@*查询方式为等于*@
+case 1:
+@*多选控件*@
+@if(table.QueryMultiple)
+{
+@switch(table.ceriKey)
+{
+case "organizeSelect":
+            @:.Where(_controlParsing.GenerateMultipleSelectionCriteriaForQuerying(@(table.LowerColumnName)DbColumnName, @(table.LowerColumnName)))
+break;
+case "usersSelect":
+            @:.Where(@(table.LowerColumnName)UsersSelectWhere)
+break;
+default:
+            @:.Where(_controlParsing.GenerateMultipleSelectionCriteriaForQuerying(@(table.LowerColumnName)DbColumnName, input.@(table.LowerColumnName)))
+break;
+}
+}else{
+@switch(table.ceriKey)
+{
+case "currOrganize":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)?.ToString()), it => it.@(table.ColumnName).Equals(input.@(table.LowerColumnName).ToJsonString()))
+break;
+case "cascader":
+case "areaSelect":
+case "organizeSelect":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)?.ToString()), it => it.@(table.ColumnName).Contains(@(table.LowerColumnName)))
+break;
+case "checkbox":
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)), it => it.@(table.ColumnName).Contains(input.@(table.LowerColumnName)))
+break;
+case "usersSelect":
+            @:.Where(_controlParsing.GetUsersSelectQueryWhere("@(table.OriginalColumnName)", input.@(table.LowerColumnName), @(table.IsMultiple.ToString().ToLower())))
+break;
+default:
+@if(table.IsMultiple)
+{
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)), it => it.@(table.ColumnName).Contains(input.@(table.LowerColumnName)))
+}else{
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)), it => it.@(table.ColumnName).Equals(input.@(table.LowerColumnName)))
+}
+break;
+}
+}
+break;
+@*查询类型为模糊查询*@
+case 2:
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)), it => it.@(table.ColumnName).Contains(input.@(table.LowerColumnName)))
+break;
+@*查询类型为范围查询*@
+case 3:
+@switch(table.ceriKey)
+{
+case "timePicker":
+            @:.WhereIF(input.@(table.LowerColumnName)?.Count() > 0, it => SqlFunc.Between(it.@(table.ColumnName), input.@(table.LowerColumnName).First(), input.@(table.LowerColumnName).Last()))
+break;
+case "inputNumber":
+case "calculate":
+case "rate":
+case "slider":
+            @:.WhereIF(input.@(table.LowerColumnName)?.Count() > 0, it => SqlFunc.Between(it.@(table.ColumnName), start@(table.ColumnName), end@(table.ColumnName)))
+break;
+case "createTime":
+case "modifyTime":
+            @:.WhereIF(input.@(table.LowerColumnName)?.Count() > 0, it => SqlFunc.Between(it.@(table.ColumnName), input.@(table.LowerColumnName).First().ParseToDateTime("yyyy-MM-dd HH:mm:ss"), input.@(table.LowerColumnName).Last().ParseToDateTime("yyyy-MM-dd HH:mm:ss")))
+break;
+default:
+@if(table.IsDateTime)
+{
+            @:.WhereIF(input.@(table.LowerColumnName)?.Count() > 0, it => SqlFunc.Between(it.@(table.ColumnName), input.@(table.LowerColumnName).First().ParseToDateTime("yyyy-MM-dd HH:mm:ss"), input.@(table.LowerColumnName).Last().ParseToDateTime("yyyy-MM-dd HH:mm:ss")))
+}else{
+            @:.WhereIF(input.@(table.LowerColumnName)?.Count() > 0, it => SqlFunc.Between(it.@(table.ColumnName), input.@(table.LowerColumnName).First().ParseToDateTime("yyyy-MM-dd 00:00:00"), input.@(table.LowerColumnName).Last().ParseToDateTime("yyyy-MM-dd 23:59:59")))
+}
+break;
+}
+break;
+}
+}
+}
+    }
+@*获取新增数据方法模板*@
+    void GetTheNewDataMethodTemplate(){
+        @:List<FieldsModel> fieldList = new List<FieldsModel>();
+        @:fieldList.AddRange(ExportImportDataHelper.GetTemplateParsing<@(Model.ClassName)Entity>(new @(Model.ClassName)Entity()));
+@if(Model.ConcurrencyLock)
+{
+        @:entity.Version = 0;
+}
+@foreach(var column in Model.TableField)
+{
+@switch(column.ceriKey)
+{
+case "createTime":
+        @:entity.@column.ColumnName = string.Format("{0:yyyy-MM-dd HH:mm:ss}", DateTime.Now).ParseToDateTime();
+break;
+case "createUser":
+        @:entity.@column.ColumnName = _userManager.UserId;
+break;
+case "currPosition":
+        @:entity.@column.ColumnName = _userManager.User.PositionId.IsNullOrEmpty() ? null : _userManager.User.PositionId;
+break;
+case "currOrganize":
+        @:entity.@column.ColumnName = _repository.AsSugarClient().Queryable<OrganizeEntity>().Where(it => _userManager.User.OrganizeId.Equals(it.Id)).Select(it => it.OrganizeIdTree)?.First()?.Split(",").ToJsonString();
+break;
+case "billRule":
+        @:entity.@column.ColumnName = await _controlParsing.GetBillRule("@(column.OriginalColumnName)",entity.@(column.ColumnName),"@(Model.Id)",fieldList,input);
+break;
+}
+}
+@if(Model.IsUnique)
+{
+@foreach(var column in Model.TableField)
+{
+@if(column.IsUnique)
+{
+        @:if(await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()." : "_repository.Is")AnyAsync(it => it.@(column.ColumnName).Equals(input.@(column.LowerColumnName))@(Model.EnableFlow ? " && it.FlowId==input.flowId " : " && it.FlowId==null ")@(Model.IsLogicalDelete ? "  && it.DeleteMark == null" : "")))
+            @:throw Oops.Bah(ErrorCode.COM1023, "@(column.ControlLabel)");
+}
+}
+}
+@if(Model.BusinessKeyList!=null && Model.BusinessKeyList!="")
+{
+        @:if(await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()." : "_repository.Is")AnyAsync(it => @(Model.BusinessKeyList) @(Model.EnableFlow ? " && it.FlowId==input.flowId " : " && it.FlowId==null ")@(Model.IsLogicalDelete ? "  && it.DeleteMark == null" : "")))
+            @:throw Oops.Bah(ErrorCode.COM1018, "@(Model.BusinessKeyTip)");
+}
+        @:var isOk = await @(Model.DbLinkId != "0" ? "_sqlSugarClient." : "_repository.As")Insertable(entity).IgnoreColumns(ignoreNullColumn: true).ExecuteCommandAsync();
+    }
+    void GetAndModifyDataMethodTemplate()
+    {
+@foreach(var column in Model.TableField)
+{
+@switch(column.ceriKey)
+{
+case "modifyTime":
+        @:entity.@column.ColumnName = string.Format("{0:yyyy-MM-dd HH:mm:ss}", DateTime.Now).ParseToDateTime();
+break;
+case "modifyUser":
+        @:entity.@column.ColumnName = _userManager.UserId;
+break;
+}
+}
+@if(Model.IsUnique)
+{
+@foreach(var column in Model.TableField)
+{
+@if(column.IsUnique)
+{
+        @:if (await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()." : "_repository.Is")AnyAsync(it => it.@(column.ColumnName).Equals(input.@(column.LowerColumnName))@(Model.EnableFlow ? " && it.FlowId==input.flowId " : " && it.FlowId==null ")@(Model.IsLogicalDelete ? "  && it.DeleteMark == null" : "") && !it.@(Model.PrimaryKey).Equals(id)))
+            @:throw Oops.Bah(ErrorCode.COM1023, "@(column.ControlLabel)");
+}
+}
+}
+@if(Model.BusinessKeyList!=null && Model.BusinessKeyList!="")
+{
+        @:if(await @(Model.DbLinkId != "0" ? "_sqlSugarClient.Queryable<" + Model.ClassName + "Entity>()." : "_repository.Is")AnyAsync(it => @(Model.BusinessKeyList) @(Model.EnableFlow ? " && it.FlowId==input.flowId " : " && it.FlowId==null ")@(Model.IsLogicalDelete ? "  && it.DeleteMark == null" : "") && !it.@(Model.PrimaryKey).Equals(id)))
+            @:throw Oops.Bah(ErrorCode.COM1018, "@(Model.BusinessKeyTip)");
+}
+        @:var isOk =0;
+@if(Model.ConcurrencyLock)
+{
+        @:try
+        @:{
+}
+        @:@(Model.ConcurrencyLock ? "   ":"")isOk = await @(Model.DbLinkId != "0" ? "_sqlSugarClient." : "_repository.As")Updateable(entity)
+@if(Model.IsUpdate || Model.ConcurrencyLock)
+{
+            @:@(Model.ConcurrencyLock ? "   ":"").UpdateColumns(it => new
+            @:@(Model.ConcurrencyLock ? "   ":""){
+}
+@foreach (var table in Model.TableField)
+{
+@if(table.IsUpdate)
+{
+                @:@(Model.ConcurrencyLock ? "   ":"")it.@(table.ColumnName),
+}
+}
+@if(Model.ConcurrencyLock)
+{
+                    @:it.Version,
+                @:}).ExecuteCommandWithOptLockAsync(true);
+}else{
+            @:@(Model.IsUpdate ? "})" : "").ExecuteCommandAsync();
+}
+@if(Model.ConcurrencyLock)
+{
+        @:}
+        @:catch (Exception)
+        @:{
+            @:throw Oops.Bah(ErrorCode.COM1010);
+        @:}
+}
+    }
+}

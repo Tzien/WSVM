@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CERIOS.Common\CERIOS.Common.csproj" />
+    <ProjectReference Include="..\CeriOS.LowCodeForm.Model\CeriOS.LowCodeForm.Model.csproj" />
+    <ProjectReference Include="..\CERIOS\CERIOS.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Features">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Core">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Net.Http.Headers">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Net.Http.Headers.dll</HintPath>
+    </Reference>
+    <Reference Include="OnceMi.AspNetCore.OSS">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\OnceMi.AspNetCore.OSS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

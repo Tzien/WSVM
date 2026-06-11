@@ -1,0 +1,167 @@
+
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Log4net\log4net.config" />
+    <Content Remove="wwwroot\Template\1-SingleTable\InlineEditor\Service.cs-原模板.vm" />
+    <Content Remove="wwwroot\Template\1-SingleTable\Service - 原模板.cs.vm" />
+    <Content Remove="wwwroot\Template\1-SingleTable\Service.cs.vm" />
+    <Content Remove="wwwroot\Template\1-SingleTable\Service20260317复制.cs.vm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.4.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="Jint" Version="4.8.0" />
+    <PackageReference Include="log4net" Version="2.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.30" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson" Version="7.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+    <PackageReference Include="Quartz" Version="3.11.0" />
+    <PackageReference Include="RestSharp" Version="106.12.0" />
+    <PackageReference Include="SkyAPM.Agent.AspNetCore" Version="2.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../CeriOS.LowCodeForm.Service/CeriOS.LowCodeForm.Service.csproj" />
+    <ProjectReference Include="..\CERIOS.Engine.Entity\CERIOS.Engine.Entity.csproj" />
+    <ProjectReference Include="..\CERIOS.Systems.Interfaces\CERIOS.Systems.Interfaces.csproj" />
+    <ProjectReference Include="..\CERIOS\CERIOS.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Log4net\log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\Template\1-SingleTable\CrInput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\DetailOutput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\Entity.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\InfoOutput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\InlineEditor\InlineEditorOutput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\InlineEditor\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\InlineEditor\Service.cs-原模板.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\InlineEditor\Service.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\ListQueryInput.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\Mapper.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\Service - 原模板.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\Service20260317复制.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\Service.cs.vm" />
+    <None Include="wwwroot\Template\1-SingleTable\Service.cs-2.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\CrInput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\DetailOutput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\Entity.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\InfoOutput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\InlineEditor\InlineEditorOutput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\InlineEditor\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\InlineEditor\Service.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\ListQueryInput.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\Mapper.cs.vm" />
+    <None Include="wwwroot\Template\2-MainBelt\Service.cs.vm" />
+    <None Include="wwwroot\Template\3-Auxiliary\CrInput.cs.vm" />
+    <None Include="wwwroot\Template\3-Auxiliary\Entity.cs.vm" />
+    <None Include="wwwroot\Template\3-Auxiliary\InfoOutput.cs.vm" />
+    <None Include="wwwroot\Template\3-Auxiliary\Mapper.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\CrInput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\DetailOutput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\Entity.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\InfoOutput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\InlineEditor\InlineEditorOutput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\InlineEditor\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\InlineEditor\Service.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\ListQueryInput.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\Mapper.cs.vm" />
+    <None Include="wwwroot\Template\4-MainBeltVice\Service.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\CrInput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\DetailOutput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\Entity.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\InfoOutput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\InlineEditor\InlineEditorOutput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\InlineEditor\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\InlineEditor\Service.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\ListQueryInput.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\Mapper.cs.vm" />
+    <None Include="wwwroot\Template\5-PrimarySecondary\Service.cs.vm" />
+    <None Include="wwwroot\Template\6-DataView\Service.cs.vm" />
+    <None Include="wwwroot\Template\appDetail.vue.vm" />
+    <None Include="wwwroot\Template\appForm.vue.vm" />
+    <None Include="wwwroot\Template\appIndex.vue.vm" />
+    <None Include="wwwroot\Template\appWorkflowForm.vue.vm" />
+    <None Include="wwwroot\Template\appWorkflowIndex.vue.vm" />
+    <None Include="wwwroot\Template\columnList.js.vm" />
+    <None Include="wwwroot\Template\Detail.vue.vm" />
+    <None Include="wwwroot\Template\editorIndex.vue.vm" />
+    <None Include="wwwroot\Template\editorWorkflowIndex.vue.vm" />
+    <None Include="wwwroot\Template\ExportJson.json.vm" />
+    <None Include="wwwroot\Template\extraForm.vue.vm" />
+    <None Include="wwwroot\Template\Form.vue.vm" />
+    <None Include="wwwroot\Template\index.vue.vm" />
+    <None Include="wwwroot\Template\IService.cs.vm" />
+    <None Include="wwwroot\Template\PureForm\appWorkflowIndex.vue.vm" />
+    <None Include="wwwroot\Template\PureForm\index.vue.vm" />
+    <None Include="wwwroot\Template\SubTable\CrInput.cs.vm" />
+    <None Include="wwwroot\Template\SubTable\DetailOutput.cs.vm" />
+    <None Include="wwwroot\Template\SubTable\Entity.cs.vm" />
+    <None Include="wwwroot\Template\SubTable\InfoOutput.cs.vm" />
+    <None Include="wwwroot\Template\SubTable\ListOutput.cs.vm" />
+    <None Include="wwwroot\Template\SubTable\Mapper.cs.vm" />
+    <None Include="wwwroot\Template\superQueryJson.js.vm" />
+    <None Include="wwwroot\Template\UpInput.cs.vm" />
+    <None Include="wwwroot\Template\vue3\api.ts.vm" />
+    <None Include="wwwroot\Template\vue3\appDetail.vue.vm" />
+    <None Include="wwwroot\Template\vue3\appForm.vue.vm" />
+    <None Include="wwwroot\Template\vue3\appIndex.vue.vm" />
+    <None Include="wwwroot\Template\vue3\appWorkflowForm.vue.vm" />
+    <None Include="wwwroot\Template\vue3\appWorkflowIndex.vue.vm" />
+    <None Include="wwwroot\Template\vue3\columnList.ts.vm" />
+    <None Include="wwwroot\Template\vue3\Detail.vue.vm" />
+    <None Include="wwwroot\Template\vue3\Form.vue.vm" />
+    <None Include="wwwroot\Template\vue3\index.vue.vm" />
+    <None Include="wwwroot\Template\vue3\InlineEditing\Form.vue.vm" />
+    <None Include="wwwroot\Template\vue3\InlineEditing\index.vue.vm" />
+    <None Include="wwwroot\Template\vue3\PureForm\Form.vue.vm" />
+    <None Include="wwwroot\Template\vue3\PureForm\index.vue.vm" />
+    <None Include="wwwroot\Template\vue3\searchList.ts.vm" />
+    <None Include="wwwroot\Template\vue3\superQueryJson.ts.vm" />
+    <None Include="wwwroot\Template\vue3\WorkFlow\ExportJson.json.vm" />
+    <None Include="wwwroot\Template\vue3\WorkFlow\Form.vue.vm" />
+    <None Include="wwwroot\Template\vue3\WorkFlow\PureForm\index.vue.vm" />
+    <None Include="wwwroot\Template\WorkflowForm.vue.vm" />
+    <None Include="wwwroot\Template\WorkflowIndex.vue.vm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CeriOS.Core.Common">
+      <HintPath>dlls\CeriOS.Core.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="CeriOS.Core.Extensions">
+      <HintPath>dlls\CeriOS.Core.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="CeriOS.Core.Model">
+      <HintPath>..\CeriOS.LowCodeForm.Model\dlls\CeriOS.Core.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="Mapster">
+      <HintPath>dlls\Mapster.dll</HintPath>
+    </Reference>
+    <Reference Include="OnceMi.AspNetCore.OSS">
+      <HintPath>dlls\CERIOSDLL\OnceMi.AspNetCore.OSS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

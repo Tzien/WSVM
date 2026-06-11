@@ -1,0 +1,89 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CeriOS.BasicApi", "CeriOS.BasicApi", "{AFD4BAFD-6A0D-4BA0-97A7-0E7B28008A17}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CeriOS.LowCodeForm.BasicApi", "CeriOS.LowCodeForm.BasicApi\CeriOS.LowCodeForm.BasicApi.csproj", "{DEF292A3-FE3B-4DDB-8D79-35750A6A7378}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CeriOS.Service", "CeriOS.Service", "{BA2E4963-F8E1-46CB-93D3-D74758FE4312}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CeriOS.Model", "CeriOS.Model", "{D3092842-BB45-4EA7-ACDD-46055EF74797}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CeriOS.LowCodeForm.Model", "CeriOS.LowCodeForm.Model\CeriOS.LowCodeForm.Model.csproj", "{58D8F6CA-7723-4225-98AA-C24276DE6F69}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CeriOS.LowCodeForm.Service", "CeriOS.LowCodeForm.Service\CeriOS.LowCodeForm.Service.csproj", "{9E2B483A-3B35-4C02-BF3C-9B6E9DF47824}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CeriOS.Repository", "CeriOS.Repository", "{C3AB6FE8-9A63-4421-B81A-6728F1745B7F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CeriOS.LowCodeForm.Repository", "CeriOS.LowCodeForm.Repository\CeriOS.LowCodeForm.Repository.csproj", "{3826BDB3-E3BC-4F74-9A04-1EA345D3A03A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CeriOS", "CeriOS", "{9F4D0774-8346-4BBF-9A79-35AF7AFA24F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CERIOS", "CERIOS\CERIOS.csproj", "{1C63396E-91ED-4F43-97E6-4AF8A3121C81}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CERIOS.Common", "CERIOS.Common\CERIOS.Common.csproj", "{EA1AF35B-89A7-4D1C-97B6-2F014F0AA047}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CERIOS.Systems.Interfaces", "CERIOS.Systems.Interfaces\CERIOS.Systems.Interfaces.csproj", "{C6D75074-D182-4623-8605-F9A6FF6CDDB1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CERIOS.Common.Core", "CERIOS.Common.Core\CERIOS.Common.Core.csproj", "{41C8F84A-0900-4FF1-B4FB-D3718F1D48E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CERIOS.Engine.Entity", "CERIOS.Engine.Entity\CERIOS.Engine.Entity.csproj", "{A460CA7E-0E2D-4DD0-BFA6-20F4B4E4F85E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEF292A3-FE3B-4DDB-8D79-35750A6A7378}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEF292A3-FE3B-4DDB-8D79-35750A6A7378}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEF292A3-FE3B-4DDB-8D79-35750A6A7378}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEF292A3-FE3B-4DDB-8D79-35750A6A7378}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58D8F6CA-7723-4225-98AA-C24276DE6F69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58D8F6CA-7723-4225-98AA-C24276DE6F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58D8F6CA-7723-4225-98AA-C24276DE6F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58D8F6CA-7723-4225-98AA-C24276DE6F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E2B483A-3B35-4C02-BF3C-9B6E9DF47824}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E2B483A-3B35-4C02-BF3C-9B6E9DF47824}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E2B483A-3B35-4C02-BF3C-9B6E9DF47824}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E2B483A-3B35-4C02-BF3C-9B6E9DF47824}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3826BDB3-E3BC-4F74-9A04-1EA345D3A03A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3826BDB3-E3BC-4F74-9A04-1EA345D3A03A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3826BDB3-E3BC-4F74-9A04-1EA345D3A03A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3826BDB3-E3BC-4F74-9A04-1EA345D3A03A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C63396E-91ED-4F43-97E6-4AF8A3121C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C63396E-91ED-4F43-97E6-4AF8A3121C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C63396E-91ED-4F43-97E6-4AF8A3121C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C63396E-91ED-4F43-97E6-4AF8A3121C81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA1AF35B-89A7-4D1C-97B6-2F014F0AA047}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA1AF35B-89A7-4D1C-97B6-2F014F0AA047}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA1AF35B-89A7-4D1C-97B6-2F014F0AA047}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA1AF35B-89A7-4D1C-97B6-2F014F0AA047}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6D75074-D182-4623-8605-F9A6FF6CDDB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6D75074-D182-4623-8605-F9A6FF6CDDB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6D75074-D182-4623-8605-F9A6FF6CDDB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6D75074-D182-4623-8605-F9A6FF6CDDB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41C8F84A-0900-4FF1-B4FB-D3718F1D48E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41C8F84A-0900-4FF1-B4FB-D3718F1D48E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41C8F84A-0900-4FF1-B4FB-D3718F1D48E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41C8F84A-0900-4FF1-B4FB-D3718F1D48E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A460CA7E-0E2D-4DD0-BFA6-20F4B4E4F85E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A460CA7E-0E2D-4DD0-BFA6-20F4B4E4F85E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A460CA7E-0E2D-4DD0-BFA6-20F4B4E4F85E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A460CA7E-0E2D-4DD0-BFA6-20F4B4E4F85E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1C63396E-91ED-4F43-97E6-4AF8A3121C81} = {9F4D0774-8346-4BBF-9A79-35AF7AFA24F4}
+		{EA1AF35B-89A7-4D1C-97B6-2F014F0AA047} = {9F4D0774-8346-4BBF-9A79-35AF7AFA24F4}
+		{C6D75074-D182-4623-8605-F9A6FF6CDDB1} = {9F4D0774-8346-4BBF-9A79-35AF7AFA24F4}
+		{41C8F84A-0900-4FF1-B4FB-D3718F1D48E2} = {9F4D0774-8346-4BBF-9A79-35AF7AFA24F4}
+		{A460CA7E-0E2D-4DD0-BFA6-20F4B4E4F85E} = {9F4D0774-8346-4BBF-9A79-35AF7AFA24F4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60BD7E0B-82F6-4421-907D-C24AAF8EE876}
+	EndGlobalSection
+EndGlobal

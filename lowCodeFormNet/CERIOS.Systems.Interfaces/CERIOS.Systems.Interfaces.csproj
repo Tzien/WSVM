@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CERIOS.Common.Core\CERIOS.Common.Core.csproj" />
+    <ProjectReference Include="..\CERIOS.Common\CERIOS.Common.csproj" />
+    <ProjectReference Include="..\CERIOS\CERIOS.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.Authorization">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\7.0\Microsoft.AspNetCore.Authorization.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Http.Features">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Features.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.Core">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Mvc.NewtonsoftJson.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Http">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Options">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Net.Http.Headers">
+      <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.Net.Http.Headers.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
