@@ -170,6 +170,7 @@ break;
   import { buildUUID } from '@@/utils/uuid';
   import { CaretRightOutlined } from '@@ant-design/icons-vue';
   import { systemComponentsList } from '@@/components/FormGenerator/src/helper/config';
+  import { formatDate } from '@@/utils/dateUtils';
 @if(Model.UseFormPermission) {
   @:import { usePermission } from '@@/hooks/web/usePermission';
 }
@@ -548,9 +549,11 @@ function getData(id) {
       const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
       mapped[pascalKey] = raw[k];
     });
-    if (mapped.CreateTime) {
-      mapped.CreateTime = dayjs(mapped.CreateTime).format('HH:mm:ss');
-    }
+@foreach (var column in Model.TableField) {
+@if (column.ceriKey == "datePicker") {
+    @:if (mapped.@(column.LowerColumnName)) mapped.@(column.LowerColumnName) = dayjs(mapped.@(column.LowerColumnName)).valueOf();
+}
+}
     Object.assign(state.dataForm, mapped);
 
 @foreach (var item in Model.FormScript.SubTableDesign) {
@@ -586,6 +589,16 @@ function getData(id) {
   @:}
 }
 }
+  function buildSubmitData() {
+    const data = cloneDeep(state.dataForm);
+@foreach (var column in Model.TableField) {
+@if (column.ceriKey == "datePicker") {
+    @:if (data.@(column.LowerColumnName) || data.@(column.LowerColumnName) === 0) data.@(column.LowerColumnName) = formatDate(!isNaN(Number(data.@(column.LowerColumnName))) ? Number(data.@(column.LowerColumnName)) : data.@(column.LowerColumnName));
+}
+}
+    if (!data.@(Model.PrimaryKeyField)) delete data.@(Model.PrimaryKeyField);
+    return data;
+  }
   async function handleSubmit() {
     try {
       const values = await getForm()?.validate();
@@ -599,7 +612,7 @@ function getData(id) {
 }
       setFormProps({ confirmLoading: true });
       const formMethod = state.dataForm.@(Model.PrimaryKeyField) ? update : create;
-      formMethod(state.dataForm)
+      formMethod(buildSubmitData())
         .then((res) => {
           createMessage.success(res.msg);
           setFormProps({ confirmLoading: false });
