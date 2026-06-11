@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Mapster" Version="9.0.0-pre01" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.211-preview12" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Enum\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="JNPF.Common">
+      <HintPath>..\Application\dlls\JNPF.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Extras.DatabaseAccessor.SqlSugar">
+      <HintPath>..\Application\dlls\JNPF.Extras.DatabaseAccessor.SqlSugar.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

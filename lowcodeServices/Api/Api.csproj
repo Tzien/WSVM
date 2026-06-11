@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="Castle.Core" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.22" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+    <PackageReference Include="RestSharp" Version="106.12.0" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.211-preview12" />
+    <PackageReference Include="StackExchange.Redis" Version="2.10.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.8" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.7.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.7.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Authorization">
+      <HintPath>dlls\Authorization.dll</HintPath>
+    </Reference>
+    <Reference Include="CeriOS.Core.Common">
+      <HintPath>dlls\CeriOS.Core.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="CeriOS.Core.Extensions">
+      <HintPath>dlls\CeriOS.Core.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="CeriOS.Core.Model">
+      <HintPath>dlls\CeriOS.Core.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF">
+      <HintPath>..\Application\dlls\JNPF.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Common.CodeGen">
+      <HintPath>..\Application\dlls\JNPF.Common.CodeGen.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Common.Core">
+      <HintPath>..\Application\dlls\JNPF.Common.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Extras.CollectiveOAuth">
+      <HintPath>..\Application\dlls\JNPF.Extras.CollectiveOAuth.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Extras.DatabaseAccessor.SqlSugar">
+      <HintPath>..\Application\dlls\JNPF.Extras.DatabaseAccessor.SqlSugar.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Extras.WebSockets">
+      <HintPath>..\Application\dlls\JNPF.Extras.WebSockets.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Message.Entitys">
+      <HintPath>..\Application\dlls\JNPF.Message.Entitys.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Systems">
+      <HintPath>..\Application\dlls\JNPF.Systems.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Systems.Interfaces">
+      <HintPath>..\Application\dlls\JNPF.Systems.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.TaskScheduler.Entitys">
+      <HintPath>..\Application\dlls\JNPF.TaskScheduler.Entitys.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.VisualDev.Entitys">
+      <HintPath>..\Application\dlls\JNPF.VisualDev.Entitys.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.WorkFlow.Entitys">
+      <HintPath>..\Application\dlls\JNPF.WorkFlow.Entitys.dll</HintPath>
+    </Reference>
+    <Reference Include="OnceMi.AspNetCore.OSS">
+      <HintPath>..\Application\dlls\OnceMi.AspNetCore.OSS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

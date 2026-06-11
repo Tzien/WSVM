@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Mapster" Version="9.0.0-pre01" />
+    <PackageReference Include="Mapster.Core" Version="9.0.0-pre01" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="9.0.0-pre01" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="6.0.0" />
+    <PackageReference Include="SqlSugarCore" Version="5.1.4.211-preview12" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dlls\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="CeriOS.Core.Common">
+      <HintPath>..\Api\dlls\CeriOS.Core.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF">
+      <HintPath>dlls\JNPF.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Common">
+      <HintPath>dlls\JNPF.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Common.CodeGen">
+      <HintPath>dlls\JNPF.Common.CodeGen.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Common.Core">
+      <HintPath>dlls\JNPF.Common.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Engine.Entity">
+      <HintPath>dlls\JNPF.Engine.Entity.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Extras.DatabaseAccessor.SqlSugar">
+      <HintPath>dlls\JNPF.Extras.DatabaseAccessor.SqlSugar.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Systems">
+      <HintPath>dlls\JNPF.Systems.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Systems.Entitys">
+      <HintPath>dlls\JNPF.Systems.Entitys.dll</HintPath>
+    </Reference>
+    <Reference Include="JNPF.Systems.Interfaces">
+      <HintPath>dlls\JNPF.Systems.Interfaces.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
