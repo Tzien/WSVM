@@ -124,7 +124,7 @@
                 detailed />
             </template>
             <template v-if="column.ceriKey === 'datePicker'">
-                {{ record[column.dataIndex] ? dayjs(!isNaN(Number(record[column.dataIndex])) ? Number(record[column.dataIndex]) : record[column.dataIndex]).format(column.format || 'YYYY-MM-DD HH:mm:ss') : '' }}
+                {{ formatDateCell(record[column.dataIndex], column.format || 'YYYY-MM-DD HH:mm:ss') }}
             </template>
 @if(Model.HasRelationDetail || Model.HasSubTableRelationDetail) {
             @:<template v-if="column.ceriKey === 'relationForm'">
@@ -262,7 +262,7 @@
   @:import PrintBrowse from '@@/components/PrintDesign/printBrowse/index.vue';
 }
   import { dyOptionsList } from '@@/components/FormGenerator/src/helper/config';
-  import { thousandsFormat,getParamList } from '@@/utils/ceri';
+  import { thousandsFormat,getParamList, getDateFormat } from '@@/utils/ceri';
   //import { usePermission } from '@@/hooks/web/usePermission';
   import { noGroupList } from '@@/components/FormGenerator/src/helper/config';
 @if(Model.IsTabConfig){
@@ -281,6 +281,11 @@
     });
     return map;
   })();
+  function formatDateCell(val: any, format: string) {
+    if (!val && val !== 0) return '';
+    const dateValue = !isNaN(Number(val)) ? Number(val) : val;
+    return dayjs(dateValue).format(getDateFormat(format));
+  }
 
   interface State {
 @if(Model.HasFlow){

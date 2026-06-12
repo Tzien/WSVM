@@ -5,7 +5,6 @@ using JNPF.Common.Security;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 using CeriOS.@(Model.NameSpace).Entitys;
 using CeriOS.@(Model.NameSpace).Interfaces;
-using CeriOS.@(Model.NameSpace).Entitys.Dto.Dictbaseinfo;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CeriOS.Core.Common.Helper;
 
 namespace Application.Services;
 
@@ -120,7 +120,7 @@ case "detail":
     @:[HttpGet("Detail/{id}")]
     @:public async Task<dynamic> GetDetails(@(Model.PrimaryKeyPolicy == 1 ? "string" : "long") id)
     @:{
-          @:var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<DictbaseinfoDetailOutput>();
+          @:var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<@(Model.ClassName)DetailOutput>();
           @:return new
           @:{
              @:code = 200,
@@ -404,6 +404,37 @@ case "add":
             @:};
         @:}
         @:var entity = input.Adapt<@(Model.ClassName)Entity>();
+@foreach (var column in Model.TableField)
+{
+@if (column.ceriKey != null)
+{
+switch(column.ceriKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+case "popupTableSelect":
+case "roleSelect":
+case "groupSelect":
+case "usersSelect":
+@if(column.IsMultiple)
+{
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+}
+break;
+case "checkbox":
+case "cascader":
+case "organizeSelect":
+case "areaSelect":
+case "uploadImg":
+case "uploadFile":
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+break;
+}
+}
+}
 @if(Model.PrimaryKeyPolicy == 1)
 {
         @:entity.@(Model.PrimaryKey) = GuidHelper.BuildGuid();
@@ -441,6 +472,37 @@ case "edit":
     @:{
        
         @:var entity = input.Adapt<@(Model.ClassName)Entity>();
+@foreach (var column in Model.TableField)
+{
+@if (column.ceriKey != null)
+{
+switch(column.ceriKey)
+{
+case "select":
+case "userSelect":
+case "treeSelect":
+case "depSelect":
+case "posSelect":
+case "popupTableSelect":
+case "roleSelect":
+case "groupSelect":
+case "usersSelect":
+@if(column.IsMultiple)
+{
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+}
+break;
+case "checkbox":
+case "cascader":
+case "organizeSelect":
+case "areaSelect":
+case "uploadImg":
+case "uploadFile":
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+break;
+}
+}
+}
         @:var isOk = await _db.UpdateAsync(entity);
         @:if (!isOk)
         @:{

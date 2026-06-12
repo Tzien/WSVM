@@ -1,5 +1,11 @@
 <template>
-@{var BasicTag = string.Empty;var Register = string.Empty;var SpecialStr = string.Empty;}
+@{
+var BasicTag = string.Empty;
+var Register = string.Empty;
+var SpecialStr = string.Empty;
+var GeneralWidth = string.IsNullOrWhiteSpace(Model.FormAttribute.GeneralWidth) || Model.FormAttribute.GeneralWidth == "600px" ? "800px" : Model.FormAttribute.GeneralWidth;
+var DrawerWidth = string.IsNullOrWhiteSpace(Model.FormAttribute.DrawerWidth) || Model.FormAttribute.DrawerWidth == "600px" ? "800px" : Model.FormAttribute.DrawerWidth;
+}
 @switch(Model.FormAttribute.PopupType) {
 @*全屏弹窗*@
 case "fullScreen":
@@ -11,13 +17,13 @@ break;
 case "general":
 BasicTag = "BasicModal";
 Register = "registerModal";
-SpecialStr = string.Format(" width=\"{0}\" :minHeight=\"100\"",Model.FormAttribute.GeneralWidth);
+SpecialStr = string.Format(" width=\"{0}\" :minHeight=\"100\"", GeneralWidth);
 break;
 @*右侧弹窗*@
 case "drawer":
 BasicTag = "BasicDrawer";
 Register = "registerDrawer";
-SpecialStr = string.Format(" width=\"{0}\" showFooter",Model.FormAttribute.DrawerWidth);
+SpecialStr = string.Format(" width=\"{0}\" showFooter", DrawerWidth);
 break;
 }
   <@BasicTag v-bind="$attrs" @@register="@Register" @SpecialStr okText="@(Model.FormAttribute.ConfirmButtonText)" cancelText="@(Model.FormAttribute.CancelButtonText)" @@ok="handleSubmit" :closeFunc="onClose">
@@ -170,6 +176,7 @@ break;
   import { buildUUID } from '@@/utils/uuid';
   import { CaretRightOutlined } from '@@ant-design/icons-vue';
   import { systemComponentsList } from '@@/components/FormGenerator/src/helper/config';
+  import { formatDate } from '@@/utils/dateUtils';
 @if(Model.UseFormPermission) {
   @:import { usePermission } from '@@/hooks/web/usePermission';
 }
@@ -535,6 +542,23 @@ else if (item.IsLinkage && item.IsSubTable && !item.IsSubTableLinkage) {
     }
     return form;
   }
+@if (Model.FormScript.FormControlDesign.Any(x => x.ceriKey == "timePicker")) {
+  @:function formatTimeFormValue(value: any) {
+    @:if (!value && value !== 0) return value;
+    @:if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) return value.length === 5 ? `${value}:00` : value;
+    @:const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    @:return parsed.isValid() ? parsed.format('HH:mm:ss') : value;
+  @:}
+  @:function formatTimeSubmitValue(value: any) {
+    @:if (!value && value !== 0) return value;
+    @:if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) {
+      @:const time = value.length === 5 ? `${value}:00` : value;
+      @:return dayjs(`${formatDate(new Date())} ${time}`).format('YYYY-MM-DDTHH:mm:ss');
+    @:}
+    @:const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    @:return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm:ss') : value;
+  @:}
+}
 function getData(id) {
   getInfo(id).then((res) => {
     const raw = res?.data || {};
@@ -548,9 +572,16 @@ function getData(id) {
       const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
       mapped[pascalKey] = raw[k];
     });
-    if (mapped.CreateTime) {
-      mapped.CreateTime = dayjs(mapped.CreateTime).format('HH:mm:ss');
-    }
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
+@if (column.ceriKey == "datePicker") {
+    @:if (mapped.@(column.LowerName)) mapped.@(column.LowerName) = dayjs(mapped.@(column.LowerName)).valueOf();
+}
+}
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "timePicker")) {
+@if (column.ceriKey == "timePicker") {
+    @:if (mapped.@(column.LowerName)) mapped.@(column.LowerName) = formatTimeFormValue(mapped.@(column.LowerName));
+}
+}
     Object.assign(state.dataForm, mapped);
 
 @foreach (var item in Model.FormScript.SubTableDesign) {
@@ -586,6 +617,21 @@ function getData(id) {
   @:}
 }
 }
+  function buildSubmitData() {
+    const data = cloneDeep(state.dataForm);
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
+@if (column.ceriKey == "datePicker") {
+    @:if (data.@(column.LowerName) || data.@(column.LowerName) === 0) data.@(column.LowerName) = formatDate(!isNaN(Number(data.@(column.LowerName))) ? Number(data.@(column.LowerName)) : data.@(column.LowerName));
+}
+}
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "timePicker")) {
+@if (column.ceriKey == "timePicker") {
+    @:if (data.@(column.LowerName) || data.@(column.LowerName) === 0) data.@(column.LowerName) = formatTimeSubmitValue(data.@(column.LowerName));
+}
+}
+    if (!data.@(Model.PrimaryKeyField)) delete data.@(Model.PrimaryKeyField);
+    return data;
+  }
   async function handleSubmit() {
     try {
       const values = await getForm()?.validate();
@@ -599,7 +645,7 @@ function getData(id) {
 }
       setFormProps({ confirmLoading: true });
       const formMethod = state.dataForm.@(Model.PrimaryKeyField) ? update : create;
-      formMethod(state.dataForm)
+      formMethod(buildSubmitData())
         .then((res) => {
           createMessage.success(res.msg);
           setFormProps({ confirmLoading: false });

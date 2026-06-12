@@ -3,9 +3,11 @@
 {
 @:using JNPF.Common.Models;
 }
+using JNPF.Common.Security;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@(Model.ClassName);
 using Mapster;
- 
+using System.Collections.Generic;
+
 namespace CeriOS.@(Model.NameSpace).Entitys.Mapper.@(Model.ClassName);
 
 public class Mapper : IRegister
