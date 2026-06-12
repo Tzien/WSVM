@@ -5,7 +5,6 @@ using JNPF.Common.Security;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 using CeriOS.@(Model.NameSpace).Entitys;
 using CeriOS.@(Model.NameSpace).Interfaces;
-using CeriOS.@(Model.NameSpace).Entitys.Dto.Dictbaseinfo;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
@@ -14,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CeriOS.Core.Common.Helper;
 
 namespace Application.Services;
 
@@ -120,7 +120,7 @@ case "detail":
     @:[HttpGet("Detail/{id}")]
     @:public async Task<dynamic> GetDetails(@(Model.PrimaryKeyPolicy == 1 ? "string" : "long") id)
     @:{
-          @:var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<DictbaseinfoDetailOutput>();
+          @:var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<@(Model.ClassName)DetailOutput>();
           @:return new
           @:{
              @:code = 200,

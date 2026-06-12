@@ -1,4 +1,3 @@
-using CeriOS.@(Model.NameSpace).Entitys.Dto.Dictbaseinfo;
 
 namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 
