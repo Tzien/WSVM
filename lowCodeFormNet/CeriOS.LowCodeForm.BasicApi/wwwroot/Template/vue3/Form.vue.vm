@@ -542,6 +542,23 @@ else if (item.IsLinkage && item.IsSubTable && !item.IsSubTableLinkage) {
     }
     return form;
   }
+@if (Model.FormScript.FormControlDesign.Any(x => x.ceriKey == "timePicker")) {
+  @:function formatTimeFormValue(value: any) {
+    @:if (!value && value !== 0) return value;
+    @:if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) return value.length === 5 ? `${value}:00` : value;
+    @:const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    @:return parsed.isValid() ? parsed.format('HH:mm:ss') : value;
+  @:}
+  @:function formatTimeSubmitValue(value: any) {
+    @:if (!value && value !== 0) return value;
+    @:if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) {
+      @:const time = value.length === 5 ? `${value}:00` : value;
+      @:return dayjs(`${formatDate(new Date())} ${time}`).format('YYYY-MM-DDTHH:mm:ss');
+    @:}
+    @:const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    @:return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm:ss') : value;
+  @:}
+}
 function getData(id) {
   getInfo(id).then((res) => {
     const raw = res?.data || {};
@@ -558,6 +575,11 @@ function getData(id) {
 @foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
 @if (column.ceriKey == "datePicker") {
     @:if (mapped.@(column.LowerName)) mapped.@(column.LowerName) = dayjs(mapped.@(column.LowerName)).valueOf();
+}
+}
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "timePicker")) {
+@if (column.ceriKey == "timePicker") {
+    @:if (mapped.@(column.LowerName)) mapped.@(column.LowerName) = formatTimeFormValue(mapped.@(column.LowerName));
 }
 }
     Object.assign(state.dataForm, mapped);
@@ -600,6 +622,11 @@ function getData(id) {
 @foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
 @if (column.ceriKey == "datePicker") {
     @:if (data.@(column.LowerName) || data.@(column.LowerName) === 0) data.@(column.LowerName) = formatDate(!isNaN(Number(data.@(column.LowerName))) ? Number(data.@(column.LowerName)) : data.@(column.LowerName));
+}
+}
+@foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "timePicker")) {
+@if (column.ceriKey == "timePicker") {
+    @:if (data.@(column.LowerName) || data.@(column.LowerName) === 0) data.@(column.LowerName) = formatTimeSubmitValue(data.@(column.LowerName));
 }
 }
     if (!data.@(Model.PrimaryKeyField)) delete data.@(Model.PrimaryKeyField);
