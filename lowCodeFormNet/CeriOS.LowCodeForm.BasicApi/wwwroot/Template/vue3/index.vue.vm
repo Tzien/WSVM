@@ -453,6 +453,14 @@
           const pascalKey = key.replace(/^[a-z]/, (s) => s.toUpperCase());
           if (!(pascalKey in mapped)) mapped[pascalKey] = row[key];
         });
+        state.columnList
+          .filter((column: any) => ['rate', 'slider'].includes(column?.ceriKey))
+          .forEach((column: any) => {
+            if (!column?.prop) return;
+            mapped[column.prop] = formatNumberCell(mapped[column.prop]);
+            const pascalKey = column.prop.replace(/^[a-z]/, (s) => s.toUpperCase());
+            if (pascalKey in mapped) mapped[pascalKey] = formatNumberCell(mapped[pascalKey]);
+          });
         return mapped;
       };
       const list = rows.map((o) => mapRow(o));
