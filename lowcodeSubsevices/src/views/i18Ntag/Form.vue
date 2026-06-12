@@ -1,5 +1,5 @@
 ﻿<template>
-  <BasicModal v-bind="$attrs" @register="registerModal"  width="600px" :minHeight="100" okText="确定" cancelText="取消" @ok="handleSubmit" :closeFunc="onClose">
+  <BasicModal v-bind="$attrs" @register="registerModal"  width="800px" :minHeight="100" okText="确定" cancelText="取消" @ok="handleSubmit" :closeFunc="onClose">
     <template #title>
 	    <a-space :size="10">
             <div class="text-16px font-medium">{{ title }}</div>
@@ -65,6 +65,7 @@
   import { buildUUID } from '@/utils/uuid';
   import { CaretRightOutlined } from '@ant-design/icons-vue';
   import { systemComponentsList } from '@/components/FormGenerator/src/helper/config';
+  import { formatDate } from '@/utils/dateUtils';
 
   interface State {
     dataForm: any;
@@ -171,21 +172,25 @@ function getData(id) {
       const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
       mapped[pascalKey] = raw[k];
     });
-    if (mapped.CreateTime) {
-      mapped.CreateTime = dayjs(mapped.CreateTime).format('HH:mm:ss');
-    }
+    if (mapped.CreateTime) mapped.CreateTime = dayjs(mapped.CreateTime).valueOf();
     Object.assign(state.dataForm, mapped);
 
     changeLoading(false);
   });
 }
+  function buildSubmitData() {
+    const data = cloneDeep(state.dataForm);
+    if (data.CreateTime || data.CreateTime === 0) data.CreateTime = formatDate(Number(data.CreateTime));
+    if (!data.id) delete data.id;
+    return data;
+  }
   async function handleSubmit() {
     try {
       const values = await getForm()?.validate();
       if (!values) return;
       setFormProps({ confirmLoading: true });
       const formMethod = state.dataForm.id ? update : create;
-      formMethod(state.dataForm)
+      formMethod(buildSubmitData())
         .then((res) => {
           createMessage.success(res.msg);
           setFormProps({ confirmLoading: false });

@@ -421,7 +421,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? System.Text.Json.JsonSerializer.Serialize(input.@(column.LowerColumnName)) : null;
 }
 break;
 case "checkbox":
@@ -430,7 +430,7 @@ case "organizeSelect":
 case "areaSelect":
 case "uploadImg":
 case "uploadFile":
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? System.Text.Json.JsonSerializer.Serialize(input.@(column.LowerColumnName)) : null;
 break;
 }
 }
@@ -489,7 +489,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? System.Text.Json.JsonSerializer.Serialize(input.@(column.LowerColumnName)) : null;
 }
 break;
 case "checkbox":
@@ -498,7 +498,7 @@ case "organizeSelect":
 case "areaSelect":
 case "uploadImg":
 case "uploadFile":
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? System.Text.Json.JsonSerializer.Serialize(input.@(column.LowerColumnName)) : null;
 break;
 }
 }
