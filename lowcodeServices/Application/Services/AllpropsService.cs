@@ -180,7 +180,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
             };
         }
         var entity = input.Adapt<AllpropsEntity>();
-        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        entity.Text = input.Text != null && input.Text.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(input.Text) : null;
         entity.id = GuidHelper.BuildGuid();
         var isOk = await _db.InsertAsync(entity);
         if (!isOk)
@@ -210,7 +210,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     public async Task<dynamic> Update(string id, [FromBody] AllpropsUpInput input)
     {
         var entity = input.Adapt<AllpropsEntity>();
-        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        entity.Text = input.Text != null && input.Text.Count > 0 ? System.Text.Json.JsonSerializer.Serialize(input.Text) : null;
         var isOk = await _db.UpdateAsync(entity);
         if (!isOk)
         {
