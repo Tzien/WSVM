@@ -165,6 +165,7 @@ const loadCurrentPageI18n = async (locale) => {
 const applyLocaleAndRefreshMenu = async (locale) => {
   const targetLocale = normalizeLocale(locale) || 'zh'
   if (!targetLocale) return
+  beginMenuRefresh()
 
   const refreshKey = buildLocaleRefreshKey(targetLocale)
   if (localeRefreshPromise && localeRefreshKey === refreshKey) {
@@ -250,6 +251,8 @@ if (!isQiankun) {
 const selectedKeys = ref([])
 const openKeys = ref([])
 const isMenuRefreshing = ref(false)
+const preservedFoldmenuKeys = ref([])
+let finishMenuRefreshTimer = null
 
 const normalizeKeys = (keys) => {
   return Array.isArray(keys) ? [...keys] : []
@@ -322,6 +325,45 @@ const setHomepageFoldmenu = (path) => {
   setOpenKeysFromFoldmenu(homepageFoldmenu)
 }
 
+const getRestorableFoldmenuKeys = () => {
+  const foldmenuKeys = getFoldmenuKeys()
+  if (foldmenuKeys.length > 0) return foldmenuKeys
+  const preservedKeys = normalizeKeys(preservedFoldmenuKeys.value)
+  if (preservedKeys.length > 0) return preservedKeys
+  if (isHomepagePath(route.path)) return getHomepageFoldmenu()
+  return []
+}
+
+const beginMenuRefresh = () => {
+  const restorableKeys = getRestorableFoldmenuKeys()
+  if (restorableKeys.length > 0) {
+    preservedFoldmenuKeys.value = restorableKeys
+  }
+  isMenuRefreshing.value = true
+  if (finishMenuRefreshTimer) {
+    clearTimeout(finishMenuRefreshTimer)
+    finishMenuRefreshTimer = null
+  }
+}
+
+const restoreMenuOpenKeys = () => {
+  const restorableKeys = getRestorableFoldmenuKeys()
+  if (restorableKeys.length > 0 || isHomepagePath(route.path)) {
+    setDrawerFoldmenu(restorableKeys)
+    setOpenKeysFromFoldmenu(restorableKeys)
+  }
+}
+
+const finishMenuRefresh = () => {
+  restoreMenuOpenKeys()
+  finishMenuRefreshTimer = setTimeout(() => {
+    restoreMenuOpenKeys()
+    isMenuRefreshing.value = false
+    preservedFoldmenuKeys.value = []
+    finishMenuRefreshTimer = null
+  }, 100)
+}
+
 const getFoldmenuKeysFromSelect = (val) => {
   const currentOpenKeys = normalizeKeys(openKeys.value)
   if (currentOpenKeys.length > 0) return currentOpenKeys
@@ -342,7 +384,7 @@ watch(
   openKeys,
   (keys) => {
     const nextKeys = normalizeKeys(keys)
-    if (isMenuRefreshing.value && nextKeys.length === 0 && getFoldmenuKeys().length > 0) return
+    if (isMenuRefreshing.value && nextKeys.length === 0 && getRestorableFoldmenuKeys().length > 0) return
     if (nextKeys.length === 0 && items.value.length === 0 && getFoldmenuKeys().length > 0) return
     if (!isMenuCollapsed()) {
       setDrawerFoldmenu(nextKeys)
@@ -609,16 +651,12 @@ function loadMenuItems() {
     items.value = []
     return
   }
-  const foldmenuKeys = getFoldmenuKeys()
-  if (foldmenuKeys.length > 0) {
-    isMenuRefreshing.value = true
-  }
+  beginMenuRefresh()
   items.value = menuItems.value
   nextTick(() => {
-    setOpenKeysFromFoldmenu(getFoldmenuKeys())
+    restoreMenuOpenKeys()
     nextTick(() => {
-      setOpenKeysFromFoldmenu(getFoldmenuKeys())
-      isMenuRefreshing.value = false
+      finishMenuRefresh()
     })
   })
 }
