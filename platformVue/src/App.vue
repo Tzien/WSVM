@@ -249,6 +249,7 @@ if (!isQiankun) {
 // 本地菜单选中 keys，用于驱动左侧菜单高亮
 const selectedKeys = ref([])
 const openKeys = ref([])
+const isMenuRefreshing = ref(false)
 
 const normalizeKeys = (keys) => {
   return Array.isArray(keys) ? [...keys] : []
@@ -341,6 +342,7 @@ watch(
   openKeys,
   (keys) => {
     const nextKeys = normalizeKeys(keys)
+    if (isMenuRefreshing.value && nextKeys.length === 0 && getFoldmenuKeys().length > 0) return
     if (nextKeys.length === 0 && items.value.length === 0 && getFoldmenuKeys().length > 0) return
     if (!isMenuCollapsed()) {
       setDrawerFoldmenu(nextKeys)
@@ -603,11 +605,22 @@ const menuItems = computed(() => {
 // 加载菜单项的函数
 function loadMenuItems() {
   if (!userStore.value.access_token || !routeStore.routes || routeStore.routes.length === 0) {
+    isMenuRefreshing.value = false
     items.value = []
     return
   }
+  const foldmenuKeys = getFoldmenuKeys()
+  if (foldmenuKeys.length > 0) {
+    isMenuRefreshing.value = true
+  }
   items.value = menuItems.value
-  setOpenKeysFromFoldmenu(getFoldmenuKeys())
+  nextTick(() => {
+    setOpenKeysFromFoldmenu(getFoldmenuKeys())
+    nextTick(() => {
+      setOpenKeysFromFoldmenu(getFoldmenuKeys())
+      isMenuRefreshing.value = false
+    })
+  })
 }
 
 watch(
