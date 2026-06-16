@@ -305,6 +305,22 @@ const setOpenKeysFromFoldmenu = (keys) => {
   }
 }
 
+const getHomepageFoldmenu = () => {
+  const configuredFoldmenu = `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU || ''}`.trim()
+  return configuredFoldmenu ? [configuredFoldmenu] : []
+}
+
+const isHomepagePath = (path) => {
+  return path === `${import.meta.env.VITE_HOMEPAGEPATH}`
+}
+
+const setHomepageFoldmenu = (path) => {
+  if (!isHomepagePath(path)) return
+  const homepageFoldmenu = getHomepageFoldmenu()
+  setDrawerFoldmenu(homepageFoldmenu)
+  setOpenKeysFromFoldmenu(homepageFoldmenu)
+}
+
 const getFoldmenuKeysFromSelect = (val) => {
   const currentOpenKeys = normalizeKeys(openKeys.value)
   if (currentOpenKeys.length > 0) return currentOpenKeys
@@ -324,8 +340,10 @@ watch(
 watch(
   openKeys,
   (keys) => {
+    const nextKeys = normalizeKeys(keys)
+    if (nextKeys.length === 0 && items.value.length === 0 && getFoldmenuKeys().length > 0) return
     if (!isMenuCollapsed()) {
-      setDrawerFoldmenu(keys)
+      setDrawerFoldmenu(nextKeys)
     }
   },
   { deep: true }
@@ -338,6 +356,7 @@ watch(
 
     // 左侧菜单高亮始终跟随当前路由 path
     selectedKeys.value = [path]
+    setHomepageFoldmenu(path)
 
     // 兼容原有依赖 drawerStore.selected 的逻辑（如果有）
     if (isQiankun) {
@@ -588,6 +607,7 @@ function loadMenuItems() {
     return
   }
   items.value = menuItems.value
+  setOpenKeysFromFoldmenu(getFoldmenuKeys())
 }
 
 watch(
