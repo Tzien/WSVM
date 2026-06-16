@@ -52,35 +52,9 @@ function findRootPath(routes, targetPath) {
   return recursiveSearch(routes, '') || '/'
 }
 
-function findRoutePathChain(routes, targetPath) {
-  function recursiveSearch(routeList, currentChain) {
-    for (const route of routeList) {
-      const routePath = route.path || ''
-      const nextChain = routePath ? [...currentChain, routePath] : currentChain
-      if (routePath === targetPath) {
-        return nextChain
-      }
-      if (route.children && route.children.length > 0) {
-        const result = recursiveSearch(route.children, nextChain)
-        if (result) {
-          return result
-        }
-      }
-    }
-    return null
-  }
-
-  return recursiveSearch(routes, []) || []
-}
-
-function buildHomepageFoldmenu(routes, targetPath, sysCode) {
+function getHomepageFoldmenu() {
   const configuredFoldmenu = `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU || ''}`.trim()
-  const sysPath = sysCode ? `/${sysCode}` : ''
-  const routeChain = findRoutePathChain(routes, targetPath).filter((path) => {
-    return path && path !== sysPath && path !== targetPath
-  })
-  const foldmenu = routeChain.length > 0 ? routeChain : [configuredFoldmenu].filter(Boolean)
-  return Array.from(new Set(foldmenu))
+  return configuredFoldmenu ? [configuredFoldmenu] : []
 }
 
 function setDrawerFoldmenu(drawerStore, foldmenu) {
@@ -136,7 +110,7 @@ router.beforeEach(async (to, from, next) => {
     const sysCode = import.meta.env.VITE_APP_APPNAME
     const innerPath = `${import.meta.env.VITE_HOMEPAGEPATH}`
     const tabKey = sysCode ? `/${sysCode}${innerPath}` : innerPath
-    const homepageFoldmenu = buildHomepageFoldmenu(routeStore.routes, innerPath, sysCode)
+    const homepageFoldmenu = getHomepageFoldmenu()
 
     if (to.path === '/') {
       next(innerPath)
