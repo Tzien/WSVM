@@ -657,18 +657,18 @@ watch(
     const { userStore: us, drawerStore: ds, navigationStore: ns } = newGlobalStore
 
     // 使用浅比较，只在关键属性变化时更新
-    if (userStore.value?.access_token !== us?.access_token || userStore.value?.userRoles !== us?.userRoles) {
+    if (us && (userStore.value?.access_token !== us.access_token || userStore.value?.userRoles !== us.userRoles)) {
       userStore.value = us
     }
-    if (
+    if (ds && (
       drawerStore.value?.selected !== ds?.selected ||
       drawerStore.value?.foldmenu !== ds?.foldmenu ||
       drawerStore.value?.menuCollapsed !== ds?.menuCollapsed ||
       drawerStore.value?.menuwidth !== ds?.menuwidth
-    ) {
+    )) {
       drawerStore.value = ds
     }
-    if (navigationStore.value?.language !== ns?.language || navigationStore.value?.tabs !== ns?.tabs) {
+    if (ns && (navigationStore.value?.language !== ns.language || navigationStore.value?.tabs !== ns.tabs)) {
       navigationStore.value = ns
     }
   },
