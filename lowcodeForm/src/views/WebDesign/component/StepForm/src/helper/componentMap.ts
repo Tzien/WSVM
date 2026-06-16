@@ -9,9 +9,9 @@ export const formConf = {
   labelSuffix: '', // 标题后缀
   formRules: 'rules',
   popupType: 'general',
-  generalWidth: '600px',
+  generalWidth: '800px',
   fullScreenWidth: '100%',
-  drawerWidth: '600px',
+  drawerWidth: '800px',
   gutter: 15,
   disabled: false,
   span: 24,

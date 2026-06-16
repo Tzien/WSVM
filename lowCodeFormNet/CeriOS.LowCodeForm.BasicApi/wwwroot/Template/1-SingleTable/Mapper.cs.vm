@@ -7,11 +7,35 @@ using JNPF.Common.Security;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@(Model.ClassName);
 using Mapster;
 using System.Collections.Generic;
-
+using System.Text.Json;
+ 
 namespace CeriOS.@(Model.NameSpace).Entitys.Mapper.@(Model.ClassName);
 
 public class Mapper : IRegister
 {
+	private static string SerializeList<T>(ICollection<T> value)
+	{
+		return value != null && value.Count > 0 ? JsonSerializer.Serialize(value) : null;
+	}
+
+	private static List<T> DeserializeList<T>(string value)
+	{
+		if (string.IsNullOrWhiteSpace(value)) return null;
+		try
+		{
+			return JsonSerializer.Deserialize<List<T>>(value);
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	private static List<T> DeserializeListOrEmpty<T>(string value)
+	{
+		return DeserializeList<T>(value) ?? new List<T>();
+	}
+
 	public void Register(TypeAdapterConfig config)
 	{
 @*判断是否需要映射*@
@@ -64,7 +88,7 @@ case "usersSelect":
 @*是否为多选*@
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null && src.@(column.LowerColumnName).Count > 0 ? src.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null)
+			@:.Map(dest => dest.@(column.ColumnName), src => SerializeList(src.@(column.LowerColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
 }
@@ -76,7 +100,7 @@ case "organizeSelect":
 case "areaSelect":
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null && src.@(column.LowerColumnName).Count > 0 ? src.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null)
+			@:.Map(dest => dest.@(column.ColumnName), src => SerializeList(src.@(column.LowerColumnName)))
 break;
 case "switch":
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName))
@@ -105,7 +129,7 @@ switch(column.ceriKey)
 {
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<FileControlsModel>>() : new List<FileControlsModel>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeListOrEmpty<FileControlsModel>(src.@(column.ColumnName)))
 break;
 default:
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
@@ -138,7 +162,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<string>(src.@(column.ColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
 }
@@ -148,19 +172,19 @@ case "organizeSelect":
 case "areaSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<List<string>>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<List<string>>(src.@(column.ColumnName)))
 }
 else
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<string>(src.@(column.ColumnName)))
 }
 break;
 case "checkbox":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<string>(src.@(column.ColumnName)))
 break;
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<FileControlsModel>>() : new List<FileControlsModel>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeListOrEmpty<FileControlsModel>(src.@(column.ColumnName)))
 break;
 case "createTime":
 			@:.Map(dest => dest.@(column.LowerColumnName), src => string.Format("{0:yyyy-MM-dd HH:mm:ss}", src.@(column.ColumnName)))
@@ -197,7 +221,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<string>(src.@(column.ColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
 }
@@ -207,17 +231,17 @@ case "organizeSelect":
 case "areaSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<List<string>>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<List<string>>(src.@(column.ColumnName)))
 }else{
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<string>(src.@(column.ColumnName)))
 }
 break;
 case "checkbox":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<string>(src.@(column.ColumnName)))
 break;
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<FileControlsModel>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeList<FileControlsModel>(src.@(column.ColumnName)))
 break;
 default:
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
@@ -248,7 +272,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<string>>() : new List<string>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeListOrEmpty<string>(src.@(column.LowerColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
 }
@@ -258,15 +282,15 @@ case "organizeSelect":
 case "areaSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<List<string>>>() : new List<List<string>>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeListOrEmpty<List<string>>(src.@(column.LowerColumnName)))
 }
 else
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<string>>() : new List<string>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeListOrEmpty<string>(src.@(column.LowerColumnName)))
 }
 break;
 case "checkbox":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<string>>() : new List<string>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => DeserializeListOrEmpty<string>(src.@(column.LowerColumnName)))
 break;
 case "switch":
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName))

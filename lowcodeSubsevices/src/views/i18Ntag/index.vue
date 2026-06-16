@@ -47,7 +47,7 @@
                 detailed />
             </template>
             <template v-if="column.ceriKey === 'datePicker'">
-                {{ record[column.dataIndex] ? dayjs(!isNaN(Number(record[column.dataIndex])) ? Number(record[column.dataIndex]) : record[column.dataIndex]).format(column.format || 'YYYY-MM-DD HH:mm:ss') : '' }}
+                {{ record[column.dataIndex] ? formatDate(!isNaN(Number(record[column.dataIndex])) ? Number(record[column.dataIndex]) : record[column.dataIndex]) : '' }}
             </template>
 </template>
             <template v-if="column.flag === 'ACTION' && !record.top">
@@ -68,7 +68,6 @@
   import { getDataInterfaceRes } from '@/api/systemData/dataInterface';
   //import { getOrgByOrganizeCondition, getDepartmentSelectAsyncList } from '@/api/permission/organize';
   import { ref, reactive, onMounted, toRefs, computed, unref, nextTick, provide } from 'vue';
-  import dayjs from 'dayjs'
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from 'vue-i18n'
   //import { useOrganizeStore } from '@/store/modules/organize';
@@ -93,6 +92,7 @@
   import { noGroupList } from '@/components/FormGenerator/src/helper/config';
   import ViewSetting from '@/views/common/dynamicModel/list/components/ViewSetting.vue';
   import ViewList from '@/views/common/dynamicModel/list/components/ViewList.vue';
+  import { formatDate } from '@/utils/dateUtils';
 
 
     const __searchTypes = (() => {

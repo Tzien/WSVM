@@ -65,10 +65,10 @@
                         @<ceri-signature v-model:value="childRecord[column.dataIndex]" detailed />
                     @</template>
                     @<template v-if="column.ceriKey === 'rate'">
-                        @<ceri-rate v-model:value="childRecord[column.dataIndex]" :count="column.count" :allowHalf="column.allowHalf" disabled />
+                        @<ceri-rate :value="formatNumberCell(childRecord[column.dataIndex])" :count="column.count" :allowHalf="column.allowHalf" disabled />
                     @</template>
                     @<template v-if="column.ceriKey === 'slider'">
-                        @<ceri-slider v-model:value="childRecord[column.dataIndex]" :min="column.min" :max="column.max" :step="column.step" disabled />
+                        @<ceri-slider :value="formatNumberCell(childRecord[column.dataIndex])" :min="column.min" :max="column.max" :step="column.step" disabled />
                     @</template>
                     @<template v-if="column.ceriKey === 'uploadImg'">
                         @<ceri-upload-img v-model:value="childRecord[column.dataIndex]" disabled detailed simple v-if="childRecord[column.dataIndex]?.length" />
@@ -104,10 +104,10 @@
                 <ceri-signature v-model:value="record[column.dataIndex]" detailed />
             </template>
             <template v-if="column.ceriKey === 'rate'">
-                <ceri-rate v-model:value="record[column.dataIndex]" :count="column.count" :allowHalf="column.allowHalf" disabled />
+                <ceri-rate :value="formatNumberCell(record[column.dataIndex])" :count="column.count" :allowHalf="column.allowHalf" disabled />
             </template>
             <template v-if="column.ceriKey === 'slider'">
-                <ceri-slider v-model:value="record[column.dataIndex]" :min="column.min" :max="column.max" :step="column.step" disabled />
+                <ceri-slider :value="formatNumberCell(record[column.dataIndex])" :min="column.min" :max="column.max" :step="column.step" disabled />
             </template>
             <template v-if="column.ceriKey === 'uploadImg'">
                 <ceri-upload-img v-model:value="record[column.dataIndex]" disabled detailed simple v-if="record[column.dataIndex]?.length" />
@@ -286,6 +286,11 @@
     const dateValue = !isNaN(Number(val)) ? Number(val) : val;
     return dayjs(dateValue).format(getDateFormat(format));
   }
+  function formatNumberCell(val: any) {
+    if (val === null || val === undefined || val === '') return 0;
+    const num = Number(val);
+    return Number.isNaN(num) ? 0 : num;
+  }
 
   interface State {
 @if(Model.HasFlow){
@@ -448,6 +453,14 @@
           const pascalKey = key.replace(/^[a-z]/, (s) => s.toUpperCase());
           if (!(pascalKey in mapped)) mapped[pascalKey] = row[key];
         });
+        state.columnList
+          .filter((column: any) => ['rate', 'slider'].includes(column?.ceriKey))
+          .forEach((column: any) => {
+            if (!column?.prop) return;
+            mapped[column.prop] = formatNumberCell(mapped[column.prop]);
+            const pascalKey = column.prop.replace(/^[a-z]/, (s) => s.toUpperCase());
+            if (pascalKey in mapped) mapped[pascalKey] = formatNumberCell(mapped[pascalKey]);
+          });
         return mapped;
       };
       const list = rows.map((o) => mapRow(o));
