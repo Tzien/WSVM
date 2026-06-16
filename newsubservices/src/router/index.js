@@ -55,6 +55,20 @@ function findRootPath(routes, targetPath) {
 }
 const isQiankun = qiankunWindow.__POWERED_BY_QIANKUN__
 
+function getHomepageFoldmenu() {
+  const configuredFoldmenu = `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU || ''}`.trim()
+  return configuredFoldmenu ? [configuredFoldmenu] : []
+}
+
+function setDrawerFoldmenu(drawerStore, foldmenu) {
+  if (!drawerStore) return
+  if (typeof drawerStore.setFoldmenu === 'function') {
+    drawerStore.setFoldmenu(foldmenu)
+  } else {
+    drawerStore.foldmenu = foldmenu
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(isQiankun ? `/${import.meta.env.VITE_APP_APPNAME}` : '/'),
   routes
@@ -132,21 +146,12 @@ router.beforeEach(async (to, from, next) => {
     const sysCode = import.meta.env.VITE_APP_APPNAME
     const innerPath = `${import.meta.env.VITE_HOMEPAGEPATH}`
     const tabKey = sysCode ? `/${sysCode}${innerPath}` : innerPath
+    const homepageFoldmenu = getHomepageFoldmenu()
 
     if (to.path === '/') {
       next(innerPath)
       if (drawerStore) {
-        if (typeof drawerStore.setFoldmenu === 'function') {
-          drawerStore.setFoldmenu([
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ])
-        } else if (Array.isArray(drawerStore.foldmenu)) {
-          drawerStore.foldmenu = [
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ]
-        }
+        setDrawerFoldmenu(drawerStore, homepageFoldmenu)
 
         if (typeof drawerStore.changeSelected === 'function') {
           drawerStore.changeSelected([innerPath])
@@ -179,17 +184,7 @@ router.beforeEach(async (to, from, next) => {
 
     if (to.path === innerPath) {
       if (drawerStore) {
-        if (typeof drawerStore.setFoldmenu === 'function') {
-          drawerStore.setFoldmenu([
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ])
-        } else if (Array.isArray(drawerStore.foldmenu)) {
-          drawerStore.foldmenu = [
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ]
-        }
+        setDrawerFoldmenu(drawerStore, homepageFoldmenu)
 
         if (typeof drawerStore.changeSelected === 'function') {
           drawerStore.changeSelected([innerPath])
