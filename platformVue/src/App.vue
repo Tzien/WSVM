@@ -313,6 +313,33 @@ const getFoldmenuKeysFromSelect = (val) => {
   return normalizeKeys(val.keyPath).filter((key) => !selectedKeySet.has(key))
 }
 
+const getParentKeysFromMenuItems = (menuItems, targetKey) => {
+  const findParentKeys = (list, parentKeys) => {
+    for (const item of list || []) {
+      const itemKey = item?.key
+      const nextParentKeys = itemKey ? [...parentKeys, itemKey] : parentKeys
+      if (itemKey === targetKey) {
+        return parentKeys
+      }
+      if (Array.isArray(item?.children) && item.children.length > 0) {
+        const result = findParentKeys(item.children, nextParentKeys)
+        if (result) return result
+      }
+    }
+    return null
+  }
+
+  return findParentKeys(menuItems, []) || []
+}
+
+const syncOpenKeysWithCurrentMenu = () => {
+  if (!route.path || isMenuCollapsed()) return
+  const parentKeys = getParentKeysFromMenuItems(items.value, route.path)
+  if (parentKeys.length === 0) return
+  setDrawerFoldmenu(parentKeys)
+  setOpenKeysFromFoldmenu(parentKeys)
+}
+
 watch(
   () => getFoldmenuKeys(),
   (keys) => {
@@ -588,7 +615,16 @@ function loadMenuItems() {
     return
   }
   items.value = menuItems.value
+  syncOpenKeysWithCurrentMenu()
 }
+
+watch(
+  [() => route.path, items],
+  () => {
+    syncOpenKeysWithCurrentMenu()
+  },
+  { deep: true }
+)
 
 watch(
   () => userStore.value.access_token,
