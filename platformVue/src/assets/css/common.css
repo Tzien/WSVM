@@ -1,0 +1,191 @@
+/* 设置header颜色样式 */
+.darkColor {
+  background-color: #043684 !important;
+}
+.lightColor {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+.PlatForm .PlatformSider {
+  position: relative !important;
+}
+
+.PlatForm .PlatformSider.darkColor {
+  background-color: #043684 !important;
+}
+
+.PlatForm .PlatformSider.lightColor {
+  background-color: rgb(255, 255, 255) !important;
+}
+
+.PlatForm .PlatformSider .PlatformMenuStyle {
+  background-color: #043684 !important;
+}
+
+.PlatForm .PlatformSider .PlatformMenuStyle .ant-menu-sub {
+  background-color: #051a5a !important;
+}
+
+.PlatForm .PlatformSider .PlatformMenuStyle .ant-menu-item-selected {
+  background: linear-gradient(to right, #80c3f7, #2e72ba, #2a6cb3) !important;
+  border-radius: 5px;
+}
+
+.PlatForm .PlatformSider .MenuColBtn {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(to top, #1a335b, #053784);
+}
+
+.PlatForm .PlatformSider .MenuColBtn .MenuColBtnIcon {
+  color: #fff;
+  font-size: 18px;
+  margin: 0 10px;
+}
+
+.PlatForm .PlatformSider .RightIcon {
+  justify-content: flex-end;
+}
+
+.PlatForm .PlatformSider .CenterIcon {
+  justify-content: center;
+}
+
+.darkColorFont {
+  color: #fff;
+}
+
+.ant-btn-primary {
+  background-color: #2461a6;
+  color: #fff !important;
+}
+
+.ant-btn-primary > span {
+  color: #fff !important;
+}
+
+.surely-table-header-cell,
+.surely-table-header-scrollbar,
+.surely-table-cell-group-title {
+  background-color: #dee7f5 !important;
+  font-weight: bold !important;
+}
+
+.surely-table-header {
+  border-radius: 0px !important;
+}
+
+/* 普通行悬停背景色 */
+.surely-table-row-hover {
+  background-color: rgba(230, 230, 230, 0.9) !important;
+}
+
+/* 选中行背景色 */
+.surely-table-row.surely-table-row-selected {
+  background-color: #cde6f9 !important;
+}
+
+/* 选中行悬停背景色 */
+.surely-table-row.surely-table-row-selected.surely-table-row-hover {
+  background-color: #b3cee7 !important;
+}
+
+/* 斑马纹深色 */
+.surely-table.surely-table-stripe .surely-table-body .surely-table-row-odd:not(.surely-table-row-selected) {
+  background: #f1f4f9 !important;
+}
+
+/* 斑马纹深色悬停背景色  */
+.surely-table.surely-table-stripe
+  .surely-table-body
+  .surely-table-row-odd:not(.surely-table-row-selected).surely-table-row-hover {
+  background: rgba(230, 230, 230, 0.9) !important;
+}
+
+/* 页码样式 */
+/* 所有页码项（包括上一页/下一页） */
+.ant-pagination-prev,
+.ant-pagination-item,
+.ant-pagination-next {
+  border: 1px solid rgba(0, 91, 172, 0.55) !important;
+  background: white !important;
+  border-radius: 4px !important;
+}
+
+.ant-pagination-options .ant-select-selector {
+  border: 1px solid rgba(0, 91, 172, 0.55) !important;
+  background: white !important;
+  border-radius: 4px !important;
+}
+
+/* 当前选中页 */
+.ant-pagination-item-active {
+  background: #005bac !important;
+  border-color: #005bac !important;
+}
+
+/* 当前选中页的文字颜色 */
+.ant-pagination-item-active a {
+  color: white !important;
+}
+
+/* 悬浮效果 */
+.ant-pagination-prev:hover,
+.ant-pagination-next:hover,
+.ant-pagination-item:hover,
+.ant-select-selector:hover {
+  border-color: #005bac !important;
+}
+
+/* 上一页/下一页按钮居中 */
+.ant-pagination-item-link .anticon,
+.ant-pagination-next .anticon {
+  position: relative;
+  top: -2px;
+}
+
+/* platform 子应用内下拉选择控件高度统一，避免被主应用或全局样式放大 */
+.PlatForm .ant-select-selector {
+  height: 32px;
+  line-height: 32px;
+  box-sizing: border-box;
+}
+
+/* platform 子应用内按钮统一使用 inline-flex 居中，防止文字被挤到按钮外 */
+.PlatForm .ant-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.PlatForm .ant-btn > span {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* platform 子应用内普通输入框高度/内边距恢复为 AntD 默认值，防止被全局样式放大 */
+.PlatForm .ant-input {
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 4px 11px;
+  height: auto;
+  line-height: 1.5715;
+}
+
+/* platform 子应用 footer 样式，针对 ant-layout-footer 提升权重，压过主应用或 AntD 默认样式 */
+/* .PlatForm .ant-layout-footer.PlatformFooterCss {
+  text-align: right !important;
+  height: 35px !important;
+  line-height: 35px !important;
+  background-color: #eef3f9 !important;
+  bottom: 0px;
+  right: 0px;
+  padding: 0px !important;
+} */
+
