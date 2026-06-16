@@ -626,6 +626,7 @@ watch(
     }
     if (
       drawerStore.value?.selected !== ds?.selected ||
+      drawerStore.value?.foldmenu !== ds?.foldmenu ||
       drawerStore.value?.menuCollapsed !== ds?.menuCollapsed ||
       drawerStore.value?.menuwidth !== ds?.menuwidth
     ) {

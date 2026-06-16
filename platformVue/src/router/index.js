@@ -51,6 +51,46 @@ function findRootPath(routes, targetPath) {
   // 从根节点开始搜索
   return recursiveSearch(routes, '') || '/'
 }
+
+function findRoutePathChain(routes, targetPath) {
+  function recursiveSearch(routeList, currentChain) {
+    for (const route of routeList) {
+      const routePath = route.path || ''
+      const nextChain = routePath ? [...currentChain, routePath] : currentChain
+      if (routePath === targetPath) {
+        return nextChain
+      }
+      if (route.children && route.children.length > 0) {
+        const result = recursiveSearch(route.children, nextChain)
+        if (result) {
+          return result
+        }
+      }
+    }
+    return null
+  }
+
+  return recursiveSearch(routes, []) || []
+}
+
+function buildHomepageFoldmenu(routes, targetPath, sysCode) {
+  const configuredFoldmenu = `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU || ''}`.trim()
+  const sysPath = sysCode ? `/${sysCode}` : ''
+  const routeChain = findRoutePathChain(routes, targetPath).filter((path) => {
+    return path && path !== sysPath && path !== targetPath
+  })
+  const foldmenu = routeChain.length > 0 ? routeChain : [configuredFoldmenu].filter(Boolean)
+  return Array.from(new Set(foldmenu))
+}
+
+function setDrawerFoldmenu(drawerStore, foldmenu) {
+  if (!drawerStore) return
+  if (typeof drawerStore.setFoldmenu === 'function') {
+    drawerStore.setFoldmenu(foldmenu)
+  } else {
+    drawerStore.foldmenu = foldmenu
+  }
+}
 const router = createRouter({
   history: createWebHistory(`/${import.meta.env.VITE_APP_APPNAME}`),
   routes
@@ -96,21 +136,12 @@ router.beforeEach(async (to, from, next) => {
     const sysCode = import.meta.env.VITE_APP_APPNAME
     const innerPath = `${import.meta.env.VITE_HOMEPAGEPATH}`
     const tabKey = sysCode ? `/${sysCode}${innerPath}` : innerPath
+    const homepageFoldmenu = buildHomepageFoldmenu(routeStore.routes, innerPath, sysCode)
 
     if (to.path === '/') {
       next(innerPath)
       if (drawerStore) {
-        if (typeof drawerStore.setFoldmenu === 'function') {
-          drawerStore.setFoldmenu([
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ])
-        } else if (Array.isArray(drawerStore.foldmenu)) {
-          drawerStore.foldmenu = [
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ]
-        }
+        setDrawerFoldmenu(drawerStore, homepageFoldmenu)
         if (typeof drawerStore.changeSelected === 'function') {
           drawerStore.changeSelected([innerPath])
         } else if (Array.isArray(drawerStore.selected)) {
@@ -142,17 +173,7 @@ router.beforeEach(async (to, from, next) => {
 
     if (to.path === innerPath) {
       if (drawerStore) {
-        if (typeof drawerStore.setFoldmenu === 'function') {
-          drawerStore.setFoldmenu([
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ])
-        } else if (Array.isArray(drawerStore.foldmenu)) {
-          drawerStore.foldmenu = [
-            `${import.meta.env.VITE_HOMEPAGEPATHFOLDMENU}`,
-            innerPath
-          ]
-        }
+        setDrawerFoldmenu(drawerStore, homepageFoldmenu)
         if (typeof drawerStore.changeSelected === 'function') {
           drawerStore.changeSelected([innerPath])
         } else if (Array.isArray(drawerStore.selected)) {
