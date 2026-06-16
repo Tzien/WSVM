@@ -151,70 +151,6 @@ const menuBgStyle = computed(() => {
 
 // 本地菜单选中 keys，用于驱动左侧菜单高亮
 const selectedKeys = ref([])
-const openKeys = ref([])
-
-const normalizeKeys = (keys) => {
-  return Array.isArray(keys) ? [...keys] : []
-}
-
-const isSameKeys = (left, right) => {
-  const leftKeys = normalizeKeys(left)
-  const rightKeys = normalizeKeys(right)
-  return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index])
-}
-
-const getCurrentDrawerStore = () => {
-  return isQiankun ? drawerStore.value : drawerStore
-}
-
-const getFoldmenuKeys = () => {
-  const ds = getCurrentDrawerStore()
-  return ds ? normalizeKeys(ds.foldmenu) : []
-}
-
-const isMenuCollapsed = () => {
-  const ds = getCurrentDrawerStore()
-  return !!(ds && ds.menuCollapsed)
-}
-
-const syncDrawerStore = () => {
-  const ds = getCurrentDrawerStore()
-  if (isQiankun && ds) {
-    actions.setGlobalState({
-      drawerStore: ds
-    })
-  }
-}
-
-const setDrawerFoldmenu = (keys) => {
-  const ds = getCurrentDrawerStore()
-  if (!ds) return
-
-  const nextKeys = normalizeKeys(keys)
-  if (isSameKeys(getFoldmenuKeys(), nextKeys)) return
-
-  if (typeof ds.setFoldmenu === 'function') {
-    ds.setFoldmenu(nextKeys)
-  } else {
-    ds.foldmenu = nextKeys
-  }
-  syncDrawerStore()
-}
-
-const setOpenKeysFromFoldmenu = (keys) => {
-  const nextKeys = normalizeKeys(keys)
-  if (!isMenuCollapsed() && !isSameKeys(openKeys.value, nextKeys)) {
-    openKeys.value = nextKeys
-  }
-}
-
-const getFoldmenuKeysFromSelect = (val) => {
-  const currentOpenKeys = normalizeKeys(openKeys.value)
-  if (currentOpenKeys.length > 0) return currentOpenKeys
-
-  const selectedKeySet = new Set(normalizeKeys(val.selectedKeys))
-  return normalizeKeys(val.keyPath).filter((key) => !selectedKeySet.has(key))
-}
 
 watch(
   () => route.path,
@@ -329,8 +265,11 @@ const menuSelect = (val) => {
         ds.selected = val.selectedKeys
       }
 
-      setDrawerFoldmenu(getFoldmenuKeysFromSelect(val))
-      syncDrawerStore()
+      if (typeof ds.setFoldmenu === 'function') {
+        ds.setFoldmenu(val.keyPath)
+      } else if (Array.isArray(ds.foldmenu)) {
+        ds.foldmenu = val.keyPath
+      }
     }
   } else {
     const nav = navigationStore
@@ -354,29 +293,16 @@ const menuSelect = (val) => {
         dsLocal.selected = val.selectedKeys
       }
 
-      setDrawerFoldmenu(getFoldmenuKeysFromSelect(val))
+      if (typeof dsLocal.setFoldmenu === 'function') {
+        dsLocal.setFoldmenu(val.keyPath)
+      } else if (Array.isArray(dsLocal.foldmenu)) {
+        dsLocal.foldmenu = val.keyPath
+      }
     }
   }
 }
 
-watch(
-  () => getFoldmenuKeys(),
-  (keys) => {
-    setOpenKeysFromFoldmenu(keys)
-  },
-  { immediate: true, deep: true }
-)
-
-watch(
-  openKeys,
-  (keys) => {
-    if (!isMenuCollapsed()) {
-      setDrawerFoldmenu(keys)
-    }
-  },
-  { deep: true }
-)
-
+const openKeys = ref([])
 function toggleCollapsed() {
   if (isQiankun) {
     const ds = drawerStore.value || {}
@@ -390,7 +316,7 @@ function toggleCollapsed() {
       if (typeof ds.menuwidthCopy === 'number') {
         ds.menuwidth = ds.menuwidthCopy
       }
-      openKeys.value = getFoldmenuKeys()
+      openKeys.value = Array.isArray(ds.foldmenu) ? ds.foldmenu : []
     } else {
       // 收起：统一使用收起宽度 80，并清空展开项
       ds.menuwidth = 80
@@ -405,7 +331,7 @@ function toggleCollapsed() {
     drawerStore.changeCollapsed()
     if (!drawerStore.menuCollapsed) {
       drawerStore.setMenuWidthByCollapsedFalse()
-      openKeys.value = getFoldmenuKeys()
+      openKeys.value = drawerStore.foldmenu
     } else {
       drawerStore.setMenuWidthByCollapsed()
       openKeys.value = []
