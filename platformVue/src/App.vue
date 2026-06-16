@@ -1,7 +1,7 @@
 <template>
   <div class="PlatForm">
     <a-layout style="height: calc(100vh - 96px)" v-if="userStore.access_token"
-      v-memo="[userStore.access_token, navigationStore.language]">
+      v-memo="[userStore.access_token, navigationStore.language, drawerStore.menuCollapsed, drawerStore.menuwidth, openKeys.join(','), selectedKeys.join(',')]">
       <a-layout-sider :trigger="null" v-model:collapsed="drawerStore.menuCollapsed" collapsible class="PlatformSider"
         :class="drawerStore.theme == 'light' ? 'lightColor' : 'darkColor'" :width="drawerStore.menuwidth">
         <!-- 左侧菜单水印背景，作为侧边栏内部的绝对定位背景层 -->
