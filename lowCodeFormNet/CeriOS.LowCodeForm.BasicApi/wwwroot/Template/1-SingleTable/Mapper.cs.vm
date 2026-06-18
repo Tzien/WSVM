@@ -3,15 +3,60 @@
 {
 @:using JNPF.Common.Models;
 }
-using JNPF.Common.Security;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@(Model.ClassName);
 using Mapster;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace CeriOS.@(Model.NameSpace).Entitys.Mapper.@(Model.ClassName);
 
 public class Mapper : IRegister
 {
+        private static string? ToJson<T>(IList<T> list)
+        {
+                if (list == null || list.Count == 0) return null;
+                return JsonSerializer.Serialize(list).Replace("\r\n", "").Replace(" ", "");
+        }
+
+        private static List<string> ParseStringList(string? value)
+        {
+                if (string.IsNullOrWhiteSpace(value)) return new List<string>();
+                try
+                {
+                        return JsonSerializer.Deserialize<List<string>>(value) ?? new List<string>();
+                }
+                catch
+                {
+                        return new List<string>();
+                }
+        }
+
+        private static List<List<string>> ParseNestedStringList(string? value)
+        {
+                if (string.IsNullOrWhiteSpace(value)) return new List<List<string>>();
+                try
+                {
+                        return JsonSerializer.Deserialize<List<List<string>>>(value) ?? new List<List<string>>();
+                }
+                catch
+                {
+                        return new List<List<string>>();
+                }
+        }
+
+        private static List<T> ParseList<T>(string? value)
+        {
+                if (string.IsNullOrWhiteSpace(value)) return new List<T>();
+                try
+                {
+                        return JsonSerializer.Deserialize<List<T>>(value) ?? new List<T>();
+                }
+                catch
+                {
+                        return new List<T>();
+                }
+        }
+
 	public void Register(TypeAdapterConfig config)
 	{
 @*判断是否需要映射*@
@@ -64,7 +109,7 @@ case "usersSelect":
 @*是否为多选*@
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null && src.@(column.LowerColumnName).Count > 0 ? src.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null)
+			@:.Map(dest => dest.@(column.ColumnName), src => ToJson(src.@(column.LowerColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
 }
@@ -76,7 +121,7 @@ case "organizeSelect":
 case "areaSelect":
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null && src.@(column.LowerColumnName).Count > 0 ? src.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null)
+			@:.Map(dest => dest.@(column.ColumnName), src => ToJson(src.@(column.LowerColumnName)))
 break;
 case "switch":
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName))
@@ -105,7 +150,7 @@ switch(column.ceriKey)
 {
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<FileControlsModel>>() : new List<FileControlsModel>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseList<FileControlsModel>(src.@(column.ColumnName)))
 break;
 default:
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
@@ -138,7 +183,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.ColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
 }
@@ -148,19 +193,19 @@ case "organizeSelect":
 case "areaSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<List<string>>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseNestedStringList(src.@(column.ColumnName)))
 }
 else
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.ColumnName)))
 }
 break;
 case "checkbox":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.ColumnName)))
 break;
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<FileControlsModel>>() : new List<FileControlsModel>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseList<FileControlsModel>(src.@(column.ColumnName)))
 break;
 case "createTime":
 			@:.Map(dest => dest.@(column.LowerColumnName), src => string.Format("{0:yyyy-MM-dd HH:mm:ss}", src.@(column.ColumnName)))
@@ -197,7 +242,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.ColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
 }
@@ -207,17 +252,17 @@ case "organizeSelect":
 case "areaSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<List<string>>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseNestedStringList(src.@(column.ColumnName)))
 }else{
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.ColumnName)))
 }
 break;
 case "checkbox":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<string>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.ColumnName)))
 break;
 case "uploadImg":
 case "uploadFile":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToObject<List<FileControlsModel>>() : null)
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseList<FileControlsModel>(src.@(column.ColumnName)))
 break;
 default:
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
@@ -248,7 +293,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<string>>() : new List<string>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.LowerColumnName)))
 }else{
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
 }
@@ -258,15 +303,15 @@ case "organizeSelect":
 case "areaSelect":
 @if(column.IsMultiple)
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<List<string>>>() : new List<List<string>>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseNestedStringList(src.@(column.LowerColumnName)))
 }
 else
 {
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<string>>() : new List<string>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.LowerColumnName)))
 }
 break;
 case "checkbox":
-			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrEmpty(src.@(column.LowerColumnName)) ? src.@(column.LowerColumnName).ToObject<List<string>>() : new List<string>())
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseStringList(src.@(column.LowerColumnName)))
 break;
 case "switch":
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName))
