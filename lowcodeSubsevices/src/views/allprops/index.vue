@@ -109,6 +109,9 @@
     const dateValue = !isNaN(Number(val)) ? Number(val) : val;
     return dayjs(dateValue).format(getDateFormat(format));
   }
+  function getRowId(row: any) {
+    return row?.id ?? row?.Id;
+  }
 
   interface State {
     config: any;
@@ -217,6 +220,11 @@
           const pascalKey = key.replace(/^[a-z]/, (s) => s.toUpperCase());
           if (!(pascalKey in mapped)) mapped[pascalKey] = row[key];
         });
+        const rowId = getRowId(row);
+        if (rowId !== undefined && rowId !== null) {
+          mapped.id = rowId;
+          mapped.Id = rowId;
+        }
         return mapped;
       };
       const list = rows.map((o) => mapRow(o));
@@ -307,7 +315,7 @@ function getTableActions(record): ActionItem[] {
       label: t('common.delText','删除'),
       color: 'error',
       modelConfirm: {
-        onOk: handleDelete.bind(null, record.id),
+        onOk: handleDelete.bind(null, getRowId(record)),
       },
     },
   ];
@@ -325,7 +333,7 @@ function addHandle() {
   function updateHandle(record) {
     // 不带工作流
     const data = {
-      id: record.id,
+      id: getRowId(record),
       menuId: searchInfo.menuId,
       allList: state.cacheList,
     };

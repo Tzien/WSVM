@@ -3,6 +3,8 @@ enum Api {
   Prefix = '/api/@(Model.ClassName)Service',
 }
 
+const getId = (data) => data?.id ?? data?.Id;
+
 // 获取列表
 export function getList(data) {
   return lowCodeDemoInstance.post( Api.Prefix + `/@(Model.Type == 5 ? "Tree" : "")List`, data );
@@ -19,7 +21,8 @@ export function create(data) {
 
 // 修改
 export function update(data) {
-  return lowCodeDemoInstance.put( Api.Prefix + `/` + data.id, data );
+  const id = getId(data);
+  return lowCodeDemoInstance.put( Api.Prefix + `/` + id, { ...data, id } );
 }
 
 @if(Model.HasRemove){

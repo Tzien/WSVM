@@ -3,6 +3,8 @@ enum Api {
   Prefix = '/api/AllpropsService',
 }
 
+const getId = (data) => data?.id ?? data?.Id;
+
 // 获取列表
 export function getList(data) {
   return lowCodeDemoInstance.post( Api.Prefix + `/List`, data );
@@ -19,7 +21,8 @@ export function create(data) {
 
 // 修改
 export function update(data) {
-  return lowCodeDemoInstance.put( Api.Prefix + `/` + data.id, data );
+  const id = getId(data);
+  return lowCodeDemoInstance.put( Api.Prefix + `/` + id, { ...data, id } );
 }
 
 // 删除

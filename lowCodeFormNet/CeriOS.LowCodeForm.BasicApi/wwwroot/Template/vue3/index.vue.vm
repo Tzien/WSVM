@@ -286,6 +286,9 @@
     const dateValue = !isNaN(Number(val)) ? Number(val) : val;
     return dayjs(dateValue).format(getDateFormat(format));
   }
+  function getRowId(row: any) {
+    return row?.@(Model.PrimaryKeyField) ?? row?.id ?? row?.Id;
+  }
 
   interface State {
 @if(Model.HasFlow){
@@ -448,6 +451,12 @@
           const pascalKey = key.replace(/^[a-z]/, (s) => s.toUpperCase());
           if (!(pascalKey in mapped)) mapped[pascalKey] = row[key];
         });
+        const rowId = getRowId(row);
+        if (rowId !== undefined && rowId !== null) {
+          mapped.@(Model.PrimaryKeyField) = rowId;
+          mapped.id = rowId;
+          mapped.Id = rowId;
+        }
         return mapped;
       };
       const list = rows.map((o) => mapRow(o));
@@ -694,7 +703,7 @@ case "remove":
       @:disabled: ![0,9].includes(record.flowState),
 }
       @:modelConfirm: {
-        @:onOk: handleDelete.bind(null, record.@(Model.PrimaryKeyField)),
+        @:onOk: handleDelete.bind(null, getRowId(record)),
       @:},
 break;
 case "detail":
@@ -835,7 +844,7 @@ break;
 }else{
     @:// 不带工作流
     @:const data = {
-      @:id: record.@(Model.PrimaryKeyField),
+      @:id: getRowId(record),
       @:menuId: searchInfo.menuId,
       @:allList: state.cacheList,
     @:};
@@ -858,7 +867,7 @@ break;
 }else{
     @:// 不带流程
     @:const data = {
-      @:id: record.@(Model.PrimaryKeyField),
+      @:id: getRowId(record),
     @:};
     @:detailRef.value?.init(data);
 }

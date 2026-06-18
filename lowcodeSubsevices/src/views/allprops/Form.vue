@@ -201,16 +201,22 @@
 
   defineExpose({ init });
 
+  function getRowId(row: any) {
+    return row?.id ?? row?.Id;
+  }
+
   function init(data) {
+    const id = data.id ?? data.Id;
     state.submitType = 0;
     state.showContinueBtn = true;
-    state.title = !data.id ? '新增' : '编辑';
-    state.continueText = !data.id ? '确定并新增' : '确定并继续';
+    state.title = !id ? '新增' : '编辑';
+    state.continueText = !id ? '确定并新增' : '确定并继续';
     setFormProps({ continueLoading: false });
-    state.dataForm.id = data.id;
+    state.dataForm.id = id;
     openModal();
     state.allList = data.allList;
-    state.currIndex = state.allList.length && data.id ? state.allList.findIndex((item) => item.id === data.id) : 0;
+    state.currIndex = state.allList.length && id ? state.allList.findIndex((item) => getRowId(item) === id) : 0;
+    if (state.currIndex < 0) state.currIndex = 0;
     nextTick(() => {
       getForm().resetFields();
       setTimeout(initData, 0);
@@ -307,7 +313,7 @@ function getData(id) {
   function handleGetNewInfo() {
     changeLoading(true);
     getForm().resetFields();
-    const id = state.allList[state.currIndex].id;
+    const id = getRowId(state.allList[state.currIndex]);
     getData(id);
   }
   function setFormProps(data) {
