@@ -26,6 +26,12 @@ public class AllpropsService : ControllerBase, IAllpropsService
 {
     public Repository<AllpropsEntity> _db { get; set; }
 
+    static AllpropsService()
+    {
+        var cfg = TypeAdapterConfig.GlobalSettings;
+        new CeriOS.示.Entitys.Mapper.Allprops.Mapper().Register(cfg);
+    }
+
     /// <summary>
     /// 初始化一个<see cref="AllpropsService"/>类型的新实例.
     /// </summary>

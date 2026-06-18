@@ -26,6 +26,12 @@ public class @(Model.ClassName)Service : ControllerBase, I@(Model.ClassName)Serv
 {
     public Repository<@(Model.ClassName)Entity> _db { get; set; }
 
+    static @(Model.ClassName)Service()
+    {
+        var cfg = TypeAdapterConfig.GlobalSettings;
+        new CeriOS.@(Model.NameSpace).Entitys.Mapper.@(Model.ClassName).Mapper().Register(cfg);
+    }
+
     /// <summary>
     /// 初始化一个<see cref="@(Model.ClassName)Service"/>类型的新实例.
     /// </summary>
