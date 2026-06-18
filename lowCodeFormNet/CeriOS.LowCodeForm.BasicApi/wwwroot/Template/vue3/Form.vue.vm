@@ -472,6 +472,11 @@ break;
     return row?.@(Model.PrimaryKeyField) ?? row?.id ?? row?.Id;
   }
 
+  function getFormFieldKey(key: string) {
+    const matchedKey = Object.keys(state.dataForm || {}).find((item) => item.toLowerCase() === key.toLowerCase());
+    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
+
   function init(data) {
     const id = data.id ?? data.Id ?? data.@(Model.PrimaryKeyField);
     state.submitType = 0;
@@ -575,8 +580,8 @@ function getData(id) {
     Object.keys(raw || {}).forEach((k) => {
       if (!k) return;
       if (k === 'id') return;
-      const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
-      mapped[pascalKey] = raw[k];
+      const fieldKey = getFormFieldKey(k);
+      mapped[fieldKey] = raw[k];
     });
 @foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
 @if (column.ceriKey == "datePicker") {

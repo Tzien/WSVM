@@ -109,6 +109,11 @@
     const dateValue = !isNaN(Number(val)) ? Number(val) : val;
     return dayjs(dateValue).format(getDateFormat(format));
   }
+
+  function getColumnFieldKey(key: string) {
+    const matchedKey = (state.columnList || []).map((item) => item?.prop).find((item) => item && item.toLowerCase() === key.toLowerCase());
+    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
   function getRowId(row: any) {
     return row?.id ?? row?.Id;
   }
@@ -217,8 +222,8 @@
           ...state.expandObj,
         };
         Object.keys(row || {}).forEach((key) => {
-          const pascalKey = key.replace(/^[a-z]/, (s) => s.toUpperCase());
-          if (!(pascalKey in mapped)) mapped[pascalKey] = row[key];
+          const fieldKey = getColumnFieldKey(key);
+          if (!(fieldKey in mapped)) mapped[fieldKey] = row[key];
         });
         const rowId = getRowId(row);
         if (rowId !== undefined && rowId !== null) {

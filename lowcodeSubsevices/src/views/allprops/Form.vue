@@ -205,6 +205,11 @@
     return row?.id ?? row?.Id;
   }
 
+  function getFormFieldKey(key: string) {
+    const matchedKey = Object.keys(state.dataForm || {}).find((item) => item.toLowerCase() === key.toLowerCase());
+    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
+
   function init(data) {
     const id = data.id ?? data.Id;
     state.submitType = 0;
@@ -264,8 +269,8 @@ function getData(id) {
     Object.keys(raw || {}).forEach((k) => {
       if (!k) return;
       if (k === 'id') return;
-      const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
-      mapped[pascalKey] = raw[k];
+      const fieldKey = getFormFieldKey(k);
+      mapped[fieldKey] = raw[k];
     });
     if (mapped.CreateTime) mapped.CreateTime = dayjs(mapped.CreateTime).valueOf();
     Object.assign(state.dataForm, mapped);
