@@ -210,6 +210,18 @@
     return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
   }
 
+  function normalizeOptionValue(key: string, value: any) {
+    const options = state.optionsObj?.[`${key}Options`];
+    if (!Array.isArray(options) || value === undefined || value === null) return value;
+    const props = state.optionsObj?.[`${key}Props`] || {};
+    const valueKey = props.value || 'id';
+    const normalize = (val: any) => {
+      const item = options.find((option: any) => String(option?.[valueKey]) === String(val));
+      return item ? item[valueKey] : val;
+    };
+    return Array.isArray(value) ? value.map(normalize) : normalize(value);
+  }
+
   function init(data) {
     const id = data.id ?? data.Id;
     state.submitType = 0;
@@ -270,7 +282,7 @@ function getData(id) {
       if (!k) return;
       if (k === 'id') return;
       const fieldKey = getFormFieldKey(k);
-      mapped[fieldKey] = raw[k];
+      mapped[fieldKey] = normalizeOptionValue(fieldKey, raw[k]);
     });
     if (mapped.CreateTime) mapped.CreateTime = dayjs(mapped.CreateTime).valueOf();
     Object.assign(state.dataForm, mapped);

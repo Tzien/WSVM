@@ -49,6 +49,9 @@
             <template v-if="column.ceriKey === 'datePicker'">
                 {{ formatDateCell(record[column.dataIndex], column.format || 'YYYY-MM-DD HH:mm:ss') }}
             </template>
+            <template v-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
+                {{ formatOptionCell(record[column.dataIndex], column) }}
+            </template>
 </template>
             <template v-if="column.flag === 'ACTION' && !record.top">
               <TableAction :actions="getTableActions(record)" />
@@ -113,6 +116,20 @@
   function getColumnFieldKey(key: string) {
     const matchedKey = (state.columnList || []).map((item) => item?.prop).find((item) => item && item.toLowerCase() === key.toLowerCase());
     return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
+
+  function formatOptionCell(value: any, column: any) {
+    if (value === undefined || value === null || value === '') return '';
+    const options = Array.isArray(column?.options) ? column.options : [];
+    if (!options.length) return Array.isArray(value) ? value.join(',') : value;
+    const props = column?.props || {};
+    const labelKey = props.label || 'fullName';
+    const valueKey = props.value || 'id';
+    const getLabel = (val: any) => {
+      const item = options.find((option: any) => String(option?.[valueKey]) === String(val));
+      return item?.[labelKey] ?? val;
+    };
+    return Array.isArray(value) ? value.map(getLabel).join(',') : getLabel(value);
   }
   function getRowId(row: any) {
     return row?.id ?? row?.Id;
