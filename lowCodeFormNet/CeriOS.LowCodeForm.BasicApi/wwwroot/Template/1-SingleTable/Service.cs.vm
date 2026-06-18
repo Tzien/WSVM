@@ -443,7 +443,7 @@ break;
 }
 @if(Model.PrimaryKeyPolicy == 1)
 {
-        @:entity.@(Model.PrimaryKey) = GuidHelper.BuildGuid();
+        @:entity.@(Model.PrimaryKey) = Guid.NewGuid().ToString("N");
 }
         @:var isOk = await _db.InsertAsync(entity);
         @:if (!isOk)

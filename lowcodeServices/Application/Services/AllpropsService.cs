@@ -1,7 +1,6 @@
 ﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
-using JNPF.Common.Security;
 using CeriOS.示例.Entitys.Dto.Allprops;
 using CeriOS.示例.Entitys;
 using CeriOS.示例.Interfaces;
@@ -186,7 +185,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
             };
         }
         var entity = input.Adapt<AllpropsEntity>();
-        entity.id = GuidHelper.BuildGuid();
+        entity.id = Guid.NewGuid().ToString("N");
         var isOk = await _db.InsertAsync(entity);
         if (!isOk)
         {
