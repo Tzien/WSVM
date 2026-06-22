@@ -24,7 +24,6 @@
       :disabled="disabled"
       :show-upload-list="false"
       :action="getAction"
-      :data="getUploadData"
       :before-upload="beforeUpload"
       @change="handleChange"
       v-else>
@@ -67,28 +66,6 @@
   const getUrlPrefix = computed(() => (!props.actionPrefix ? apiUrl.value : props.actionPrefix));
   const getAction = computed(() => (!props.actionPrefix ? globSetting.uploadUrl + '/' + props.type : props.actionPrefix + props.type));
   // const getHeaders = computed(() => ({ Authorization: getToken() as string }));
-  function getFileExtension(fileName: string) {
-    const index = fileName.lastIndexOf('.');
-    return index > -1 ? fileName.slice(index + 1) : '';
-  }
-  function getUploadData(file: File) {
-    const fileName = file.name || '';
-    const extension = getFileExtension(fileName);
-    return {
-      pathType: 'defaultPath',
-      sortRule: '0',
-      timeFormat: 'YYYY',
-      folder: 'default',
-      fileName,
-      fileSize: String(file.size || 0),
-      fileType: file.type || extension,
-      parentId: '0',
-      extension,
-      identifier: `${fileName}-${file.size || 0}`,
-      relativePath: fileName,
-      slImgName: fileName ? `sl_${fileName}` : 'sl_image',
-    };
-  }
   const getImgSrc = computed<string>(() => (base64WithPrefixRegex.test(imageUrl.value) ? imageUrl.value : getUrlPrefix.value + imageUrl.value));
   const getImgList = computed<string[]>(() => (getImgSrc.value ? [getImgSrc.value] : []));
 

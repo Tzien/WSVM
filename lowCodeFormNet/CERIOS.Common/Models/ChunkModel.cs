@@ -33,17 +33,17 @@ public class ChunkModel
     /// <summary>
     /// 文件标识.
     /// </summary>
-    public string identifier { get; set; }
+    public string identifier { get; set; } = string.Empty;
 
     /// <summary>
     /// 文件名.
     /// </summary>
-    public string fileName { get; set; }
+    public string fileName { get; set; } = string.Empty;
 
     /// <summary>
     /// 相对路径.
     /// </summary>
-    public string relativePath { get; set; }
+    public string relativePath { get; set; } = string.Empty;
 
     /// <summary>
     /// 总块数.
@@ -58,22 +58,22 @@ public class ChunkModel
     /// <summary>
     /// 文件后缀.
     /// </summary>
-    public string extension { get; set; }
+    public string extension { get; set; } = string.Empty;
 
     /// <summary>
     /// 文件类型.
     /// </summary>
-    public string fileType { get; set; }
+    public string fileType { get; set; } = string.Empty;
 
     /// <summary>
     /// 上级id.
     /// </summary>
-    public string parentId { get; set; }
+    public string parentId { get; set; } = string.Empty;
 
     /// <summary>
     /// 文件大小.
     /// </summary>
-    public string fileSize { get; set; }
+    public string fileSize { get; set; } = string.Empty;
 
     /// <summary>
     /// 是否生成文件名.
@@ -93,20 +93,20 @@ public class ChunkModel
     /// <summary>
     /// 排序规则（1-用户 2- 时间 3-自定义）.
     /// </summary>
-    public string sortRule { get; set; }
+    public string sortRule { get; set; } = string.Empty;
 
     /// <summary>
     /// 时间格式.
     /// </summary>
-    public string timeFormat { get; set; }
+    public string timeFormat { get; set; } = "YYYY";
 
     /// <summary>
     /// 自定义文件夹路径.
     /// </summary>
-    public string folder { get; set; }
+    public string folder { get; set; } = string.Empty;
 
     /// <summary>
     /// 缩略图文件名.
     /// </summary>
-    public string slImgName { get; set; }
+    public string slImgName { get; set; } = string.Empty;
 }
