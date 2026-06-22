@@ -332,7 +332,8 @@ namespace CERIOS.Common.Core.Manager.Files
         /// <returns></returns>
         public async Task MakeThumbnail(Stream stream, string saveFileName, string folder)
         {
-            var imgPath = Path.Combine(App.App.GetConfig<AppOptions>("CERIOS_App", true).SystemPath, FileVariable.TemporaryFilePath, "sl_" + saveFileName);
+            Directory.CreateDirectory(FileVariable.TemporaryFilePath);
+            var imgPath = Path.Combine(FileVariable.TemporaryFilePath, "sl_" + saveFileName);
             var flag = FileHelper.MakeThumbnail(stream, 120, 120, "DB", imgPath);
             if (flag)
             {
