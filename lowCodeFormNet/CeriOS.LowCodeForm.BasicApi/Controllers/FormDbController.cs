@@ -27,6 +27,10 @@ using CERIOS.Engine.Entity.Model;
 using CERIOS.Common.Const;
 using CERIOS.Engine.Entity.Model.CodeGen;
 using CERIOS.Common.Security;
+using CERIOS.Common.Models;
+using log4net.Core;
+using CERIOS.Common.Enums;
+using CERIOS.Common.Core.Manager.Files;
 namespace CeriOS.LowCodeForm.BasicApi.Controller
 {
 
@@ -50,6 +54,11 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         /// <summary>
         /// 文件服务.
         /// </summary>
+        private readonly IFileManager _fileManager;
+
+        /// <summary>
+        /// 文件服务.
+        /// </summary>
         //private readonly ICacheManager _cacheManager;
 
         /// <summary>
@@ -57,7 +66,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         /// </summary>
         private readonly IViewEngine _viewEngine;
 
-        public FormDbController(IViewEngine viewEngine, IVisualDevReleaseEntityService visualDevReleaseEntityService, IVisualDictionaryDataService visualDictionaryDataService, IFormDbService FormDbService, IHttpContextAccessor httpContextAccessor, IDBConfigService dBConfigService, IVisualPersonalService visualPersonalService, IFileService fileService)
+        public FormDbController(IFileManager fileManager, IViewEngine viewEngine, IVisualDevReleaseEntityService visualDevReleaseEntityService, IVisualDictionaryDataService visualDictionaryDataService, IFormDbService FormDbService, IHttpContextAccessor httpContextAccessor, IDBConfigService dBConfigService, IVisualPersonalService visualPersonalService, IFileService fileService)
         {
             _viewEngine = viewEngine;
             _visualDevReleaseEntityService = visualDevReleaseEntityService;
@@ -67,6 +76,8 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             _VisualPersonalService = visualPersonalService;
             _visualDictionaryDataService = visualDictionaryDataService;
             _fileService = fileService;
+            _fileManager = fileManager;
+
         }
 
         [HttpGet]
@@ -959,10 +970,10 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             List<string> templatePathList = new List<string>();
 
             string tableName = string.Empty;
-            CodeGenConfigModel codeGenConfigModel = new CodeGenConfigModel();
+            CERIOS.Engine.Entity.Model.CodeGen.CodeGenConfigModel codeGenConfigModel = new CERIOS.Engine.Entity.Model.CodeGen.CodeGenConfigModel();
 
             // 主表代码生成配置模型
-            CodeGenConfigModel codeGenMainTableConfigModel = new CodeGenConfigModel();
+            CERIOS.Engine.Entity.Model.CodeGen.CodeGenConfigModel codeGenMainTableConfigModel = new CERIOS.Engine.Entity.Model.CodeGen.CodeGenConfigModel();
 
             // 子表表名和主键.
             var ctPrimaryKey = new Dictionary<string, string>();
@@ -2841,5 +2852,82 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             }
         }
 
+
+        [HttpPost("Uploader/{type}")]
+        public async Task<dynamic> Uploader(string type,ChunkModel input)
+        {
+            string? fileType = Path.GetExtension(input.file.FileName).Replace(".", string.Empty);
+            if (!AllowFileType(fileType, type))
+                throw new Exception("上传失败，文件格式不允许上传");
+            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.file.FileName));
+            var stream = input.file.OpenReadStream();
+            input.type = type;
+            _fileManager.GetChunkModel(input, saveFileName);
+            await _fileManager.UploadFileByType(stream, input.folder, saveFileName);
+            if (AllowImageType(fileType) && type.Equals("annexpic"))
+            {
+                var slStram = await _fileManager.GetFileStream(Path.Combine(input.folder, saveFileName));
+                await _fileManager.MakeThumbnail(slStram, saveFileName, input.folder);
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
+            }
+            else
+            {
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
+            }
+        }
+
+
+        /// <summary>
+        /// 允许文件类型.
+        /// </summary>
+        /// <param name="fileExtension">文件后缀名.</param>
+        /// <param name="type">文件类型.</param>
+        /// <returns></returns>
+        private bool AllowFileType(string fileExtension, string type)
+        {
+            List<string> allowExtension = KeyVariable.AllowUploadFileType.Distinct().ToList();
+            if (fileExtension.IsNullOrEmpty() || type.IsNullOrEmpty()) return false;
+            if (type.Equals("weixin"))
+                allowExtension = KeyVariable.WeChatUploadFileType;
+            foreach (var item in Enum.GetValues(typeof(ExportFileType)))
+            {
+                allowExtension.Add(item.ToString());
+            }
+            return allowExtension.Any(a => a == fileExtension.ToLower());
+        }
+
+        /// <summary>
+        /// 允许文件类型.
+        /// </summary>
+        /// <param name="fileExtension">文件后缀名.</param>
+        /// <returns></returns>
+        private bool AllowImageType(string fileExtension)
+        {
+            return KeyVariable.AllowImageType.Any(a => a == fileExtension.ToLower());
+        }
+
+
+        /// <summary>
+        /// 生成图片链接.
+        /// </summary>
+        /// <param name="type">图片类型.</param>
+        /// <param name="fileName">注意 后缀名前端故意把 .替换@ .</param>
+        /// <returns></returns>
+        [HttpGet("Image/{type}/{fileName}")]
+        public async Task<IActionResult> GetImg(string type, string fileName)
+        {
+            string? filePath = Path.Combine(GetPathByType(type), fileName.Replace("@", "."));
+            return await _fileManager.DownloadFileByType(filePath, fileName);
+        }
+        /// <summary>
+        /// 根据类型获取文件存储路径.
+        /// </summary>
+        /// <param name="type">文件类型.</param>
+        /// <returns></returns>
+        [NonAction]
+        public string GetPathByType(string type)
+        {
+            return _fileManager.GetPathByType(type);
+        }
     }
 }
