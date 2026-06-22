@@ -77,7 +77,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     {
         var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(AllpropsEntity));
         var selectIds = input.selectIds?.Split(",").ToList();
-      var query = _db.Context.Queryable<AllpropsEntity>();
+      var query = _db.Context.Queryable<AllpropsEntity>().Where(it => it.IsDeleted == 0);
        var extra = GetExtraFilters(input);
        if (extra != null && extra.Count > 0)
         {

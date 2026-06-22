@@ -152,6 +152,10 @@ case "page":
         @:var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(@(Model.ClassName)Entity));
         @:var selectIds = input.selectIds?.Split(",").ToList();
       @:var query = _db.Context.Queryable<@(Model.ClassName)Entity>();
+@if(Model.TableField != null && Model.TableField.Any(x => x.ColumnName == "IsDeleted"))
+{
+      @:query = query.Where(it => it.IsDeleted == 0);
+}
        @:var extra = GetExtraFilters(input);
        
        @:if (extra != null && extra.Count > 0)
