@@ -65,12 +65,28 @@
 
   const getAction = computed(() => globSetting.uploadUrl + '/' + props.type);
   // const getHeaders = computed(() => ({ Authorization: getToken() as string }));
-  const getUploadData = computed(() => ({
-    pathType: props.pathType,
-    sortRule: (props.sortRule || []).join(),
-    timeFormat: props.timeFormat,
-    folder: props.folder,
-  }));
+  function getFileExtension(fileName: string) {
+    const index = fileName.lastIndexOf('.');
+    return index > -1 ? fileName.slice(index + 1) : '';
+  }
+  function getUploadData(file: File) {
+    const fileName = file.name || '';
+    const extension = getFileExtension(fileName);
+    return {
+      pathType: props.pathType,
+      sortRule: (props.sortRule || []).join() || '0',
+      timeFormat: props.timeFormat || 'YYYY',
+      folder: props.folder || 'default',
+      fileName,
+      fileSize: String(file.size || 0),
+      fileType: file.type || extension,
+      parentId: '0',
+      extension,
+      identifier: `${fileName}-${file.size || 0}`,
+      relativePath: fileName,
+      slImgName: fileName ? `sl_${fileName}` : 'sl_image',
+    };
+  }
   const getBindValues = computed(() => {
     return {
       class: 'img-uploader-' + (props.showType || 'card'),
@@ -81,7 +97,7 @@
       maxCount: props.limit === 0 ? undefined : props.limit,
       action: unref(getAction),
       // headers: unref(getHeaders),
-      data: unref(getUploadData),
+      data: getUploadData,
       beforeUpload,
       onChange: handleChange,
     };
