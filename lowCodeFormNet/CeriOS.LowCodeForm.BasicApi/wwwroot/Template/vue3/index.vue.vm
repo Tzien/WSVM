@@ -295,8 +295,9 @@
   }
   function formatOptionCell(value: any, column: any) {
     if (value === undefined || value === null || value === '') return '';
+    const cellValue = normalizeOptionCellValue(value, column);
     const options = Array.isArray(column?.options) ? column.options : [];
-    if (!options.length) return Array.isArray(value) ? value.join(',') : value;
+    if (!options.length) return Array.isArray(cellValue) ? cellValue.join(',') : cellValue;
     const props = column?.props || {};
     const labelKey = props.label || 'fullName';
     const valueKey = props.value || 'id';
@@ -304,7 +305,24 @@
       const item = options.find((option: any) => String(option?.[valueKey]) === String(val));
       return item?.[labelKey] ?? val;
     };
-    return Array.isArray(value) ? value.map(getLabel).join(',') : getLabel(value);
+    return Array.isArray(cellValue) ? cellValue.map(getLabel).join(',') : getLabel(cellValue);
+  }
+  function normalizeOptionCellValue(value: any, column: any) {
+    if (Array.isArray(value) || typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        return Array.isArray(parsed) ? parsed : value;
+      } catch {
+        return value;
+      }
+    }
+    if (column?.ceriKey === 'checkbox' && trimmed.includes(',')) {
+      return trimmed.split(',').map((item: string) => item.trim()).filter(Boolean);
+    }
+    return value;
   }
   function getRowId(row: any) {
     return row?.@(Model.PrimaryKeyField) ?? row?.id ?? row?.Id;
