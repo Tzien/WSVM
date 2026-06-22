@@ -619,7 +619,7 @@ break;
 }
 @if(Model.WebType != 4 && Model.ColumnButtonDesignAny){
       @:actionColumn: {
-        @:width: 50,
+        @:width: 120,
         @:fixed: 'right',
         @:align: 'center',
         @:title: t('component.table.action'),

@@ -312,7 +312,7 @@
       columns,
       bordered: true,
       actionColumn: {
-        width: 50,
+        width: 120,
         fixed: 'right',
         align: 'center',
         title: t('component.table.action'),
