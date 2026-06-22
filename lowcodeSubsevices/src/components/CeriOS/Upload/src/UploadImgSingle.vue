@@ -77,26 +77,6 @@
     { immediate: true },
   );
 
-  type UploadResponseData = {
-    name?: string;
-    fileId?: string;
-    fileName?: string;
-    url?: string;
-    thumbUrl?: string;
-  };
-  type UploadResponse = UploadResponseData & {
-    code?: number;
-    data?: UploadResponseData;
-    msg?: string;
-  };
-
-  function getUploadResponseData(response?: UploadResponse) {
-    if (!response) return null;
-    if (response.code === 200 && response.data?.url) return response.data;
-    if (response.url) return response;
-    return null;
-  }
-
   function beforeUpload(file) {
     const isAccept = new RegExp('image/*').test(file.type);
     if (!isAccept) {
@@ -123,14 +103,13 @@
     }
     if (file.status === 'done') {
       loading.value = false;
-      const responseData = getUploadResponseData(file.response);
-      if (responseData?.url) {
-        imageUrl.value = responseData.url;
+      if (file.response.code === 200) {
+        imageUrl.value = file.response.data.url;
         emit('update:value', unref(imageUrl));
         emit('change', unref(imageUrl));
         formItemContext.onFieldChange();
       } else {
-        createMessage.error(file.response?.msg || t('component.upload.uploadError'));
+        createMessage.error(file.response.msg);
       }
     }
   }

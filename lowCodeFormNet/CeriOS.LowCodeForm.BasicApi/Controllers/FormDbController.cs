@@ -2854,7 +2854,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
 
 
         [HttpPost("Uploader/{type}")]
-        public async Task<dynamic> Uploader(string type,ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> Uploader(string type, ChunkModel input)
         {
             string? fileType = Path.GetExtension(input.file.FileName).Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
@@ -2868,11 +2868,11 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             {
                 var slStram = await _fileManager.GetFileStream(Path.Combine(input.folder, saveFileName));
                 await _fileManager.MakeThumbnail(slStram, saveFileName, input.folder);
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName } };
             }
             else
             {
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName } };
             }
         }
 

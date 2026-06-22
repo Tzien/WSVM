@@ -95,26 +95,6 @@
     { deep: true, immediate: true },
   );
 
-  type UploadResponseData = {
-    name?: string;
-    fileId?: string;
-    fileName?: string;
-    url?: string;
-    thumbUrl?: string;
-  };
-  type UploadResponse = UploadResponseData & {
-    code?: number;
-    data?: UploadResponseData;
-    msg?: string;
-  };
-
-  function getUploadResponseData(response?: UploadResponse) {
-    if (!response) return null;
-    if (response.code === 200 && response.data?.url) return response.data;
-    if (response.url) return response;
-    return null;
-  }
-
   function beforeUpload(file) {
     const isTopLimit = props.limit ? imgList.value.length >= props.limit : false;
     if (isTopLimit) {
@@ -146,8 +126,7 @@
     }
     if (file.status === 'done') {
       loading.value = false;
-      const responseData = getUploadResponseData(file.response);
-      if (responseData?.url) {
+      if (file.response.code === 200) {
         const isTopLimit = props.limit ? imgList.value.length >= props.limit : false;
         if (isTopLimit) {
           fileList.value = fileList.value.filter(o => o.uid != file.uid);
@@ -156,16 +135,16 @@
         }
         imgList.value.push({
           name: file.name,
-          fileId: responseData.name || responseData.fileId || responseData.fileName || responseData.url,
-          url: responseData.url,
-          thumbUrl: responseData.thumbUrl || responseData.url,
+          fileId: file.response.data.name,
+          url: file.response.data.url,
+          thumbUrl: file.response.data.thumbUrl,
         });
         emit('update:value', unref(imgList));
         emit('change', unref(imgList));
         formItemContext.onFieldChange();
       } else {
         fileList.value = fileList.value.filter(o => o.uid != file.uid);
-        createMessage.error(file.response?.msg || t('component.upload.uploadError'));
+        createMessage.error(file.response.msg);
       }
     }
   }
