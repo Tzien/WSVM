@@ -124,7 +124,7 @@
     // 软件的错误报告
     "ErrorReport": false,
     // 软件的错误报告发给谁
-    "ErrorReportTo": "yinmaisoft@163.com",
+    "ErrorReportTo": "15930816859@163.com",
     // 扫码过期时间 / 分钟
     "CodeCertificateTimeout": 3
   },

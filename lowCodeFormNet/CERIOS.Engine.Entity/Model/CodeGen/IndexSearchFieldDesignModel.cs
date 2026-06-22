@@ -121,7 +121,7 @@ public class IndexSearchFieldDesignModel
     public string AbleIds { get; set; }
 
     /// <summary>
-    /// jnpf控件KEY.
+    /// ceri控件KEY.
     /// </summary>
     public string ceriKey { get; set; }
 

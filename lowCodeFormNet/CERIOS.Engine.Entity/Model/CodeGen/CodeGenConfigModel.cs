@@ -274,12 +274,12 @@ public class CodeGenConfigModel
     public bool IsSearchMultiple { get; set; }
 
     /// <summary>
-    /// 需解析的控件类型 JnpfKeyConst @@ 需解析的字段集合（以,隔开）.
+    /// 需解析的控件类型 CeriKeyConst @@ 需解析的字段集合（以,隔开）.
     /// </summary>
     public List<string[]> ParsCeriKeyConstList { get; set; }
 
     /// <summary>
-    /// 需解析的控件类型 JnpfKeyConst @@ 需解析的字段集合（以,隔开）详情页 （行内编辑的时候特殊处理）.
+    /// 需解析的控件类型 CeriKeyConst @@ 需解析的字段集合（以,隔开）详情页 （行内编辑的时候特殊处理）.
     /// </summary>
     public List<string[]> ParsCeriKeyConstListDetails { get; set; }
 

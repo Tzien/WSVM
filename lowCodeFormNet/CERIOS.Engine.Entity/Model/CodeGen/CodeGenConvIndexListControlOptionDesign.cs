@@ -29,7 +29,7 @@ public class CodeGenConvIndexListControlOptionDesign
     public string DataType { get; set; }
 
     /// <summary>
-    /// jnpf控件key.
+    /// ceri控件key.
     /// </summary>
     public string ceriKey { get; set; }
 

@@ -468,13 +468,35 @@ break;
 
   defineExpose({ init });
 
+  function getRowId(row: any) {
+    return row?.@(Model.PrimaryKeyField) ?? row?.id ?? row?.Id;
+  }
+
+  function getFormFieldKey(key: string) {
+    const matchedKey = Object.keys(state.dataForm || {}).find((item) => item.toLowerCase() === key.toLowerCase());
+    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
+
+  function normalizeOptionValue(key: string, value: any) {
+    const options = state.optionsObj?.[`${key}Options`];
+    if (!Array.isArray(options) || value === undefined || value === null) return value;
+    const props = state.optionsObj?.[`${key}Props`] || {};
+    const valueKey = props.value || 'id';
+    const normalize = (val: any) => {
+      const item = options.find((option: any) => String(option?.[valueKey]) === String(val));
+      return item ? item[valueKey] : val;
+    };
+    return Array.isArray(value) ? value.map(normalize) : normalize(value);
+  }
+
   function init(data) {
+    const id = data.id ?? data.Id ?? data.@(Model.PrimaryKeyField);
     state.submitType = 0;
     state.showContinueBtn = @(Model.HasConfirmAndAddBtn.ToString().ToLower());
-    state.title = !data.id ? '新增' : '编辑';
-    state.continueText = !data.id ? '确定并新增' : '确定并继续';
+    state.title = !id ? '新增' : '编辑';
+    state.continueText = !id ? '确定并新增' : '确定并继续';
     setFormProps({ continueLoading: false });
-    state.dataForm.@(Model.PrimaryKeyField) = data.id;
+    state.dataForm.@(Model.PrimaryKeyField) = id;
 @if(Model.FormScript.HasCollapse){
 @foreach (var item in Model.FormScript.Collapses) {
     @:state.@(item.Name)= @(item.Value);
@@ -495,7 +517,8 @@ case "drawer":
 break;
 }
     state.allList = data.allList;
-    state.currIndex = state.allList.length && data.id ? state.allList.findIndex((item) => item.id === data.id) : 0;
+    state.currIndex = state.allList.length && id ? state.allList.findIndex((item) => getRowId(item) === id) : 0;
+    if (state.currIndex < 0) state.currIndex = 0;
     nextTick(() => {
       getForm().resetFields();
 @foreach (var item in Model.FormScript.SubTableDesign) {
@@ -569,8 +592,8 @@ function getData(id) {
     Object.keys(raw || {}).forEach((k) => {
       if (!k) return;
       if (k === 'id') return;
-      const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
-      mapped[pascalKey] = raw[k];
+      const fieldKey = getFormFieldKey(k);
+      mapped[fieldKey] = normalizeOptionValue(fieldKey, raw[k]);
     });
 @foreach (var column in Model.FormScript.FormControlDesign.Where(x => x.ceriKey == "datePicker")) {
 @if (column.ceriKey == "datePicker") {
@@ -673,7 +696,7 @@ function getData(id) {
   function handleGetNewInfo() {
     changeLoading(true);
     getForm().resetFields();
-    const id = state.allList[state.currIndex].id;
+    const id = getRowId(state.allList[state.currIndex]);
     getData(id);
   }
 @foreach (var item in Model.FormScript.Linkage) {

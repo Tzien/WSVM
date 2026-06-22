@@ -70,7 +70,7 @@ public class ConfigModel
     public int span { get; set; }
 
     /// <summary>
-    /// jnpf识别符.
+    /// ceri识别符.
     /// </summary>
     public string ceriKey { get; set; }
 
@@ -336,7 +336,7 @@ public class LinkageConfig
     public string relationField { get; set; }
 
     /// <summary>
-    /// jnpf识别符.
+    /// ceri识别符.
     /// </summary>
     public string ceriKey { get; set; }
 

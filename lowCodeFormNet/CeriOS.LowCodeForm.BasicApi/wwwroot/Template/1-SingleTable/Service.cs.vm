@@ -1,4 +1,4 @@
-﻿using CeriOS.Core.Common.DB;
+﻿﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
 using JNPF.Common.Security;
@@ -25,6 +25,12 @@ namespace Application.Services;
 public class @(Model.ClassName)Service : ControllerBase, I@(Model.ClassName)Service
 {
     public Repository<@(Model.ClassName)Entity> _db { get; set; }
+
+    static @(Model.ClassName)Service()
+    {
+        var cfg = TypeAdapterConfig.GlobalSettings;
+        new CeriOS.@(Model.NameSpace).Entitys.Mapper.@(Model.ClassName).Mapper().Register(cfg);
+    }
 
     /// <summary>
     /// 初始化一个<see cref="@(Model.ClassName)Service"/>类型的新实例.
@@ -146,6 +152,16 @@ case "page":
         @:var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(@(Model.ClassName)Entity));
         @:var selectIds = input.selectIds?.Split(",").ToList();
       @:var query = _db.Context.Queryable<@(Model.ClassName)Entity>();
+      @:var isDeletedColumn = entityInfo.Columns.FirstOrDefault(o =>
+        @:string.Equals(o?.PropertyName, "IsDeleted", System.StringComparison.OrdinalIgnoreCase) ||
+        @:string.Equals(o?.DbColumnName, "IsDeleted", System.StringComparison.OrdinalIgnoreCase));
+      @:if (isDeletedColumn != null)
+      @:{
+          @:query = query.Where(new List<IConditionalModel>
+          @:{
+              @:new ConditionalModel { FieldName = isDeletedColumn.DbColumnName, ConditionalType = ConditionalType.Equal, FieldValue = "0" }
+          @:});
+      @:}
        @:var extra = GetExtraFilters(input);
        
        @:if (extra != null && extra.Count > 0)
@@ -437,7 +453,7 @@ break;
 }
 @if(Model.PrimaryKeyPolicy == 1)
 {
-        @:entity.@(Model.PrimaryKey) = GuidHelper.BuildGuid();
+        @:entity.@(Model.PrimaryKey) = Guid.NewGuid().ToString("N");
 }
         @:var isOk = await _db.InsertAsync(entity);
         @:if (!isOk)

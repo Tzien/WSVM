@@ -3,9 +3,9 @@ namespace CERIOS.Common.Models
 {
     /// <summary>
     /// 附件模型
-    /// 版 本：V3.3.3
-    /// 版 权：引迈信息技术有限公司（https://www.jnpfsoft.com）
-    /// 作 者：JNPF开发平台组.
+    /// 版 本：V1.0.0
+    /// 版 权：数科平台
+    /// 作 者：开发平台组-田自恩
     /// </summary>
     public class AnnexModel
     {
