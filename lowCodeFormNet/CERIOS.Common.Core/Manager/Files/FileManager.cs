@@ -562,9 +562,11 @@ namespace CERIOS.Common.Core.Manager.Files
             // 自定义路径
             if (input.pathType.Equals("selfPath"))
             {
-                if (input.sortRule.IsNotEmptyOrNull())
+                var sortRule = input.sortRule ?? string.Empty;
+                var customFolder = input.folder ?? string.Empty;
+                if (sortRule.IsNotEmptyOrNull())
                 {
-                    foreach (var item in input.sortRule.Split(","))
+                    foreach (var item in sortRule.Split(","))
                     {
                         switch (item)
                         {
@@ -579,11 +581,11 @@ namespace CERIOS.Common.Core.Manager.Files
                                 fileNameStr = Path.Combine(fileNameStr, input.timeFormat);
                                 break;
                             case "3":
-                                if (input.folder.IsNotEmptyOrNull())
+                                if (customFolder.IsNotEmptyOrNull())
                                 {
-                                    if (KeyVariable.SpecialString.Any(x => input.folder.Contains(x))) throw new Exception("文件存储路径错误");
-                                    floder = Path.Combine(floder, input.folder.Trim('/'));
-                                    fileNameStr = Path.Combine(fileNameStr, input.folder);
+                                    if (KeyVariable.SpecialString.Any(x => customFolder.Contains(x))) throw new Exception("文件存储路径错误");
+                                    floder = Path.Combine(floder, customFolder.Trim('/'));
+                                    fileNameStr = Path.Combine(fileNameStr, customFolder);
                                 }
                                 break;
                         }

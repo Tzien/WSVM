@@ -93,7 +93,7 @@ public class ChunkModel
     /// <summary>
     /// 排序规则（1-用户 2- 时间 3-自定义）.
     /// </summary>
-    public string sortRule { get; set; } = string.Empty;
+    public string? sortRule { get; set; }
 
     /// <summary>
     /// 时间格式.
@@ -103,7 +103,7 @@ public class ChunkModel
     /// <summary>
     /// 自定义文件夹路径.
     /// </summary>
-    public string folder { get; set; } = string.Empty;
+    public string? folder { get; set; }
 
     /// <summary>
     /// 缩略图文件名.
