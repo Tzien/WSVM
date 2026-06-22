@@ -239,7 +239,7 @@ public class CodeGenConfigModel
     public List<CodeGenRegListModel> regList { get; set; }
 
     /// <summary>
-    /// jnpf识别符.
+    /// ceri识别符.
     /// </summary>
     public string ceriKey { get; set; }
 

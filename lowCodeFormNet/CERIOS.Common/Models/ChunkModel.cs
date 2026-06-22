@@ -4,9 +4,9 @@ namespace CERIOS.Common.Models;
 
 /// <summary>
 /// 文件分片模型
-/// 版 本：V3.3.3
-/// 版 权：引迈信息技术有限公司（https://www.jnpfsoft.com）
-/// 作 者：JNPF开发平台组.
+/// 版 本：V1.0.0
+/// 版 权：数科平台
+/// 作 者：开发平台组-田自恩
 /// </summary>
 public class ChunkModel
 {
@@ -93,7 +93,7 @@ public class ChunkModel
     /// <summary>
     /// 排序规则（1-用户 2- 时间 3-自定义）.
     /// </summary>
-    public string? sortRule { get; set; }
+    public string? sortRule { get; set; } = string.Empty;
 
     /// <summary>
     /// 时间格式.
@@ -103,7 +103,7 @@ public class ChunkModel
     /// <summary>
     /// 自定义文件夹路径.
     /// </summary>
-    public string? folder { get; set; }
+    public string? folder { get; set; } = string.Empty;
 
     /// <summary>
     /// 缩略图文件名.

@@ -454,7 +454,7 @@ public class CodeGenFrontEndSubTableControlModel
     public string LowerName => string.IsNullOrWhiteSpace(Name) ? null : Name.Substring(0, 1).ToLower() + Name[1..];
 
     /// <summary>
-    /// jnpfKey.
+    /// ceriKey.
     /// </summary>
     public string ceriKey { get; set; }
 
