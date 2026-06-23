@@ -83,7 +83,7 @@ public class ChunkModel
     /// <summary>
     /// 文件.
     /// </summary>
-    public IFormFile file { get; set; }
+    public IFormFile? file { get; set; }
 
     /// <summary>
     /// 路径类型 defaultPath(默认路径) selfPath(自定义路径).
