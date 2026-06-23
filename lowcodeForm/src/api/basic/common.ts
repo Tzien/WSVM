@@ -11,6 +11,10 @@ export function getInputTips(data) {
   return lowCodeInstance.get(Api.AMap + '/inputtips', data)
 }
 
+export function chunkMerge(data) {
+  return lowCodeInstance.post(Api.Merge, data)
+}
+
 // 下载导入示例模板
 export function getTemplateDownload(url, data) {
   return lowCodeInstance.get(`/api/${url}/TemplateDownload`, data);

@@ -2947,11 +2947,10 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             {
                 if (!AllowFileType(input.extension, input.extension))
                     throw new Exception("上传失败，文件格式不允许上传");
-                string path = GetPathByType(string.Empty);
-                string filePath = Path.Combine(path, input.identifier);
+                string filePath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = CERIOS.Common.Security.FileHelper.GetAllFiles(filePath);
                 List<int> existsChunk = chunkFiles.FindAll(x => !CERIOS.Common.Security.FileHelper.GetFileType(x).Equals("tmp"))
-                    .Select(x => x.FullName.Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
+                    .Select(x => Path.GetFileName(x.FullName).Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
                 return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { chunkNumbers = existsChunk, merge = false } };
             }
             catch (Exception ex)
@@ -2973,5 +2972,12 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
                 throw new Exception("上传失败，文件格式不允许上传");
             return await _fileManager.UploadChunk(input);
         }
+        [HttpPost("merge")]
+        public async Task<QueryByIdResponseDto<dynamic>> Merge(ChunkModel input)
+        {
+            var data = await _fileManager.Merge(input);
+            return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
+        }
+
     }
 }
