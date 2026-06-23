@@ -21,6 +21,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using CERIOS.RemoteRequest.Extensions;
+using JNPF.Common.Dtos;
 
 namespace CERIOS.Systems.Interfaces.Common
 {
@@ -357,7 +358,7 @@ namespace CERIOS.Systems.Interfaces.Common
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<dynamic> UploadChunk([FromForm] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input)
         {
             if (!AllowFileType(input.extension, input.extension))
                 throw new Exception("上传失败，文件格式不允许上传");

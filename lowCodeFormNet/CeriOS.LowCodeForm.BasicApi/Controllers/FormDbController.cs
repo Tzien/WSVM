@@ -2964,7 +2964,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPost("chunk")]
-        public async Task<dynamic> UploadChunk([FromForm] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input)
         {
             if (!AllowFileType(input.extension, input.extension))
                 throw new Exception("上传失败，文件格式不允许上传");

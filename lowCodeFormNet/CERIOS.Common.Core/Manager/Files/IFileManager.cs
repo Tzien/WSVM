@@ -1,5 +1,6 @@
 ﻿using CERIOS.Common.Enums;
 using CERIOS.Common.Models;
+using JNPF.Common.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -111,7 +112,7 @@ namespace CERIOS.Common.Core.Manager.Files
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        Task<dynamic> UploadChunk([FromForm] ChunkModel input);
+        Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input);
 
         /// <summary>
         /// 分片组装.
