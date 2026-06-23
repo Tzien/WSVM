@@ -31,6 +31,8 @@ using CERIOS.Common.Models;
 using log4net.Core;
 using CERIOS.Common.Enums;
 using CERIOS.Common.Core.Manager.Files;
+using CERIOS.Logging.Attributes;
+using Microsoft.AspNetCore.Authorization;
 namespace CeriOS.LowCodeForm.BasicApi.Controller
 {
 
@@ -622,56 +624,56 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             var dataList = await GetCodePreview(tEntity, downloadCodeForm);
             //if (downloadCodeForm.contrast)
             //{
-                //var oldDataList = new List<Dictionary<string, object>>();
-                //var vEntity = await _repository.AsSugarClient().Queryable<VisualDevEntity>().FirstAsync(v => v.Id == id && v.DeleteMark == null);
-                //if (vEntity.State.Equals(2))
-                //{
-                //    oldDataList = await GetCodePreview(vEntity.Adapt<VisualDevReleaseEntity>(), downloadCodeForm);
-                //}
-                //else if (vEntity.State.Equals(1))
-                //{
-                //    var oldEntity = tEntity.OldContent.IsNotEmptyOrNull() ? tEntity.OldContent.ToObject<VisualDevReleaseEntity>() : tEntity.ToObject<VisualDevReleaseEntity>();
-                //    if (tEntity.OldContent.IsNotEmptyOrNull())
-                //    {
-                //        oldEntity.EnCode = tEntity.EnCode;
-                //        oldEntity.FullName = tEntity.FullName;
-                //        oldEntity.Category = tEntity.Category;
-                //        oldEntity.DbLinkId = tEntity.DbLinkId;
-                //        oldEntity.CreatorTime = tEntity.CreatorTime;
-                //        oldEntity.CreatorUserId = tEntity.CreatorUserId;
-                //        if (oldEntity.WebType == null) oldEntity.WebType = tEntity.WebType;
-                //    }
-                //    oldDataList = await GetCodePreview(oldEntity, downloadCodeForm);
-                //}
+            //var oldDataList = new List<Dictionary<string, object>>();
+            //var vEntity = await _repository.AsSugarClient().Queryable<VisualDevEntity>().FirstAsync(v => v.Id == id && v.DeleteMark == null);
+            //if (vEntity.State.Equals(2))
+            //{
+            //    oldDataList = await GetCodePreview(vEntity.Adapt<VisualDevReleaseEntity>(), downloadCodeForm);
+            //}
+            //else if (vEntity.State.Equals(1))
+            //{
+            //    var oldEntity = tEntity.OldContent.IsNotEmptyOrNull() ? tEntity.OldContent.ToObject<VisualDevReleaseEntity>() : tEntity.ToObject<VisualDevReleaseEntity>();
+            //    if (tEntity.OldContent.IsNotEmptyOrNull())
+            //    {
+            //        oldEntity.EnCode = tEntity.EnCode;
+            //        oldEntity.FullName = tEntity.FullName;
+            //        oldEntity.Category = tEntity.Category;
+            //        oldEntity.DbLinkId = tEntity.DbLinkId;
+            //        oldEntity.CreatorTime = tEntity.CreatorTime;
+            //        oldEntity.CreatorUserId = tEntity.CreatorUserId;
+            //        if (oldEntity.WebType == null) oldEntity.WebType = tEntity.WebType;
+            //    }
+            //    oldDataList = await GetCodePreview(oldEntity, downloadCodeForm);
+            //}
 
-                //foreach (var item in dataList)
-                //{
-                //    var old = oldDataList.Find(x => x["fileName"].Equals(item["fileName"]));
-                //    if (old != null)
-                //    {
-                //        var itemChildren = item["children"].ToObject<List<Dictionary<string, object>>>();
-                //        var oldChildren = old["children"].ToObject<List<Dictionary<string, object>>>();
+            //foreach (var item in dataList)
+            //{
+            //    var old = oldDataList.Find(x => x["fileName"].Equals(item["fileName"]));
+            //    if (old != null)
+            //    {
+            //        var itemChildren = item["children"].ToObject<List<Dictionary<string, object>>>();
+            //        var oldChildren = old["children"].ToObject<List<Dictionary<string, object>>>();
 
-                //        foreach (var it in itemChildren)
-                //        {
-                //            var oldIT = oldChildren.Find(x => x["fileName"].Equals(it["fileName"]) && x["fileType"].Equals(it["fileType"]));
-                //            if (oldIT != null)
-                //            {
-                //                if (vEntity.State.Equals(1))
-                //                {
-                //                    it["oldFileContent"] = oldIT["fileContent"];
-                //                }
-                //                else
-                //                {
-                //                    it["oldFileContent"] = it["fileContent"];
-                //                    it["fileContent"] = oldIT["fileContent"];
-                //                }
-                //            }
-                //        }
+            //        foreach (var it in itemChildren)
+            //        {
+            //            var oldIT = oldChildren.Find(x => x["fileName"].Equals(it["fileName"]) && x["fileType"].Equals(it["fileType"]));
+            //            if (oldIT != null)
+            //            {
+            //                if (vEntity.State.Equals(1))
+            //                {
+            //                    it["oldFileContent"] = oldIT["fileContent"];
+            //                }
+            //                else
+            //                {
+            //                    it["oldFileContent"] = it["fileContent"];
+            //                    it["fileContent"] = oldIT["fileContent"];
+            //                }
+            //            }
+            //        }
 
-                //        item["children"] = itemChildren;
-                //    }
-                //}
+            //        item["children"] = itemChildren;
+            //    }
+            //}
             //}
 
             return new QueryByIdResponseDto<dynamic>()
@@ -2928,6 +2930,45 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         public string GetPathByType(string type)
         {
             return _fileManager.GetPathByType(type);
+        }
+
+        /// <summary>
+        /// 分片上传获取.
+        /// </summary>
+        /// <param name="input">请求参数.</param>
+        /// <returns></returns>
+        [HttpGet("chunk")]
+        public async Task<dynamic> CheckChunk([FromQuery] ChunkModel input)
+        {
+            try
+            {
+                if (!AllowFileType(input.extension, input.extension))
+                    throw new Exception("上传失败，文件格式不允许上传");
+                string path = GetPathByType(string.Empty);
+                string filePath = Path.Combine(path, input.identifier);
+                var chunkFiles = CERIOS.Common.Security.FileHelper.GetAllFiles(filePath);
+                List<int> existsChunk = chunkFiles.FindAll(x => !CERIOS.Common.Security.FileHelper.GetFileType(x).Equals("tmp"))
+                    .Select(x => x.FullName.Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
+                return new { chunkNumbers = existsChunk, merge = false };
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 分片上传附件.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpPost("chunk")]
+        public async Task<dynamic> UploadChunk([FromForm] ChunkModel input)
+        {
+            if (!AllowFileType(input.extension, input.extension))
+                throw new Exception("上传失败，文件格式不允许上传");
+            return await _fileManager.UploadChunk(input);
         }
     }
 }

@@ -399,7 +399,7 @@ namespace CERIOS.Common.Core.Manager.Files
         public async Task<dynamic> UploadChunk([FromForm] ChunkModel input)
         {
             // 碎片临时文件存储路径
-            string directoryPath = Path.Combine(App.App.GetConfig<AppOptions>("CERIOS_App", true).SystemPath, "TemporaryFile", input.identifier);
+            string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
             try
             {
                 if (!Directory.Exists(directoryPath))
@@ -440,7 +440,7 @@ namespace CERIOS.Common.Core.Manager.Files
                 // 新文件名称
                 var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.fileName));
                 // 碎片临时文件存储路径
-                string directoryPath = Path.Combine(App.App.GetConfig<AppOptions>("CERIOS_App", true).SystemPath, "TemporaryFile", input.identifier);
+                string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = Directory.GetFiles(directoryPath);
                 List<byte> byteSource = new List<byte>();
                 var fs = new FileStream(Path.Combine(directoryPath, saveFileName), FileMode.Create);
