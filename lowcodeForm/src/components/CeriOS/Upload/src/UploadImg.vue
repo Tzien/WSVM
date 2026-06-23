@@ -16,7 +16,7 @@
         <div class="ant-upload-list-item ant-upload-list-item-done ant-upload-list-item-list-type-picture-card">
           <div class="ant-upload-list-item-info">
             <a class="ant-upload-list-item-thumbnail">
-              <img :src="apiUrl + (file.thumbUrl || file.url)" class="ant-upload-list-item-image" />
+              <img :src="getImageSrc(file, true)" class="ant-upload-list-item-image" />
             </a>
           </div>
           <span class="ant-upload-list-item-actions">
@@ -52,6 +52,8 @@
   import { createImgPreview } from '@/components/Preview/index';
 
   defineOptions({ name: 'CeriUploadImg', inheritAttrs: false });
+  const base64WithPrefixRegex = /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/;
+  const absoluteUrlRegex = /^(https?:)?\/\//i;
   const props = defineProps(uploadImgProps);
   const emit = defineEmits(['update:value', 'change']);
   const { createMessage } = useMessage();
@@ -90,10 +92,35 @@
   watch(
     () => props.value,
     val => {
-      imgList.value = val && Array.isArray(val) ? val : [];
+      imgList.value = normalizeImgList(val);
     },
     { deep: true, immediate: true },
   );
+
+  function normalizeImgList(val) {
+    if (!val) return [];
+    if (typeof val === 'string') {
+      try {
+        const parsed = JSON.parse(val);
+        return normalizeImgList(parsed);
+      } catch {
+        return val ? [{ name: '', fileId: val, url: val, thumbUrl: '' }] : [];
+      }
+    }
+    const list = Array.isArray(val) ? val : [val];
+    return list.filter(o => o && (o.url || o.thumbUrl));
+  }
+
+  function toImageUrl(url?: string) {
+    if (!url) return '';
+    if (base64WithPrefixRegex.test(url) || absoluteUrlRegex.test(url)) return url;
+    return apiUrl.value + url;
+  }
+
+  function getImageSrc(file: imgItem, useThumb = false) {
+    const url = useThumb ? file.thumbUrl || file.url : file.url || file.thumbUrl;
+    return toImageUrl(url);
+  }
 
   function beforeUpload(file) {
     const isTopLimit = props.limit ? imgList.value.length >= props.limit : false;
@@ -149,8 +176,9 @@
     }
   }
   function handlePreview(index: number) {
-    const imageList = imgList.value.map(o => apiUrl.value + o.url);
-    createImgPreview({ imageList: imageList, index });
+    const imageList = imgList.value.map(o => getImageSrc(o)).filter(Boolean);
+    if (!imageList.length) return;
+    createImgPreview({ imageList, index: Math.min(index, imageList.length - 1) });
   }
   function handleRemove(index: number) {
     fileList.value.splice(index, 1);
