@@ -49,7 +49,7 @@
   // import { getToken } from '@/utils/auth';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from 'vue-i18n';
-  // import { createImgPreview } from '@/components/Preview/index';
+  import { createImgPreview } from '@/components/Preview/index';
 
   defineOptions({ name: 'CeriUploadImg', inheritAttrs: false });
   const props = defineProps(uploadImgProps);
@@ -150,7 +150,7 @@
   }
   function handlePreview(index: number) {
     const imageList = imgList.value.map(o => apiUrl.value + o.url);
-    // createImgPreview({ imageList: imageList, index });
+    createImgPreview({ imageList: imageList, index });
   }
   function handleRemove(index: number) {
     fileList.value.splice(index, 1);

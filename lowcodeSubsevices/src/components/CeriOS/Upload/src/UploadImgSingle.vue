@@ -47,7 +47,7 @@
   // import { getToken } from '@/utils/auth';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from 'vue-i18n';
-  // import { createImgPreview } from '@/components/Preview/index';
+  import { createImgPreview } from '@/components/Preview/index';
   import { uploadImgSingleProps, units } from './props';
 
   defineOptions({ name: 'CeriUploadImgSingle', inheritAttrs: false });
@@ -114,7 +114,7 @@
     }
   }
   function handlePreview() {
-    // createImgPreview({ imageList: unref(getImgList) });
+    createImgPreview({ imageList: unref(getImgList) });
   }
   function handleRemove() {
     emit('update:value', '');
