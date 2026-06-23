@@ -272,7 +272,7 @@ namespace CERIOS.Systems.Interfaces.Common
         /// </summary>
         /// <param name="input">请求参数.</param>
         /// <returns></returns>
-        public async Task<dynamic> CheckChunk([FromQuery] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> CheckChunk([FromQuery] ChunkModel input)
         {
             try
             {
@@ -283,7 +283,7 @@ namespace CERIOS.Systems.Interfaces.Common
                 var chunkFiles = FileHelper.GetAllFiles(filePath);
                 List<int> existsChunk = chunkFiles.FindAll(x => !FileHelper.GetFileType(x).Equals("tmp"))
                     .Select(x => x.FullName.Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
-                return new { chunkNumbers = existsChunk, merge = false };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { chunkNumbers = existsChunk, merge = false } };
             }
             catch (Exception ex)
             {

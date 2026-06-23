@@ -2938,7 +2938,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         /// <param name="input">ÇëÇó²ÎÊý.</param>
         /// <returns></returns>
         [HttpGet("chunk")]
-        public async Task<dynamic> CheckChunk([FromQuery] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> CheckChunk([FromQuery] ChunkModel input)
         {
             try
             {
@@ -2949,7 +2949,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
                 var chunkFiles = CERIOS.Common.Security.FileHelper.GetAllFiles(filePath);
                 List<int> existsChunk = chunkFiles.FindAll(x => !CERIOS.Common.Security.FileHelper.GetFileType(x).Equals("tmp"))
                     .Select(x => x.FullName.Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
-                return new { chunkNumbers = existsChunk, merge = false };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { chunkNumbers = existsChunk, merge = false } };
             }
             catch (Exception ex)
             {
