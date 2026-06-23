@@ -1,7 +1,6 @@
-﻿﻿using CeriOS.Core.Common.DB;
+﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
-using JNPF.Common.Security;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 using CeriOS.@(Model.NameSpace).Entitys;
 using CeriOS.@(Model.NameSpace).Interfaces;
@@ -48,6 +47,24 @@ public class @(Model.ClassName)Service : ControllerBase, I@(Model.ClassName)Serv
        if (prop == null) prop = type.GetProperty("extra");
        if (prop == null) return null;
        return prop.GetValue(input) as IDictionary<string, JsonElement>;
+   }
+
+   private static T JsonToObject<T>(object input)
+   {
+       if (input == null) return default;
+       if (input is JsonElement jsonElement) return JsonSerializer.Deserialize<T>(jsonElement.GetRawText());
+       if (input is string json)
+       {
+           if (string.IsNullOrWhiteSpace(json)) return default;
+           return JsonSerializer.Deserialize<T>(json);
+       }
+
+       return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(input));
+   }
+
+   private static string JsonToString(object input)
+   {
+       return JsonSerializer.Serialize(input);
    }
 
 @foreach(var item in Model.Function)
@@ -365,7 +382,7 @@ case "noPage":
 @if(Model.IsTreeTable || Model.ParsCeriKeyConstList.Count > 0)
 {
 @:
-        @:var resData = list.ToObject<List<Dictionary<string, object>>>(CommonConst.options);
+        @:var resData = JsonToObject<List<Dictionary<string, object>>>(list);
 }
 @if(Model.ParsCeriKeyConstList.Count > 0)
 {
@@ -387,12 +404,12 @@ case "noPage":
 }
 @if(Model.IsTreeTable || Model.ParsCeriKeyConstList.Count > 0)
 {
-        @:list = resData.ToObject<List<@(Model.ClassName)ListOutput>>(CommonConst.options);
+        @:list = JsonToObject<List<@(Model.ClassName)ListOutput>>(resData);
 }
 @if(Model.TableType == 3)
 {
 @:
-        @:return _userManager.UserOrigin.Equals("pc") ? CodeGenHelper.GetGroupList(list.ToJsonStringOld().ToObjectOld<List<Dictionary<string, object>>>(), "@(Model.GroupField)", "@(Model.GroupShowField)") : list;
+        @:return _userManager.UserOrigin.Equals("pc") ? CodeGenHelper.GetGroupList(JsonToObject<List<Dictionary<string, object>>>(list), "@(Model.GroupField)", "@(Model.GroupShowField)") : list;
 }else{
 @:
         @:return list;
@@ -437,7 +454,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? JsonToString(input.@(column.LowerColumnName)).Replace("\r\n", "").Replace(" ", "") : null;
 }
 break;
 case "checkbox":
@@ -446,7 +463,7 @@ case "organizeSelect":
 case "areaSelect":
 case "uploadImg":
 case "uploadFile":
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? JsonToString(input.@(column.LowerColumnName)).Replace("\r\n", "").Replace(" ", "") : null;
 break;
 }
 }
@@ -505,7 +522,7 @@ case "groupSelect":
 case "usersSelect":
 @if(column.IsMultiple)
 {
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? JsonToString(input.@(column.LowerColumnName)).Replace("\r\n", "").Replace(" ", "") : null;
 }
 break;
 case "checkbox":
@@ -514,7 +531,7 @@ case "organizeSelect":
 case "areaSelect":
 case "uploadImg":
 case "uploadFile":
-        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? input.@(column.LowerColumnName).ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        @:entity.@(column.ColumnName) = input.@(column.LowerColumnName) != null && input.@(column.LowerColumnName).Count > 0 ? JsonToString(input.@(column.LowerColumnName)).Replace("\r\n", "").Replace(" ", "") : null;
 break;
 }
 }
@@ -626,7 +643,7 @@ case "download":
 }
         @:var excelName = string.Format("{0}_{1:yyyyMMddHHmmss}", _controlParsing.GetModuleNameById(input.menuId), DateTime.Now);
         @:_cacheManager.Set(excelName + ".xls", string.Empty);
-        @:return _exportImportDataHelper.GetDataExport(excelName,input.selectKey, _userManager.UserId,exportData.ToJsonString().ToObjectOld<List<Dictionary<string, object>>>(), paramList, @((Model.TableType == 3).ToString().ToLower()));
+        @:return _exportImportDataHelper.GetDataExport(excelName,input.selectKey, _userManager.UserId,JsonToObject<List<Dictionary<string, object>>>(exportData), paramList, @((Model.TableType == 3).ToString().ToLower()));
     @:}
 break;
 @*导入*@
@@ -663,7 +680,7 @@ case "upload":
     @:public async Task<dynamic> Uploader(IFormFile file)
     @:{
         @:var _filePath = _fileManager.GetPathByType(string.Empty);
-        @:var _fileName = DateTime.Now.ToString("yyyyMMdd") + "_" + GuidHelper.BuildGuid() + Path.GetExtension(file.FileName);
+        @:var _fileName = DateTime.Now.ToString("yyyyMMdd") + "_" + Guid.NewGuid().ToString("N") + Path.GetExtension(file.FileName);
         @:var stream = file.OpenReadStream();
         @:await _fileManager.UploadFileByType(stream, _filePath, _fileName);
         @:return new { name = _fileName, url = string.Format("/api/File/Image/{0}/{1}", string.Empty, _fileName) };
@@ -762,14 +779,14 @@ break;
 @switch(column.ceriKey)
 {
 case "location":
-            @:if(item.@(column.LowerColumnName).IsNotEmptyOrNull()) item.@(column.LowerColumnName) = item.@(column.LowerColumnName).ToObject<Dictionary<string, string>>()["fullAddress"];
+            @:if(!string.IsNullOrEmpty(item.@(column.LowerColumnName)?.ToString())) item.@(column.LowerColumnName) = JsonToObject<Dictionary<string, string>>(item.@(column.LowerColumnName))["fullAddress"];
 @:
 break;
 case "uploadFile":
 case "uploadImg":
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:item.@(column.LowerColumnName) = item.@(column.LowerColumnName).ToString().ToObject<List<FileControlsModel>>();
+                @:item.@(column.LowerColumnName) = JsonToObject<List<FileControlsModel>>(item.@(column.LowerColumnName).ToString());
             @:}
             @:else
             @:{
@@ -782,14 +799,14 @@ case "select":
 @switch(column.ControlsDataType)
 {
 case "static":
-            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:var @(column.LowerColumnName)Data = JsonToObject<List<StaticDataModel>>("[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]");
             @:if(item.@(column.LowerColumnName) != null)
             @:{
 @if(!column.IsMultiple)
 {
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => item.@(column.LowerColumnName).Equals(it.id))?.fullName;
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
 }
             @:}
@@ -799,7 +816,7 @@ case "dictionary":
 {
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
             @:}
 }
@@ -829,7 +846,7 @@ case "dynamic":
 {
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
 }
             @:}
@@ -842,17 +859,17 @@ case "checkbox":
 @switch(column.ControlsDataType)
 {
 case "static":
-            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:var @(column.LowerColumnName)Data = JsonToObject<List<StaticDataModel>>("[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]");
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
             @:}
 break;
 case "dictionary":
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
             @:}
 break;
@@ -877,7 +894,7 @@ case "dynamic":
 }
 }
                 @:var @(column.LowerColumnName)Data = await _dataInterfaceService.GetDynamicList("@(column.LowerColumnName)", "@(column.propsUrl)", "@(column.Value)", "@(column.Label)", ""@(column.IsLinkage ? ", linkageParameters" : ""));
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
             @:}
 break;
@@ -889,7 +906,7 @@ case "radio":
 @switch(column.ControlsDataType)
 {
 case "static":
-            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:var @(column.LowerColumnName)Data = JsonToObject<List<StaticDataModel>>("[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]");
             @:if(item.@(column.LowerColumnName) != null)
             @:{
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => item.@(column.LowerColumnName).Equals(it.id))?.fullName;
@@ -927,19 +944,19 @@ case "cascader":
 @switch(column.ControlsDataType)
 {
 case "static":
-            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:var @(column.LowerColumnName)Data = JsonToObject<List<StaticDataModel>>("[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]");
             @:if(item.@(column.LowerColumnName) != null)
             @:{
 @if(!column.IsMultiple)
 {
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
         @if(column.ShowAllLevels){
                 @:item.@(column.LowerColumnName) = string.Join("@(column.Separator)", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
         }else{
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName).FirstOrDefault();
         }
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<List<string>>>(item.@(column.LowerColumnName));
                 @:var @(column.LowerColumnName)Excessive = new List<string>();
                 @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
                 @:{
@@ -959,7 +976,7 @@ case "dictionary":
 {
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
         @if(column.ShowAllLevels){
                 @:item.@(column.LowerColumnName) = string.Join("@(column.Separator)", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.@(column.Value == "id" ? "Id" : "EnCode")) && it.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
         }else{
@@ -969,7 +986,7 @@ case "dictionary":
 }else{
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<List<string>>>(item.@(column.LowerColumnName));
                 @:var @(column.LowerColumnName)Excessive = new List<string>();
                 @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
                 @:{
@@ -1006,14 +1023,14 @@ case "dynamic":
             @:{
 @if(!column.IsMultiple)
 {
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
         @if(column.ShowAllLevels){
                 @:item.@(column.LowerColumnName) = string.Join("@(column.Separator)", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
         }else{
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName).FirstOrDefault();
         }
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<List<string>>>(item.@(column.LowerColumnName));
                 @:var @(column.LowerColumnName)Excessive = new List<string>();
                 @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
                 @:{
@@ -1050,7 +1067,7 @@ case "posSelect":
             @:// @column.ColumnComment
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<PositionEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
             @:}
 @:
@@ -1059,7 +1076,7 @@ case "userSelect":
             @:// @column.ColumnComment
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<UserEntity>().Where(a => @(column.LowerColumnName + @column.upperJnpfKey).Contains(a.Id)).Select(it => it.RealName).ToListAsync());
             @:}
 @:
@@ -1068,7 +1085,7 @@ case "roleSelect":
             @:// @column.ColumnComment
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<RoleEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
             @:}
 @:
@@ -1077,7 +1094,7 @@ case "groupSelect":
             @:// @column.ColumnComment
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<GroupEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
             @:}
 @:
@@ -1087,14 +1104,14 @@ case "treeSelect":
 @switch(column.ControlsDataType)
 {
 case "static":
-            @:var @(column.LowerColumnName)Data = "[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]".ToObject<List<StaticDataModel>>();
+            @:var @(column.LowerColumnName)Data = JsonToObject<List<StaticDataModel>>("[@foreach(var data in column.StaticData){@("{\\\"id\\\":\\\"" + @data.id + "\\\",\\\"fullName\\\":\\\""+ @data.fullName + "\\\"}")@(dataCount == 1 ? "" : ",")dataCount--;}]");
             @:if(item.@(column.LowerColumnName) != null)
             @:{
 @if(!column.IsMultiple)
 {
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(s => s.fullName));
 }
             @:}
@@ -1104,7 +1121,7 @@ case "dictionary":
 {
             @:if(item.@(column.LowerColumnName) != null)
             @:{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", await _repository.AsSugarClient().Queryable<DictionaryDataEntity>().Where(a => @(column.LowerColumnName + @column.upperJnpfKey).Contains(a.@(column.Value == "id" ? "Id" : "EnCode")) && a.DictionaryTypeId.Equals("@(column.propsUrl)")).Select(it => it.FullName).ToListAsync());
             @:}
 }
@@ -1134,7 +1151,7 @@ case "dynamic":
 {
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(it => it.fullName));
 }
             @:}
@@ -1148,10 +1165,10 @@ case "areaSelect":
             @:{
 @if(!column.IsMultiple)
 {
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join("/", await _repository.AsSugarClient().Queryable<ProvinceEntity>().Where(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.Id)).Select(it => it.FullName).ToListAsync());
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<List<string>>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<List<string>>>(item.@(column.LowerColumnName));
                 @:var @(column.LowerColumnName)Excessive = new List<string>();
                 @:foreach (var @(column.LowerColumnName) in @(column.LowerColumnName + @column.upperJnpfKey))
                 @:{
@@ -1189,7 +1206,7 @@ case "popupTableSelect":
 {
                 @:item.@(column.LowerColumnName) = @(column.LowerColumnName)Data.Find(it => it.id.Equals(item.@(column.LowerColumnName)))?.fullName;
 }else{
-                @:var @(column.LowerColumnName + @column.upperJnpfKey) = item.@(column.LowerColumnName).ToObject<List<string>>();
+                @:var @(column.LowerColumnName + @column.upperJnpfKey) = JsonToObject<List<string>>(item.@(column.LowerColumnName));
                 @:item.@(column.LowerColumnName) = string.Join(",", @(column.LowerColumnName)Data.FindAll(it => @(column.LowerColumnName + @column.upperJnpfKey).Contains(it.id)).Select(it => it.fullName));
 }
             @:}
@@ -1321,7 +1338,12 @@ break;
 @*获取列表查询字段模板*@
     void GetListQueryFieldTemplate()
     {
-        @:var selectIds = input.selectIds?.Split(",").@(Model.PrimaryKeyPolicy==2 ? "ToObject<List<long?>>" : "ToList")();
+@if(Model.PrimaryKeyPolicy == 2)
+{
+        @:var selectIds = input.selectIds?.Split(",").Select(it => (long?)long.Parse(it)).ToList();
+}else{
+        @:var selectIds = input.selectIds?.Split(",").ToList();
+}
 @foreach(var column in Model.TableField)
 {
 @*是查询条件*@
@@ -1389,11 +1411,11 @@ break;
             @:.WhereIF(selectIds!=null && selectIds.Any() && input.dataType.Equals(2), it => selectIds.Contains(it.@(Model.PrimaryKey)))
 @if(Model.PcKeywordSearchColumn!="")
 {
-            @:.WhereIF(_userManager.UserOrigin.Equals("pc") && input.jnpfKeyword.IsNotEmptyOrNull(), it => @(Model.PcKeywordSearchColumn))
+            @:.WhereIF(_userManager.UserOrigin.Equals("pc") && !string.IsNullOrEmpty(input.jnpfKeyword), it => @(Model.PcKeywordSearchColumn))
 }
 @if(Model.AppKeywordSearchColumn!="")
 {
-            @:.WhereIF(!_userManager.UserOrigin.Equals("pc") && input.jnpfKeyword.IsNotEmptyOrNull(), it => @(Model.AppKeywordSearchColumn))
+            @:.WhereIF(!_userManager.UserOrigin.Equals("pc") && !string.IsNullOrEmpty(input.jnpfKeyword), it => @(Model.AppKeywordSearchColumn))
 }
 @*循环查询条件*@
 @foreach(var table in Model.TableField)
@@ -1425,7 +1447,7 @@ break;
 @switch(table.ceriKey)
 {
 case "currOrganize":
-            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)?.ToString()), it => it.@(table.ColumnName).Equals(input.@(table.LowerColumnName).ToJsonString()))
+            @:.WhereIF(!string.IsNullOrEmpty(input.@(table.LowerColumnName)?.ToString()), it => it.@(table.ColumnName).Equals(JsonToString(input.@(table.LowerColumnName))))
 break;
 case "cascader":
 case "areaSelect":
@@ -1506,7 +1528,7 @@ case "currPosition":
         @:entity.@column.ColumnName = _userManager.User.PositionId.IsNullOrEmpty() ? null : _userManager.User.PositionId;
 break;
 case "currOrganize":
-        @:entity.@column.ColumnName = _repository.AsSugarClient().Queryable<OrganizeEntity>().Where(it => _userManager.User.OrganizeId.Equals(it.Id)).Select(it => it.OrganizeIdTree)?.First()?.Split(",").ToJsonString();
+        @:entity.@column.ColumnName = JsonToString(_repository.AsSugarClient().Queryable<OrganizeEntity>().Where(it => _userManager.User.OrganizeId.Equals(it.Id)).Select(it => it.OrganizeIdTree)?.First()?.Split(","));
 break;
 case "billRule":
         @:entity.@column.ColumnName = await _controlParsing.GetBillRule("@(column.OriginalColumnName)",entity.@(column.ColumnName),"@(Model.Id)",fieldList,input);

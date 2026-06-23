@@ -6,8 +6,8 @@
     ],
     //系统文件路径
     //"SystemPath": "C:\\Users\\12896\\Desktop\\生成代码文件\\test",
-    //"SystemPath": "G:\\DYXM\\WWWROOT\\Resources",
-    "SystemPath": "/mnt/WWWROOT/Resources",
+    "SystemPath": "G:\\DYXM\\WWWROOT\\Resources",
+    //"SystemPath": "/mnt/WWWROOT/Resources",
     //微信公众号允许上传文件类型
     "MPUploadFileType": [
       "bmp",
