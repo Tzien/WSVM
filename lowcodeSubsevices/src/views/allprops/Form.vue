@@ -201,16 +201,39 @@
 
   defineExpose({ init });
 
+  function getRowId(row: any) {
+    return row?.id ?? row?.id ?? row?.Id;
+  }
+
+  function getFormFieldKey(key: string) {
+    const matchedKey = Object.keys(state.dataForm || {}).find((item) => item.toLowerCase() === key.toLowerCase());
+    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
+
+  function normalizeOptionValue(key: string, value: any) {
+    const options = state.optionsObj?.[`${key}Options`];
+    if (!Array.isArray(options) || value === undefined || value === null) return value;
+    const props = state.optionsObj?.[`${key}Props`] || {};
+    const valueKey = props.value || 'id';
+    const normalize = (val: any) => {
+      const item = options.find((option: any) => String(option?.[valueKey]) === String(val));
+      return item ? item[valueKey] : val;
+    };
+    return Array.isArray(value) ? value.map(normalize) : normalize(value);
+  }
+
   function init(data) {
+    const id = data.id ?? data.Id ?? data.id;
     state.submitType = 0;
     state.showContinueBtn = true;
-    state.title = !data.id ? '新增' : '编辑';
-    state.continueText = !data.id ? '确定并新增' : '确定并继续';
+    state.title = !id ? '新增' : '编辑';
+    state.continueText = !id ? '确定并新增' : '确定并继续';
     setFormProps({ continueLoading: false });
-    state.dataForm.id = data.id;
+    state.dataForm.id = id;
     openModal();
     state.allList = data.allList;
-    state.currIndex = state.allList.length && data.id ? state.allList.findIndex((item) => item.id === data.id) : 0;
+    state.currIndex = state.allList.length && id ? state.allList.findIndex((item) => getRowId(item) === id) : 0;
+    if (state.currIndex < 0) state.currIndex = 0;
     nextTick(() => {
       getForm().resetFields();
       setTimeout(initData, 0);
@@ -248,6 +271,21 @@
     }
     return form;
   }
+  function formatTimeFormValue(value: any) {
+    if (!value && value !== 0) return value;
+    if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) return value.length === 5 ? `${value}:00` : value;
+    const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    return parsed.isValid() ? parsed.format('HH:mm:ss') : value;
+  }
+  function formatTimeSubmitValue(value: any) {
+    if (!value && value !== 0) return value;
+    if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) {
+      const time = value.length === 5 ? `${value}:00` : value;
+      return dayjs(`${formatDate(new Date())} ${time}`).format('YYYY-MM-DDTHH:mm:ss');
+    }
+    const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm:ss') : value;
+  }
 function getData(id) {
   getInfo(id).then((res) => {
     const raw = res?.data || {};
@@ -258,10 +296,11 @@ function getData(id) {
     Object.keys(raw || {}).forEach((k) => {
       if (!k) return;
       if (k === 'id') return;
-      const pascalKey = k.replace(/^[a-z]/, (s) => s.toUpperCase());
-      mapped[pascalKey] = raw[k];
+      const fieldKey = getFormFieldKey(k);
+      mapped[fieldKey] = normalizeOptionValue(fieldKey, raw[k]);
     });
     if (mapped.CreateTime) mapped.CreateTime = dayjs(mapped.CreateTime).valueOf();
+    if (mapped.LastLoginTime) mapped.LastLoginTime = formatTimeFormValue(mapped.LastLoginTime);
     Object.assign(state.dataForm, mapped);
 
     changeLoading(false);
@@ -270,6 +309,7 @@ function getData(id) {
   function buildSubmitData() {
     const data = cloneDeep(state.dataForm);
     if (data.CreateTime || data.CreateTime === 0) data.CreateTime = formatDate(!isNaN(Number(data.CreateTime)) ? Number(data.CreateTime) : data.CreateTime);
+    if (data.LastLoginTime || data.LastLoginTime === 0) data.LastLoginTime = formatTimeSubmitValue(data.LastLoginTime);
     if (!data.id) delete data.id;
     return data;
   }
@@ -307,7 +347,7 @@ function getData(id) {
   function handleGetNewInfo() {
     changeLoading(true);
     getForm().resetFields();
-    const id = state.allList[state.currIndex].id;
+    const id = getRowId(state.allList[state.currIndex]);
     getData(id);
   }
   function setFormProps(data) {

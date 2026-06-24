@@ -1,4 +1,4 @@
-﻿<template>
+﻿﻿<template>
   <div class="ceri-content-wrapper demos-page">
     <div class="ceri-content-wrapper-center">
       <div class="ceri-content-wrapper-search-box" v-if="getSearchList.length">
@@ -48,6 +48,9 @@
             </template>
             <template v-if="column.ceriKey === 'datePicker'">
                 {{ formatDateCell(record[column.dataIndex], column.format || 'YYYY-MM-DD HH:mm:ss') }}
+            </template>
+            <template v-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
+                {{ formatOptionCell(record[column.dataIndex], column) }}
             </template>
 </template>
             <template v-if="column.flag === 'ACTION' && !record.top">
@@ -108,6 +111,46 @@
     if (!val && val !== 0) return '';
     const dateValue = !isNaN(Number(val)) ? Number(val) : val;
     return dayjs(dateValue).format(getDateFormat(format));
+  }
+
+  function getColumnFieldKey(key: string) {
+    const matchedKey = (state.columnList || []).map((item) => item?.prop).find((item) => item && item.toLowerCase() === key.toLowerCase());
+    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
+  }
+
+  function formatOptionCell(value: any, column: any) {
+    if (value === undefined || value === null || value === '') return '';
+    const cellValue = normalizeOptionCellValue(value, column);
+    const options = Array.isArray(column?.options) ? column.options : [];
+    if (!options.length) return Array.isArray(cellValue) ? cellValue.join(',') : cellValue;
+    const props = column?.props || {};
+    const labelKey = props.label || 'fullName';
+    const valueKey = props.value || 'id';
+    const getLabel = (val: any) => {
+      const item = options.find((option: any) => String(option?.[valueKey]) === String(val));
+      return item?.[labelKey] ?? val;
+    };
+    return Array.isArray(cellValue) ? cellValue.map(getLabel).join(',') : getLabel(cellValue);
+  }
+  function normalizeOptionCellValue(value: any, column: any) {
+    if (Array.isArray(value) || typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        return Array.isArray(parsed) ? parsed : value;
+      } catch {
+        return value;
+      }
+    }
+    if (column?.ceriKey === 'checkbox' && trimmed.includes(',')) {
+      return trimmed.split(',').map((item: string) => item.trim()).filter(Boolean);
+    }
+    return value;
+  }
+  function getRowId(row: any) {
+    return row?.id ?? row?.Id;
   }
 
   interface State {
@@ -214,9 +257,14 @@
           ...state.expandObj,
         };
         Object.keys(row || {}).forEach((key) => {
-          const pascalKey = key.replace(/^[a-z]/, (s) => s.toUpperCase());
-          if (!(pascalKey in mapped)) mapped[pascalKey] = row[key];
+          const fieldKey = getColumnFieldKey(key);
+          if (!(fieldKey in mapped)) mapped[fieldKey] = row[key];
         });
+        const rowId = getRowId(row);
+        if (rowId !== undefined && rowId !== null) {
+          mapped.id = rowId;
+          mapped.Id = rowId;
+        }
         return mapped;
       };
       const list = rows.map((o) => mapRow(o));
@@ -282,7 +330,7 @@
       columns,
       bordered: true,
       actionColumn: {
-        width: 50,
+        width: 120,
         fixed: 'right',
         align: 'center',
         title: t('component.table.action'),
@@ -307,7 +355,7 @@ function getTableActions(record): ActionItem[] {
       label: t('common.delText','删除'),
       color: 'error',
       modelConfirm: {
-        onOk: handleDelete.bind(null, record.id),
+        onOk: handleDelete.bind(null, getRowId(record)),
       },
     },
   ];
@@ -325,7 +373,7 @@ function addHandle() {
   function updateHandle(record) {
     // 不带工作流
     const data = {
-      id: record.id,
+      id: getRowId(record),
       menuId: searchInfo.menuId,
       allList: state.cacheList,
     };

@@ -37,7 +37,7 @@
   import { useI18n } from 'vue-i18n';
   import { uploadFileProps, units } from '../props';
   import SparkMD5 from 'spark-md5';
-  // import { chunkMerge } from '@/api/basic/common';
+  import { chunkMerge } from '@/api/basic/common';
   import FileItem from './FileItem.vue';
   import { buildBitGUID } from '@/utils/guid';
   import 'vue-simple-uploader/dist/style.css';
@@ -56,7 +56,7 @@
   const uploaderRef = ref<any>(null);
   const uploaderBtnRef = ref<any>(null);
   const options = reactive({
-    target: globSetting.apiUrl + '/api/file/chunk',
+    target: globSetting.apiUrl + '/api/FormDb/chunk',
     chunkSize: 1024 * 1024 * 5,
     maxChunkRetries: 5,
     singleFile: props.limit === 1,
@@ -243,24 +243,24 @@
       timeFormat: props.timeFormat,
       folder: props.folder,
     };
-    // chunkMerge(query)
-    //   .then(res => {
-    //     // 自定义完成状态
-    //     file.customCompleted = true;
-    //     const data = {
-    //       name: file.name.replaceAll('#', ''),
-    //       fileId: res.data.name,
-    //       fileSize: res.data.fileSize,
-    //       fileExtension: res.data.fileExtension,
-    //       fileVersionId: res.data.fileVersionId,
-    //       url: res.data.url,
-    //     };
-    //     emit('fileSuccess', data);
-    //     file.cancel();
-    //   })
-    //   .catch(() => {
-    //     file.cancel();
-    //   });
+     chunkMerge(query)
+      .then(res => {
+        file.customCompleted = true;
+        const data = {
+          name: file.name.replaceAll('#', ''),
+          fileId: res.data.name,
+          fileSize: res.data.fileSize,
+          fileExtension: res.data.fileExtension,
+          fileVersionId: res.data.fileVersionId,
+          url: res.data.url,
+        };
+        emit('fileSuccess', data);
+        file.cancel();
+      })
+      .catch(() => {
+        file.cancel();
+        createMessage.error(t('component.upload.uploadError'));
+      });
   }
 
   onMounted(() => {

@@ -47,11 +47,12 @@
   // import { getToken } from '@/utils/auth';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from 'vue-i18n';
-  // import { createImgPreview } from '@/components/Preview/index';
+  import { createImgPreview } from '@/components/Preview/index';
   import { uploadImgSingleProps, units } from './props';
 
   defineOptions({ name: 'CeriUploadImgSingle', inheritAttrs: false });
   const base64WithPrefixRegex = /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/;
+  const absoluteUrlRegex = /^(https?:)?\/\//i;
   const props = defineProps(uploadImgSingleProps);
   const emit = defineEmits(['update:value', 'change']);
   const { createMessage } = useMessage();
@@ -66,16 +67,29 @@
   const getUrlPrefix = computed(() => (!props.actionPrefix ? apiUrl.value : props.actionPrefix));
   const getAction = computed(() => (!props.actionPrefix ? globSetting.uploadUrl + '/' + props.type : props.actionPrefix + props.type));
   // const getHeaders = computed(() => ({ Authorization: getToken() as string }));
-  const getImgSrc = computed<string>(() => (base64WithPrefixRegex.test(imageUrl.value) ? imageUrl.value : getUrlPrefix.value + imageUrl.value));
+  const getImgSrc = computed<string>(() => toImageUrl(imageUrl.value));
   const getImgList = computed<string[]>(() => (getImgSrc.value ? [getImgSrc.value] : []));
 
   watch(
     () => props.value,
     val => {
-      imageUrl.value = val;
+      imageUrl.value = getImageValue(val);
     },
     { immediate: true },
   );
+
+  function getImageValue(val) {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (Array.isArray(val)) return getImageValue(val[0]);
+    return val.url || val.thumbUrl || '';
+  }
+
+  function toImageUrl(url?: string) {
+    if (!url) return '';
+    if (base64WithPrefixRegex.test(url) || absoluteUrlRegex.test(url)) return url;
+    return getUrlPrefix.value + url;
+  }
 
   function beforeUpload(file) {
     const isAccept = new RegExp('image/*').test(file.type);
@@ -114,7 +128,9 @@
     }
   }
   function handlePreview() {
-    // createImgPreview({ imageList: unref(getImgList) });
+    const imageList = unref(getImgList);
+    if (!imageList.length) return;
+    createImgPreview({ imageList });
   }
   function handleRemove() {
     emit('update:value', '');
