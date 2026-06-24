@@ -67,7 +67,9 @@ public class Mapper : IRegister
 {
 case 1:
 @{GetCrInputToEntity(); }
-@{GetEntityToListOutput();}
+@if(Model.IsUploading){
+GetEntityToListOutput();
+}
 @if(Model.EnableFlow || Model.Type == 3){
 GetEntityToInfoOutput();
 }
@@ -75,7 +77,9 @@ break;
 case 2:
 @{GetCrInputToEntity(); }
 @{GetEntityToInfoOutput();}
-@{GetEntityToListOutput();}
+@if(Model.IsUploading){
+GetEntityToListOutput();
+}
 @if(Model.TableType == 4)
 {
 GetListOutputToInlineEditorOutput();
