@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CeriOS.示例.Entitys.Dto.Allprops;
 

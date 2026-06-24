@@ -1,4 +1,4 @@
-﻿using CeriOS.Core.Common.DB;
+﻿﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
 using JNPF.Common.Security;
@@ -25,6 +25,12 @@ namespace Application.Services;
 public class AllpropsService : ControllerBase, IAllpropsService
 {
     public Repository<AllpropsEntity> _db { get; set; }
+
+    static AllpropsService()
+    {
+        var cfg = TypeAdapterConfig.GlobalSettings;
+        new CeriOS.示例.Entitys.Mapper.Allprops.Mapper().Register(cfg);
+    }
 
     /// <summary>
     /// 初始化一个<see cref="AllpropsService"/>类型的新实例.
@@ -180,7 +186,8 @@ public class AllpropsService : ControllerBase, IAllpropsService
             };
         }
         var entity = input.Adapt<AllpropsEntity>();
-        entity.id = GuidHelper.BuildGuid();
+        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        entity.id = Guid.NewGuid().ToString("N");
         var isOk = await _db.InsertAsync(entity);
         if (!isOk)
         {
@@ -209,6 +216,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     public async Task<dynamic> Update(string id, [FromBody] AllpropsUpInput input)
     {
         var entity = input.Adapt<AllpropsEntity>();
+        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
         var isOk = await _db.UpdateAsync(entity);
         if (!isOk)
         {
