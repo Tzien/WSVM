@@ -2,7 +2,7 @@ import { lowCodeInstance } from '@/utils/request'
 
 enum Api {
   PreviewFile = '/api/file/Uploader/Preview',
-  Merge = '/api/file/merge',
+  Merge = '/api/FormDb/merge',
   AMap = '/api/system/Location'
 }
 

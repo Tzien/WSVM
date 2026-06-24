@@ -271,6 +271,21 @@
     }
     return form;
   }
+  function formatTimeFormValue(value: any) {
+    if (!value && value !== 0) return value;
+    if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) return value.length === 5 ? `${value}:00` : value;
+    const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    return parsed.isValid() ? parsed.format('HH:mm:ss') : value;
+  }
+  function formatTimeSubmitValue(value: any) {
+    if (!value && value !== 0) return value;
+    if (typeof value === 'string' && value.includes(':') && !value.includes('T') && value.length <= 8) {
+      const time = value.length === 5 ? `${value}:00` : value;
+      return dayjs(`${formatDate(new Date())} ${time}`).format('YYYY-MM-DDTHH:mm:ss');
+    }
+    const parsed = dayjs(!isNaN(Number(value)) ? Number(value) : value);
+    return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm:ss') : value;
+  }
 function getData(id) {
   getInfo(id).then((res) => {
     const raw = res?.data || {};
@@ -285,6 +300,7 @@ function getData(id) {
       mapped[fieldKey] = normalizeOptionValue(fieldKey, raw[k]);
     });
     if (mapped.CreateTime) mapped.CreateTime = dayjs(mapped.CreateTime).valueOf();
+    if (mapped.LastLoginTime) mapped.LastLoginTime = formatTimeFormValue(mapped.LastLoginTime);
     Object.assign(state.dataForm, mapped);
 
     changeLoading(false);
@@ -293,6 +309,7 @@ function getData(id) {
   function buildSubmitData() {
     const data = cloneDeep(state.dataForm);
     if (data.CreateTime || data.CreateTime === 0) data.CreateTime = formatDate(!isNaN(Number(data.CreateTime)) ? Number(data.CreateTime) : data.CreateTime);
+    if (data.LastLoginTime || data.LastLoginTime === 0) data.LastLoginTime = formatTimeSubmitValue(data.LastLoginTime);
     if (!data.id) delete data.id;
     return data;
   }

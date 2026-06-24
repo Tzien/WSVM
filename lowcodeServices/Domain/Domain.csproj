@@ -7,7 +7,9 @@
     <PackageReference Include="SqlSugarCore" Version="5.1.4.211-preview12" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Entities\" />
     <Folder Include="Enum\" />
+    <Folder Include="Mapper\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JNPF.Common">

@@ -1,4 +1,5 @@
-﻿namespace CeriOS.示例.Entitys.Dto.Allprops;
+﻿
+namespace CeriOS.示例.Entitys.Dto.Allprops;
 
 /// <summary>
 /// 测试全部功能更新输入.

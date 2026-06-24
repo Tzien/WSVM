@@ -1,4 +1,4 @@
-﻿using CeriOS.Core.Common.DB;
+﻿﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
 using CeriOS.示例.Entitys.Dto.Allprops;
@@ -214,6 +214,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     public async Task<dynamic> Update(string id, [FromBody] AllpropsUpInput input)
     {
         var entity = input.Adapt<AllpropsEntity>();
+        entity.Text = input.Text != null && input.Text.Count > 0 ? JsonSerializer.Serialize(input.Text).Replace("\r\n", "").Replace(" ", "") : null;
         var isOk = await _db.UpdateAsync(entity);
         if (!isOk)
         {

@@ -56,7 +56,7 @@
   const uploaderRef = ref<any>(null);
   const uploaderBtnRef = ref<any>(null);
   const options = reactive({
-    target: globSetting.apiUrl + '/api/file/chunk',
+    target: globSetting.apiUrl + '/api/FormDb/chunk',
     chunkSize: 1024 * 1024 * 5,
     maxChunkRetries: 5,
     singleFile: props.limit === 1,

@@ -1,4 +1,4 @@
-﻿<template>
+﻿﻿<template>
   <div class="ceri-content-wrapper demos-page">
     <div class="ceri-content-wrapper-center">
       <div class="ceri-content-wrapper-search-box" v-if="getSearchList.length">
