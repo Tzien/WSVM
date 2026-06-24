@@ -1,4 +1,5 @@
-﻿using CERIOS.Common.Enums;
+﻿using CeriOS.Core.Model.ViewModel;
+using CERIOS.Common.Enums;
 using CERIOS.Common.Models;
 using JNPF.Common.Dtos;
 using Microsoft.AspNetCore.Http;

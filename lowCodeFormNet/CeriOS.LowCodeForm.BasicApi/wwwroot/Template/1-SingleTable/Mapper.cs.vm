@@ -1,4 +1,4 @@
-﻿﻿@*是否需要上传文件引用*@
+﻿@*是否需要上传文件引用*@
 @if(Model.IsUploading)
 {
 @:using JNPF.Common.Models;
@@ -67,6 +67,7 @@ public class Mapper : IRegister
 {
 case 1:
 @{GetCrInputToEntity(); }
+@{GetEntityToListOutput();}
 @if(Model.EnableFlow || Model.Type == 3){
 GetEntityToInfoOutput();
 }
@@ -74,6 +75,7 @@ break;
 case 2:
 @{GetCrInputToEntity(); }
 @{GetEntityToInfoOutput();}
+@{GetEntityToListOutput();}
 @if(Model.TableType == 4)
 {
 GetListOutputToInlineEditorOutput();
@@ -222,6 +224,25 @@ break;
 		@:;
 	}
 	@*实体转修改输入*@
+        @*实体转列表输出*@
+        void GetEntityToListOutput()
+        {
+                @:config.ForType<@(Model.ClassName)Entity, @(Model.ClassName)ListOutput>()
+@foreach (var column in Model.TableField)
+{
+@if (column.IsShow && column.ceriKey != null)
+{
+switch(column.ceriKey)
+{
+case "uploadImg":
+case "uploadFile":
+                        @:.Map(dest => dest.@(column.LowerColumnName), src => ParseList<FileControlsModel>(src.@(column.ColumnName)))
+break;
+}
+}
+}
+                @:;
+        }
 	void GetEntityToUpInput()
 	{
 		@:config.ForType<@(Model.ClassName)Entity, @(Model.ClassName)UpInput>()

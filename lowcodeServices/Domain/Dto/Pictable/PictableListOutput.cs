@@ -1,4 +1,5 @@
-﻿using System;
+using JNPF.Common.Models;
+using System;
 using System.Collections.Generic;
 
 namespace CeriOS.示例.Entitys.Dto.Pictable;
@@ -16,11 +17,11 @@ public class PictableListOutput
     /// <summary>
     /// .
     /// </summary>
-    public object? PicURL { get; set; }
+    public List<FileControlsModel> PicURL { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public object? FileURL { get; set; }
+    public List<FileControlsModel> FileURL { get; set; }
 
 }

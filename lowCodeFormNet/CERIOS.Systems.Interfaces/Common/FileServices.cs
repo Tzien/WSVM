@@ -21,7 +21,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using CERIOS.RemoteRequest.Extensions;
-using JNPF.Common.Dtos;
+using CeriOS.Core.Model.ViewModel;
 
 namespace CERIOS.Systems.Interfaces.Common
 {

@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="CeriOS.Core.Model">
+      <HintPath>..\CeriOS.LowCodeForm.Model\dlls\CeriOS.Core.Model.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Authorization">
       <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\7.0\Microsoft.AspNetCore.Authorization.dll</HintPath>
     </Reference>

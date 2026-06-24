@@ -1,4 +1,4 @@
-﻿﻿
+﻿
 using JNPF.Common.Models;
 using CeriOS.示例.Entitys.Dto.Pictable;
 using Mapster;
@@ -61,6 +61,10 @@ public class Mapper : IRegister
 			.Map(dest => dest.FileURL, src => ToJson(src.FileURL))
 		;
 		config.ForType<PictableEntity, PictableInfoOutput>()
+			.Map(dest => dest.PicURL, src => ParseList<FileControlsModel>(src.PicURL))
+			.Map(dest => dest.FileURL, src => ParseList<FileControlsModel>(src.FileURL))
+		;
+		config.ForType<PictableEntity, PictableListOutput>()
 			.Map(dest => dest.PicURL, src => ParseList<FileControlsModel>(src.PicURL))
 			.Map(dest => dest.FileURL, src => ParseList<FileControlsModel>(src.FileURL))
 		;

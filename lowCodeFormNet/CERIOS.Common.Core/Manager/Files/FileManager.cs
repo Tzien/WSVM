@@ -16,7 +16,7 @@ using CERIOS.Common.Extension;
 using CERIOS.Common.Options;
 using CERIOS.App;
 using CeriOS.LowCodeForm.Model.Helper;
-using JNPF.Common.Dtos;
+using CeriOS.Core.Model.ViewModel;
 
 namespace CERIOS.Common.Core.Manager.Files
 {
