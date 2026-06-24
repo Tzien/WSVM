@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="CeriOS.Core.Model">
+      <HintPath>..\CeriOS.LowCodeForm.Model\dlls\CeriOS.Core.Model.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
       <HintPath>..\CeriOS.LowCodeForm.BasicApi\dlls\CERIOSDLL\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
     </Reference>

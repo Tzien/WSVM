@@ -16,6 +16,7 @@ using CERIOS.Common.Extension;
 using CERIOS.Common.Options;
 using CERIOS.App;
 using CeriOS.LowCodeForm.Model.Helper;
+using CeriOS.Core.Model.ViewModel;
 
 namespace CERIOS.Common.Core.Manager.Files
 {
@@ -396,10 +397,10 @@ namespace CERIOS.Common.Core.Manager.Files
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<dynamic> UploadChunk([FromForm] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input)
         {
             // 碎片临时文件存储路径
-            string directoryPath = Path.Combine(App.App.GetConfig<AppOptions>("CERIOS_App", true).SystemPath, "TemporaryFile", input.identifier);
+            string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
             try
             {
                 if (!Directory.Exists(directoryPath))
@@ -418,7 +419,7 @@ namespace CERIOS.Common.Core.Manager.Files
                         await input.file.OpenReadStream().CopyToAsync(streamLocal);
                     }
                 }
-                return new { merge = FileHelper.GetAllFiles(directoryPath).Count == input.totalChunks };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { merge = FileHelper.GetAllFiles(directoryPath).Count == input.totalChunks } };
             }
             catch (AppFriendlyException ex)
             {
@@ -440,7 +441,7 @@ namespace CERIOS.Common.Core.Manager.Files
                 // 新文件名称
                 var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.fileName));
                 // 碎片临时文件存储路径
-                string directoryPath = Path.Combine(App.App.GetConfig<AppOptions>("CERIOS_App", true).SystemPath, "TemporaryFile", input.identifier);
+                string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = Directory.GetFiles(directoryPath);
                 List<byte> byteSource = new List<byte>();
                 var fs = new FileStream(Path.Combine(directoryPath, saveFileName), FileMode.Create);

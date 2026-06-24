@@ -2938,18 +2938,17 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         /// <param name="input">请求参数.</param>
         /// <returns></returns>
         [HttpGet("chunk")]
-        public async Task<dynamic> CheckChunk([FromQuery] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> CheckChunk([FromQuery] ChunkModel input)
         {
             try
             {
                 if (!AllowFileType(input.extension, input.extension))
                     throw new Exception("上传失败，文件格式不允许上传");
-                string path = GetPathByType(string.Empty);
-                string filePath = Path.Combine(path, input.identifier);
+                string filePath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = CERIOS.Common.Security.FileHelper.GetAllFiles(filePath);
                 List<int> existsChunk = chunkFiles.FindAll(x => !CERIOS.Common.Security.FileHelper.GetFileType(x).Equals("tmp"))
-                    .Select(x => x.FullName.Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
-                return new { chunkNumbers = existsChunk, merge = false };
+                    .Select(x => Path.GetFileName(x.FullName).Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { chunkNumbers = existsChunk, merge = false } };
             }
             catch (Exception ex)
             {
@@ -2962,13 +2961,20 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         /// 分片上传附件.
         /// </summary>
         /// <param name="input"></param>
-        /// <returns></returns>
+        /// <returns></returns>`
         [HttpPost("chunk")]
-        public async Task<dynamic> UploadChunk([FromForm] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input)
         {
             if (!AllowFileType(input.extension, input.extension))
                 throw new Exception("上传失败，文件格式不允许上传");
             return await _fileManager.UploadChunk(input);
+        }
+
+        [HttpPost("merge")]
+        public async Task<QueryByIdResponseDto<dynamic>> Merge(ChunkModel input)
+        {
+            var data = await _fileManager.Merge(input);
+            return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
         }
     }
 }
