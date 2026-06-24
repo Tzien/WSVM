@@ -278,11 +278,10 @@ namespace CERIOS.Systems.Interfaces.Common
             {
                 if (!AllowFileType(input.extension, input.extension))
                     throw new Exception("上传失败，文件格式不允许上传");
-                string path = GetPathByType(string.Empty);
-                string filePath = Path.Combine(path, input.identifier);
+                string filePath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = FileHelper.GetAllFiles(filePath);
                 List<int> existsChunk = chunkFiles.FindAll(x => !FileHelper.GetFileType(x).Equals("tmp"))
-                    .Select(x => x.FullName.Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
+                    .Select(x => Path.GetFileName(x.FullName).Replace(input.identifier + "-", string.Empty).ParseToInt()).ToList();
                 return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { chunkNumbers = existsChunk, merge = false } };
             }
             catch (Exception ex)
@@ -302,11 +301,14 @@ namespace CERIOS.Systems.Interfaces.Common
         /// <returns></returns>
         public async Task<dynamic> Uploader(string type, [FromForm] ChunkModel input)
         {
-            string? fileType = Path.GetExtension(input.file.FileName).Replace(".", string.Empty);
+            if (input.file == null)
+                throw new Exception("File is required");
+            var uploadFile = input.file;
+            string? fileType = Path.GetExtension(uploadFile.FileName).Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
                 throw new Exception("上传失败，文件格式不允许上传");
-            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.file.FileName));
-            var stream = input.file.OpenReadStream();
+            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(uploadFile.FileName));
+            var stream = uploadFile.OpenReadStream();
             input.type = type;
             _fileManager.GetChunkModel(input, saveFileName);
             await _fileManager.UploadFileByType(stream, input.folder, saveFileName);
@@ -314,11 +316,11 @@ namespace CERIOS.Systems.Interfaces.Common
             {
                 var slStram = await _fileManager.GetFileStream(Path.Combine(input.folder, saveFileName));
                 await _fileManager.MakeThumbnail(slStram, saveFileName, input.folder);
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/File/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/File/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = uploadFile.Length, fileName = input.slImgName };
             }
             else
             {
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = uploadFile.Length, fileName = input.fileName };
             }
         }
 
@@ -370,9 +372,10 @@ namespace CERIOS.Systems.Interfaces.Common
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public async Task<dynamic> Merge([FromForm] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> Merge(ChunkModel input)
         {
-            return await _fileManager.Merge(input);
+            var data = await _fileManager.Merge(input);
+            return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
         }
         #endregion
 

@@ -243,7 +243,7 @@
       timeFormat: props.timeFormat,
       folder: props.folder,
     };
-     chunkMerge(query)
+    chunkMerge(query)
       .then(res => {
         file.customCompleted = true;
         const data = {

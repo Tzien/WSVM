@@ -2858,11 +2858,14 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         [HttpPost("Uploader/{type}")]
         public async Task<QueryByIdResponseDto<dynamic>> Uploader(string type, ChunkModel input)
         {
-            string? fileType = Path.GetExtension(input.file.FileName).Replace(".", string.Empty);
+            if (input.file == null)
+                throw new Exception("File is required");
+            var uploadFile = input.file;
+            string? fileType = Path.GetExtension(uploadFile.FileName).Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
                 throw new Exception("上传失败，文件格式不允许上传");
-            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.file.FileName));
-            var stream = input.file.OpenReadStream();
+            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(uploadFile.FileName));
+            var stream = uploadFile.OpenReadStream();
             input.type = type;
             _fileManager.GetChunkModel(input, saveFileName);
             await _fileManager.UploadFileByType(stream, input.folder, saveFileName);
@@ -2870,11 +2873,11 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             {
                 var slStram = await _fileManager.GetFileStream(Path.Combine(input.folder, saveFileName));
                 await _fileManager.MakeThumbnail(slStram, saveFileName, input.folder);
-                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName } };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = uploadFile.Length, fileName = input.slImgName } };
             }
             else
             {
-                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName } };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = uploadFile.Length, fileName = input.fileName } };
             }
         }
 
@@ -2969,7 +2972,6 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
                 throw new Exception("上传失败，文件格式不允许上传");
             return await _fileManager.UploadChunk(input);
         }
-
         [HttpPost("merge")]
         public async Task<QueryByIdResponseDto<dynamic>> Merge(ChunkModel input)
         {

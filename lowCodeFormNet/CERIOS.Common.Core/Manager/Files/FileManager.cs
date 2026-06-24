@@ -399,6 +399,9 @@ namespace CERIOS.Common.Core.Manager.Files
         /// <returns></returns>
         public async Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input)
         {
+            if (input.file == null)
+                throw new Exception("File is required");
+            var uploadFile = input.file;
             // 碎片临时文件存储路径
             string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
             try
@@ -416,7 +419,7 @@ namespace CERIOS.Common.Core.Manager.Files
                 {
                     using (var streamLocal = File.Create(chunkFilePath))
                     {
-                        await input.file.OpenReadStream().CopyToAsync(streamLocal);
+                        await uploadFile.OpenReadStream().CopyToAsync(streamLocal);
                     }
                 }
                 return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new { merge = FileHelper.GetAllFiles(directoryPath).Count == input.totalChunks } };

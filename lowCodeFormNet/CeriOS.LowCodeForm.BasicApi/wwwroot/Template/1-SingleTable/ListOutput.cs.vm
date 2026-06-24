@@ -1,5 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+@if(Model.IsUploading)
+{
+@:using JNPF.Common.Models;
+}
 
 namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@(Model.ClassName);
 
@@ -35,7 +39,7 @@ case "uploadImg":
     @:/// <summary>
     @:/// @column.ColumnComment.
     @:/// </summary>
-    @:public object? @column.LowerColumnName { get; set; }
+    @:public List<FileControlsModel> @column.LowerColumnName { get; set; }
 @:
 break;
 case "relationForm":

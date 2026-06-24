@@ -202,7 +202,7 @@
   defineExpose({ init });
 
   function getRowId(row: any) {
-    return row?.id ?? row?.id ?? row?.Id;
+    return row?.id ?? row?.Id;
   }
 
   function getFormFieldKey(key: string) {
@@ -223,7 +223,7 @@
   }
 
   function init(data) {
-    const id = data.id ?? data.Id ?? data.id;
+    const id = data.id ?? data.Id;
     state.submitType = 0;
     state.showContinueBtn = true;
     state.title = !id ? '新增' : '编辑';

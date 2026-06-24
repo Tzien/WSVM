@@ -1,7 +1,6 @@
 ﻿﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
-using JNPF.Common.Security;
 using CeriOS.示例.Entitys.Dto.Allprops;
 using CeriOS.示例.Entitys;
 using CeriOS.示例.Interfaces;
@@ -29,7 +28,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     static AllpropsService()
     {
         var cfg = TypeAdapterConfig.GlobalSettings;
-        new CeriOS.示例.Entitys.Mapper.Allprops.Mapper().Register(cfg);
+        new CeriOS.示.Entitys.Mapper.Allprops.Mapper().Register(cfg);
     }
 
     /// <summary>
@@ -78,7 +77,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     {
         var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(AllpropsEntity));
         var selectIds = input.selectIds?.Split(",").ToList();
-      var query = _db.Context.Queryable<AllpropsEntity>();
+      var query = _db.Context.Queryable<AllpropsEntity>().Where(it => it.IsDeleted == 0);
        var extra = GetExtraFilters(input);
        if (extra != null && extra.Count > 0)
         {
@@ -186,7 +185,6 @@ public class AllpropsService : ControllerBase, IAllpropsService
             };
         }
         var entity = input.Adapt<AllpropsEntity>();
-        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
         entity.id = Guid.NewGuid().ToString("N");
         var isOk = await _db.InsertAsync(entity);
         if (!isOk)
@@ -216,7 +214,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     public async Task<dynamic> Update(string id, [FromBody] AllpropsUpInput input)
     {
         var entity = input.Adapt<AllpropsEntity>();
-        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
+        entity.Text = input.Text != null && input.Text.Count > 0 ? JsonSerializer.Serialize(input.Text).Replace("\r\n", "").Replace(" ", "") : null;
         var isOk = await _db.UpdateAsync(entity);
         if (!isOk)
         {
