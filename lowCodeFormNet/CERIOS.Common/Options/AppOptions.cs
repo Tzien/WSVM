@@ -34,6 +34,17 @@ namespace CERIOS.Common.Options
         /// 文件预览方式.
         /// </summary>
         public PreviewType PreviewType { get; set; }
+
+        /// <summary>
+        /// 后端外网域名.
+        /// </summary>
+        public string Domain { get; set; }
+
+        /// <summary>
+        /// KKFileView 文件预览服务地址.
+        /// </summary>
+        public string KKFileDomain { get; set; }
+
         /// <summary>
         /// 过滤内网ip.
         /// </summary>

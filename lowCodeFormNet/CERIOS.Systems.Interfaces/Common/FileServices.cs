@@ -62,10 +62,11 @@ namespace CERIOS.Systems.Interfaces.Common
             IHttpContextAccessor httpContextAccessor,
             //IUserManager userManager,
             //ICacheManager cacheManager,
+            IOptions<AppOptions> appOptions,
             IFileManager fileManager)
         {
             _httpContextAccessor = httpContextAccessor;
-            //_appOptions = appOptions.Value;
+            _appOptions = appOptions.Value;
             //_captchaHandler = captchaHandler;
             //_userManager = userManager;
             _fileManager = fileManager;
@@ -414,7 +415,7 @@ namespace CERIOS.Systems.Interfaces.Common
         /// <returns></returns>
         public string KKFileUploaderPreview(string fileName, string fileDownloadUrl)
         {
-            var domain = App.App.Configuration["CERIOS_APP:Domain"];
+            var domain = _appOptions.Domain;
             var filePath = (domain + "/api/File/down/" + fileName).ToBase64String();
             if (fileDownloadUrl.IsNotEmptyOrNull())
             {
@@ -422,7 +423,7 @@ namespace CERIOS.Systems.Interfaces.Common
                 var type = list.Length > 4 ? list[4] : string.Empty;
                 filePath = string.Format("{0}{1}{2}?type={3}", domain, "/api/File/down/", fileName, type).ToBase64String();
             }
-            var kkFileDoMain = App.App.Configuration["CERIOS_APP:KKFileDomain"];
+            var kkFileDoMain = _appOptions.KKFileDomain;
             var kkurl = kkFileDoMain + "/onlinePreview?url=";
 
             return kkurl + filePath;

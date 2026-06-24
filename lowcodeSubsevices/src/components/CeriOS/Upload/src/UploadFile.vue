@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-  // import { getDownloadUrl, getPackDownloadUrl } from '@/api/basic/common';
+  import { getDownloadUrl, getPackDownloadUrl } from '@/api/basic/common';
   import { computed, ref, unref, watch } from 'vue';
   import { Form } from 'ant-design-vue';
   import { PaperClipOutlined, EyeOutlined, DownloadOutlined, CloseOutlined } from '@ant-design/icons-vue';
@@ -37,7 +37,7 @@
   import { useI18n } from 'vue-i18n';
   // import { createImgPreview } from '@/components/Preview/index';
   import { toFileSize } from '@/utils/ceri';
-  // import { downloadByUrl } from '@/utils/file/download';
+  import { downloadByUrl } from '@/utils/file/download';
   import Preview from './Preview.vue';
   import FileUploader from './SimpleUploader/FileUploader.vue';
 
@@ -76,16 +76,17 @@
     handlePreview(file);
   }
   function handlePreview(file: fileItem) {
-    if (videoTypeList.includes(file.fileExtension || '')) {
+    const fileExtension = (file.fileExtension || '').toLowerCase();
+    if (videoTypeList.includes(fileExtension)) {
       createMessage.error(t('component.upload.videoNoPreview'));
       return;
     }
-    if (zipTypeList.includes(file.fileExtension || '')) {
+    if (zipTypeList.includes(fileExtension)) {
       createMessage.error(t('component.upload.zipNoPreview'));
       return;
     }
     // 图片预览
-    if (imgTypeList.includes(file.fileExtension || '')) {
+    if (imgTypeList.includes(fileExtension)) {
       const imageList = [apiUrl.value + file.url];
       // createImgPreview({ imageList: imageList });
       return;
@@ -95,9 +96,9 @@
   }
   function handleDownload(file: fileItem) {
     if (!file.fileId) return;
-    // getDownloadUrl(props.type, file.fileId).then(res => {
-    //   downloadByUrl({ url: res.data.url, fileName: file.name });
-    // });
+    getDownloadUrl(props.type, file.fileId).then(res => {
+      downloadByUrl({ url: res.data.url, fileName: file.name });
+    });
   }
   // 批量下载
   function handleDownloadAll() {
@@ -105,10 +106,10 @@
     for (let i = 0; i < unref(fileList).length; i++) {
       data.push({ fileId: unref(fileList)[i].fileId, fileName: unref(fileList)[i].name });
     }
-    // getPackDownloadUrl(props.type, data).then(res => {
-    //   if (!res.data && !res.data.downloadVo) return;
-    //   downloadByUrl({ url: res.data.downloadVo.url, fileName: res.data.downloadName });
-    // });
+    getPackDownloadUrl(props.type, data).then(res => {
+      if (!res.data?.downloadVo) return;
+      downloadByUrl({ url: res.data.downloadVo.url, fileName: res.data.downloadName });
+    });
   }
   function handleRemove(index: number) {
     fileList.value.splice(index, 1);
