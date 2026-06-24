@@ -1,9 +1,9 @@
 import { lowCodeInstance } from '@/utils/request'
 
 enum Api {
-  PreviewFile = '/api/file/Uploader/Preview',
-  DownloadUrl = '/api/file/DownloadUrl',
-  DownloadAll = '/api/file/DownloadAll',
+  PreviewFile = '/api/FormDb/Uploader/Preview',
+  DownloadUrl = '/api/FormDb/DownloadUrl',
+  DownloadAll = '/api/FormDb/DownloadAll',
   Merge = '/api/FormDb/merge',
   AMap = '/api/system/Location'
 }

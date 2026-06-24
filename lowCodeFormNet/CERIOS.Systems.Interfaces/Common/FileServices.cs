@@ -185,7 +185,7 @@ namespace CERIOS.Systems.Interfaces.Common
             string? url = string.Format("{0}|{1}|{2}", userId, fileName, type);
             string? encryptStr = DESEncryption.Encrypt(url, "CERIOS");
             //_cacheManager.Set(fileName, string.Empty);
-            return new { name = fileName, url = string.Format("/api/file/Download?encryption={0}", encryptStr) };
+            return new { name = fileName, url = string.Format("/api/FormDb/DownloadFile?encryption={0}", encryptStr) };
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace CERIOS.Systems.Interfaces.Common
             var userId = GetUser.GetUserIdByHttpContext(_httpContextAccessor);
             var downloadFileName = string.Format("{0}|{1}.zip|TemporaryFile", userId, fileName);
             //_cacheManager.Set(fileName + ".zip", string.Empty);
-            return new { downloadName = string.Format("文件{0}.zip", fileName), downloadVo = new { name = fileName, url = "/api/File/Download?encryption=" + DESEncryption.Encrypt(downloadFileName, "CERIOS") } };
+            return new { downloadName = string.Format("文件{0}.zip", fileName), downloadVo = new { name = fileName, url = "/api/FormDb/DownloadFile?encryption=" + DESEncryption.Encrypt(downloadFileName, "CERIOS") } };
         }
 
         /// <summary>

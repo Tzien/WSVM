@@ -497,6 +497,24 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             return await _fileService.DownloadFile(encryption, name);
         }
 
+        [HttpGet("Uploader/Preview")]
+        public async Task<dynamic> Preview(string fileName, string fileDownloadUrl = null)
+        {
+            return await _fileService.Preview(fileName, fileDownloadUrl);
+        }
+
+        [HttpGet("DownloadUrl")]
+        public dynamic DownloadUrl(string type, string fileName)
+        {
+            return _fileService.DownloadUrl(type, fileName);
+        }
+
+        [HttpPost("DownloadAll")]
+        public async Task<dynamic> DownloadAll(string type, [FromBody] List<FileControlsModel> input)
+        {
+            return await _fileService.DownloadAll(type, input);
+        }
+
         [HttpPost("DownloadCode/{id}")]
         public async Task<QueryByIdResponseDto<dynamic>> DownloadCode(string id, [FromBody] DownloadCodeFormInput downloadCodeForm)
         {
