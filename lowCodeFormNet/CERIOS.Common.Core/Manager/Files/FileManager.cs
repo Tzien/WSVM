@@ -468,7 +468,7 @@ namespace CERIOS.Common.Core.Manager.Files
                     stream.Close();
                     FileHelper.DeleteDirectory(directoryPath);
                 }
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", input.type, input.fileName), fileExtension = outputExtension, fileSize = input.fileSize.ParseToLong(), fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", input.type, input.fileName), fileExtension = outputExtension, fileSize = input.fileSize, fileName = input.fileName };
             }
             catch (AppFriendlyException ex)
             {
