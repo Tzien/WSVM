@@ -2874,12 +2874,10 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
 
 
         [HttpPost("Uploader/{type}")]
-        public async Task<QueryByIdResponseDto<dynamic>> Uploader(string type, ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> Uploader(string type, [FromForm] ChunkModel input)
         {
-            var fileExtension = Path.GetExtension(input.file.FileName);
-            if (fileExtension.IsNullOrEmpty() && !string.IsNullOrEmpty(input.extension))
-                fileExtension = "." + input.extension.TrimStart('.');
-            if (fileExtension.IsNullOrEmpty())
+            var fileExtension = ResolveFileExtension(input);
+            if (string.IsNullOrWhiteSpace(fileExtension))
                 throw new Exception("上传失败，文件后缀名不能为空");
             string? fileType = fileExtension.Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
@@ -2901,6 +2899,43 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             }
         }
 
+
+        private static string ResolveFileExtension(ChunkModel input)
+        {
+            var fileExtension = Path.GetExtension(input.file?.FileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.fileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.relativePath);
+            if (string.IsNullOrWhiteSpace(fileExtension) && !string.IsNullOrWhiteSpace(input.extension))
+                fileExtension = "." + input.extension.TrimStart('.');
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = GetExtensionByMimeType(input.file?.ContentType ?? input.fileType);
+            return fileExtension.ToLower();
+        }
+
+        private static string GetExtensionByMimeType(string? fileType)
+        {
+            return fileType?.Split(';')[0].Trim().ToLowerInvariant() switch
+            {
+                "application/pdf" => ".pdf",
+                "application/msword" => ".doc",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+                "application/vnd.ms-excel" => ".xls",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+                "application/vnd.ms-powerpoint" => ".ppt",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" => ".pptx",
+                "text/plain" => ".txt",
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/bmp" => ".bmp",
+                "image/webp" => ".webp",
+                "application/zip" => ".zip",
+                "application/x-rar-compressed" => ".rar",
+                _ => string.Empty,
+            };
+        }
 
         /// <summary>
         /// 允许文件类型.
@@ -2965,6 +3000,10 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         {
             try
             {
+                var fileExtension = ResolveFileExtension(input);
+                if (string.IsNullOrWhiteSpace(fileExtension))
+                    throw new Exception("上传失败，文件后缀名不能为空");
+                input.extension = fileExtension.TrimStart('.');
                 if (!AllowFileType(input.extension, input.extension))
                     throw new Exception("上传失败，文件格式不允许上传");
                 string filePath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
@@ -2988,14 +3027,22 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         [HttpPost("chunk")]
         public async Task<QueryByIdResponseDto<dynamic>> UploadChunk([FromForm] ChunkModel input)
         {
+            var fileExtension = ResolveFileExtension(input);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                throw new Exception("上传失败，文件后缀名不能为空");
+            input.extension = fileExtension.TrimStart('.');
             if (!AllowFileType(input.extension, input.extension))
                 throw new Exception("上传失败，文件格式不允许上传");
             return await _fileManager.UploadChunk(input);
         }
 
         [HttpPost("merge")]
-        public async Task<QueryByIdResponseDto<dynamic>> Merge(ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> Merge([FromBody] ChunkModel input)
         {
+            var fileExtension = ResolveFileExtension(input);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                throw new Exception("上传失败，文件后缀名不能为空");
+            input.extension = fileExtension.TrimStart('.');
             var data = await _fileManager.Merge(input);
             return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
         }

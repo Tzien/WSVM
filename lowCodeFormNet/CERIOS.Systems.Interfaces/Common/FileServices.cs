@@ -304,10 +304,8 @@ namespace CERIOS.Systems.Interfaces.Common
         /// <returns></returns>
         public async Task<dynamic> Uploader(string type, [FromForm] ChunkModel input)
         {
-            var fileExtension = Path.GetExtension(input.file.FileName);
-            if (fileExtension.IsNullOrEmpty() && input.extension.IsNotEmptyOrNull())
-                fileExtension = "." + input.extension.TrimStart('.');
-            if (fileExtension.IsNullOrEmpty())
+            var fileExtension = ResolveFileExtension(input);
+            if (string.IsNullOrWhiteSpace(fileExtension))
                 throw new Exception("上传失败，文件后缀名不能为空");
             string? fileType = fileExtension.Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
@@ -591,6 +589,43 @@ namespace CERIOS.Systems.Interfaces.Common
             }
 
             return signRet;
+        }
+
+        private static string ResolveFileExtension(ChunkModel input)
+        {
+            var fileExtension = Path.GetExtension(input.file?.FileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.fileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.relativePath);
+            if (string.IsNullOrWhiteSpace(fileExtension) && !string.IsNullOrWhiteSpace(input.extension))
+                fileExtension = "." + input.extension.TrimStart('.');
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = GetExtensionByMimeType(input.file?.ContentType ?? input.fileType);
+            return fileExtension.ToLower();
+        }
+
+        private static string GetExtensionByMimeType(string? fileType)
+        {
+            return fileType?.Split(';')[0].Trim().ToLowerInvariant() switch
+            {
+                "application/pdf" => ".pdf",
+                "application/msword" => ".doc",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+                "application/vnd.ms-excel" => ".xls",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+                "application/vnd.ms-powerpoint" => ".ppt",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" => ".pptx",
+                "text/plain" => ".txt",
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/bmp" => ".bmp",
+                "image/webp" => ".webp",
+                "application/zip" => ".zip",
+                "application/x-rar-compressed" => ".rar",
+                _ => string.Empty,
+            };
         }
 
         /// <summary>

@@ -439,12 +439,10 @@ namespace CERIOS.Common.Core.Manager.Files
             {
                 input.fileName = DetectionSpecialStr(input.fileName);
                 // 新文件名称
-                var fileExtension = Path.GetExtension(input.fileName);
-                if (fileExtension.IsNullOrEmpty() && input.extension.IsNotEmptyOrNull())
-                    fileExtension = "." + input.extension.TrimStart('.');
-                if (fileExtension.IsNullOrEmpty())
+                var fileExtension = ResolveFileExtension(input);
+                if (string.IsNullOrWhiteSpace(fileExtension))
                     throw new Exception("上传失败，文件后缀名不能为空");
-                var outputExtension = input.extension.IsNotEmptyOrNull() ? input.extension.TrimStart('.') : fileExtension.TrimStart('.');
+                var outputExtension = fileExtension.TrimStart('.');
                 var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), fileExtension);
                 // 碎片临时文件存储路径
                 string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
@@ -478,6 +476,41 @@ namespace CERIOS.Common.Core.Manager.Files
             }
         }
         #endregion
+
+        private static string ResolveFileExtension(ChunkModel input)
+        {
+            var fileExtension = Path.GetExtension(input.fileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.relativePath);
+            if (string.IsNullOrWhiteSpace(fileExtension) && !string.IsNullOrWhiteSpace(input.extension))
+                fileExtension = "." + input.extension.TrimStart('.');
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = GetExtensionByMimeType(input.fileType);
+            return fileExtension.ToLower();
+        }
+
+        private static string GetExtensionByMimeType(string? fileType)
+        {
+            return fileType?.Split(';')[0].Trim().ToLowerInvariant() switch
+            {
+                "application/pdf" => ".pdf",
+                "application/msword" => ".doc",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+                "application/vnd.ms-excel" => ".xls",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+                "application/vnd.ms-powerpoint" => ".ppt",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" => ".pptx",
+                "text/plain" => ".txt",
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/bmp" => ".bmp",
+                "image/webp" => ".webp",
+                "application/zip" => ".zip",
+                "application/x-rar-compressed" => ".rar",
+                _ => string.Empty,
+            };
+        }
 
         /// <summary>
         /// 根据类型获取文件存储路径.
