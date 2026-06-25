@@ -442,6 +442,8 @@ namespace CERIOS.Common.Core.Manager.Files
                 var fileExtension = Path.GetExtension(input.fileName);
                 if (fileExtension.IsNullOrEmpty() && input.extension.IsNotEmptyOrNull())
                     fileExtension = "." + input.extension.TrimStart('.');
+                if (fileExtension.IsNullOrEmpty())
+                    throw new Exception("上传失败，文件后缀名不能为空");
                 var outputExtension = input.extension.IsNotEmptyOrNull() ? input.extension.TrimStart('.') : fileExtension.TrimStart('.');
                 var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), fileExtension);
                 // 碎片临时文件存储路径

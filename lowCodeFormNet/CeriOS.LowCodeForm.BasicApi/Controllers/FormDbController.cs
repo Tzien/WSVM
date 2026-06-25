@@ -2876,10 +2876,15 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         [HttpPost("Uploader/{type}")]
         public async Task<QueryByIdResponseDto<dynamic>> Uploader(string type, ChunkModel input)
         {
-            string? fileType = Path.GetExtension(input.file.FileName).Replace(".", string.Empty);
+            var fileExtension = Path.GetExtension(input.file.FileName);
+            if (fileExtension.IsNullOrEmpty() && !string.IsNullOrEmpty(input.extension))
+                fileExtension = "." + input.extension.TrimStart('.');
+            if (fileExtension.IsNullOrEmpty())
+                throw new Exception("上传失败，文件后缀名不能为空");
+            string? fileType = fileExtension.Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
                 throw new Exception("上传失败，文件格式不允许上传");
-            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.file.FileName));
+            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), fileExtension);
             var stream = input.file.OpenReadStream();
             input.type = type;
             _fileManager.GetChunkModel(input, saveFileName);
