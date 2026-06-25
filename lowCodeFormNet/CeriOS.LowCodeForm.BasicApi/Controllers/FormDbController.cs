@@ -3037,8 +3037,9 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         }
 
         [HttpPost("merge")]
-        public async Task<QueryByIdResponseDto<dynamic>> Merge([FromBody] ChunkModel input)
+        public async Task<QueryByIdResponseDto<dynamic>> Merge([FromBody] ChunkModel? input)
         {
+            input ??= new ChunkModel();
             var fileExtension = ResolveFileExtension(input);
             if (string.IsNullOrWhiteSpace(fileExtension))
                 throw new Exception("上传失败，文件后缀名不能为空");
