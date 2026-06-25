@@ -439,7 +439,11 @@ namespace CERIOS.Common.Core.Manager.Files
             {
                 input.fileName = DetectionSpecialStr(input.fileName);
                 // 新文件名称
-                var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.fileName));
+                var fileExtension = Path.GetExtension(input.fileName);
+                if (fileExtension.IsNullOrEmpty() && input.extension.IsNotEmptyOrNull())
+                    fileExtension = "." + input.extension.TrimStart('.');
+                var outputExtension = input.extension.IsNotEmptyOrNull() ? input.extension.TrimStart('.') : fileExtension.TrimStart('.');
+                var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), fileExtension);
                 // 碎片临时文件存储路径
                 string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = Directory.GetFiles(directoryPath);
@@ -464,7 +468,7 @@ namespace CERIOS.Common.Core.Manager.Files
                     stream.Close();
                     FileHelper.DeleteDirectory(directoryPath);
                 }
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", input.type, input.fileName), fileExtension = input.extension, fileSize = input.fileSize.ParseToLong(), fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", input.type, input.fileName), fileExtension = outputExtension, fileSize = input.fileSize.ParseToLong(), fileName = input.fileName };
             }
             catch (AppFriendlyException ex)
             {
