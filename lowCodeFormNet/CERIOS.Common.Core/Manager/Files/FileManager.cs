@@ -367,7 +367,7 @@ namespace CERIOS.Common.Core.Manager.Files
             return new
             {
                 name = _fileName,
-                url = string.Format("/api/file/Download?encryption={0}", DESEncryption.Encrypt(string.Format("{0}|{1}|json", userId, _fileName), "CERIOS"))
+                url = string.Format("/api/FormDb/DownloadFile?encryption={0}", DESEncryption.Encrypt(string.Format("{0}|{1}|json", userId, _fileName), "CERIOS"))
             };
         }
 
@@ -464,7 +464,7 @@ namespace CERIOS.Common.Core.Manager.Files
                     stream.Close();
                     FileHelper.DeleteDirectory(directoryPath);
                 }
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/file/Image/annex/{0}", input.fileName), fileExtension = input.extension, fileSize = input.fileSize.ParseToLong(), fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", input.type, input.fileName), fileExtension = input.extension, fileSize = input.fileSize.ParseToLong(), fileName = input.fileName };
             }
             catch (AppFriendlyException ex)
             {

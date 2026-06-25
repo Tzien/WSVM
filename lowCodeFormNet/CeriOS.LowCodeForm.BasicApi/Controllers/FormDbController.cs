@@ -2892,7 +2892,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             }
             else
             {
-                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName } };
+                return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName } };
             }
         }
 

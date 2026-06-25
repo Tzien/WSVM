@@ -315,11 +315,11 @@ namespace CERIOS.Systems.Interfaces.Common
             {
                 var slStram = await _fileManager.GetFileStream(Path.Combine(input.folder, saveFileName));
                 await _fileManager.MakeThumbnail(slStram, saveFileName, input.folder);
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/File/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
             }
             else
             {
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
             }
         }
 
@@ -351,7 +351,7 @@ namespace CERIOS.Systems.Interfaces.Common
             string? fileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(file.FileName));
             var stream = file.OpenReadStream();
             await _fileManager.UploadFileByType(stream, filePath, fileName);
-            return new FileControlsModel { name = fileName, url = string.Format("/api/file/Image/userAvatar/{0}", fileName), fileSize = file.Length, fileExtension = ImgType };
+            return new FileControlsModel { name = fileName, url = string.Format("/api/FormDb/Image/userAvatar/{0}", fileName), fileSize = file.Length, fileExtension = ImgType };
         }
 
         /// <summary>
@@ -416,12 +416,10 @@ namespace CERIOS.Systems.Interfaces.Common
         public string KKFileUploaderPreview(string fileName, string fileDownloadUrl)
         {
             var domain = _appOptions.Domain;
-            var filePath = (domain + "/api/File/down/" + fileName).ToBase64String();
+            var filePath = (domain + "/api/FormDb/Image/annex/" + fileName).ToBase64String();
             if (fileDownloadUrl.IsNotEmptyOrNull())
             {
-                var list = fileDownloadUrl.Split('/');
-                var type = list.Length > 4 ? list[4] : string.Empty;
-                filePath = string.Format("{0}{1}{2}?type={3}", domain, "/api/File/down/", fileName, type).ToBase64String();
+                filePath = (fileDownloadUrl.StartsWith("http") ? fileDownloadUrl : domain + fileDownloadUrl).ToBase64String();
             }
             var kkFileDoMain = _appOptions.KKFileDomain;
             var kkurl = kkFileDoMain + "/onlinePreview?url=";
@@ -447,7 +445,7 @@ namespace CERIOS.Systems.Interfaces.Common
             string downloadAPI = _appOptions.YOZO.DownloadAPI;
             string yozoAppId = _appOptions.YOZO.AppId;
             string yozoAppKey = _appOptions.YOZO.AppKey;
-            string outputFilePath = string.Format("{0}/api/File/Image/annex/{1}", domain, fileName);
+            string outputFilePath = string.Format("{0}/api/FormDb/Image/annex/{1}", domain, fileName);
 
             Dictionary<string, string[]> dic = new Dictionary<string, string[]>();
             dic.Add("fileUrl", new string[] { outputFilePath });
