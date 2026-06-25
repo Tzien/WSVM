@@ -498,9 +498,10 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         }
 
         [HttpGet("Uploader/Preview")]
-        public async Task<dynamic> Preview(string fileName, string fileDownloadUrl = null, string originalFileName = null, string fileExtension = null)
+        public async Task<QueryByIdResponseDto<dynamic>> Preview(string fileName, string fileDownloadUrl = null, string originalFileName = null, string fileExtension = null)
         {
-            return await _fileService.Preview(fileName, fileDownloadUrl, originalFileName, fileExtension);
+            var data = await _fileService.Preview(fileName, fileDownloadUrl, originalFileName, fileExtension);
+            return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
         }
 
         [HttpGet("DownloadUrl")]
