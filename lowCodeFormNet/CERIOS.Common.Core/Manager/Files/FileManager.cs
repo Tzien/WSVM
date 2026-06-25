@@ -367,7 +367,7 @@ namespace CERIOS.Common.Core.Manager.Files
             return new
             {
                 name = _fileName,
-                url = string.Format("/api/file/Download?encryption={0}", DESEncryption.Encrypt(string.Format("{0}|{1}|json", userId, _fileName), "CERIOS"))
+                url = string.Format("/api/FormDb/DownloadFile?encryption={0}", DESEncryption.Encrypt(string.Format("{0}|{1}|json", userId, _fileName), "CERIOS"))
             };
         }
 
@@ -439,7 +439,11 @@ namespace CERIOS.Common.Core.Manager.Files
             {
                 input.fileName = DetectionSpecialStr(input.fileName);
                 // 新文件名称
-                var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.fileName));
+                var fileExtension = ResolveFileExtension(input);
+                if (string.IsNullOrWhiteSpace(fileExtension))
+                    throw new Exception("上传失败，文件后缀名不能为空");
+                var outputExtension = fileExtension.TrimStart('.');
+                var saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), fileExtension);
                 // 碎片临时文件存储路径
                 string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, input.identifier);
                 var chunkFiles = Directory.GetFiles(directoryPath);
@@ -464,7 +468,7 @@ namespace CERIOS.Common.Core.Manager.Files
                     stream.Close();
                     FileHelper.DeleteDirectory(directoryPath);
                 }
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/file/Image/annex/{0}", input.fileName), fileExtension = input.extension, fileSize = input.fileSize.ParseToLong(), fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", input.type, input.fileName), fileExtension = outputExtension, fileSize = input.fileSize, fileName = input.fileName };
             }
             catch (AppFriendlyException ex)
             {
@@ -472,6 +476,41 @@ namespace CERIOS.Common.Core.Manager.Files
             }
         }
         #endregion
+
+        private static string ResolveFileExtension(ChunkModel input)
+        {
+            var fileExtension = Path.GetExtension(input.fileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.relativePath);
+            if (string.IsNullOrWhiteSpace(fileExtension) && !string.IsNullOrWhiteSpace(input.extension))
+                fileExtension = "." + input.extension.TrimStart('.');
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = GetExtensionByMimeType(input.fileType);
+            return fileExtension.ToLower();
+        }
+
+        private static string GetExtensionByMimeType(string? fileType)
+        {
+            return fileType?.Split(';')[0].Trim().ToLowerInvariant() switch
+            {
+                "application/pdf" => ".pdf",
+                "application/msword" => ".doc",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+                "application/vnd.ms-excel" => ".xls",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+                "application/vnd.ms-powerpoint" => ".ppt",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" => ".pptx",
+                "text/plain" => ".txt",
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/bmp" => ".bmp",
+                "image/webp" => ".webp",
+                "application/zip" => ".zip",
+                "application/x-rar-compressed" => ".rar",
+                _ => string.Empty,
+            };
+        }
 
         /// <summary>
         /// 根据类型获取文件存储路径.

@@ -32,16 +32,16 @@
   import ModalClose from '@/components/Modal/src/components/ModalClose.vue';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from 'vue-i18n';
-  // import { getDownloadUrl, previewFile } from '@/api/basic/common';
-  // import { downloadByUrl } from '@/utils/file/download';
-  // import { getToken } from '@/utils/auth';
+  import { getDownloadUrl, previewFile } from '@/api/basic/common';
+  import { downloadByUrl } from '@/utils/file/download';
+  import type { fileItem } from './props';
 
   interface State {
     visible: boolean;
     loading: boolean;
     title: string;
     url: string;
-    file: any;
+    file: fileItem | null;
   }
   const props = defineProps({
     showDownload: { type: Boolean, default: false },
@@ -55,46 +55,49 @@
     loading: false,
     title: '',
     url: '',
-    file: {},
+    file: null,
   });
   const { visible, loading, title, url } = toRefs(state);
 
   defineExpose({ init });
 
-  function init(file) {
+  function init(file: fileItem) {
     state.title = '文档预览 - ' + file.name;
     state.url = '';
     state.file = file;
     state.visible = true;
     state.loading = true;
-    let query = {
+    const query = {
       fileName: file.fileId,
+      originalFileName: file.name,
+      fileExtension: file.fileExtension,
       fileVersionId: file.fileVersionId,
       fileDownloadUrl: file.url,
     };
-    // previewFile(query)
-    //   .then(res => {
-    //     state.loading = false;
-    //     if (res.data) {
-    //       state.url = res.data + '&token=' + getToken();
-    //     } else {
-    //       createMessage.warning('文件不存在');
-    //       handleCancel();
-    //     }
-    //   })
-    //   .catch(() => {
-    //     state.loading = false;
-    //     handleCancel();
-    //   });
+    previewFile(query)
+      .then(res => {
+        state.loading = false;
+        if (res.data) {
+          state.url = res.data;
+          return;
+        }
+        createMessage.warning('文件不存在');
+        handleCancel();
+      })
+      .catch(() => {
+        state.loading = false;
+        handleCancel();
+      });
   }
   function handleCancel() {
     state.visible = false;
   }
   function handleDownload() {
-    // if (!state.file.fileId) return;
-    // getDownloadUrl(props.type, state.file.fileId).then(res => {
-    //   downloadByUrl({ url: res.data.url, fileName: state.file.name });
-    // });
+    const file = state.file;
+    if (!file?.fileId) return;
+    getDownloadUrl(props.type, file.fileId).then(res => {
+      downloadByUrl({ url: res.data.url, fileName: file.name });
+    });
   }
 </script>
 <style lang="less">
