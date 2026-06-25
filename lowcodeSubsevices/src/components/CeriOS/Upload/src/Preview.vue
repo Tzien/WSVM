@@ -69,6 +69,8 @@
     state.loading = true;
     const query = {
       fileName: file.fileId,
+      originalFileName: file.name,
+      fileExtension: file.fileExtension,
       fileVersionId: file.fileVersionId,
       fileDownloadUrl: file.url,
     };

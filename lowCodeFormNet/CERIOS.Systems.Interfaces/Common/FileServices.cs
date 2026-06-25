@@ -78,10 +78,11 @@ namespace CERIOS.Systems.Interfaces.Common
         /// 上传文件预览.
         /// </summary>
         /// <returns></returns>
-        public async Task<dynamic> Preview(string fileName, string fileDownloadUrl)
+        public async Task<dynamic> Preview(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
         {
             string[]? typeList = new string[] { "doc", "docx", "xls", "xlsx", "ppt", "pptx", "pdf", "jpg", "jpeg", "gif", "png", "bmp" };
-            string? type = fileName.Split('.').LastOrDefault();
+            var previewFileName = GetPreviewFileName(fileName, fileDownloadUrl, originalFileName, fileExtension);
+            string? type = Path.GetExtension(previewFileName ?? string.Empty).Replace(".", string.Empty).ToLower();
             if (typeList.Contains(type))
             {
                 if (fileName.IsNotEmptyOrNull())
@@ -90,7 +91,7 @@ namespace CERIOS.Systems.Interfaces.Common
                     switch (_appOptions.PreviewType)
                     {
                         case PreviewType.kkfile:
-                            previewUrl = KKFileUploaderPreview(fileName, fileDownloadUrl);
+                            previewUrl = KKFileUploaderPreview(fileName, fileDownloadUrl, previewFileName);
                             break;
                         case PreviewType.yozo:
                             previewUrl = await YoZoUploaderPreview(fileName, 5, 1);
@@ -413,18 +414,45 @@ namespace CERIOS.Systems.Interfaces.Common
         /// <param name="fileName">文件名称.</param>
         /// <param name="fileDownloadUrl">文件地址.</param>
         /// <returns></returns>
-        public string KKFileUploaderPreview(string fileName, string fileDownloadUrl)
+        public string KKFileUploaderPreview(string fileName, string fileDownloadUrl, string previewFileName = null)
         {
             var domain = _appOptions.Domain;
             var filePath = (domain + "/api/FormDb/Image/annex/" + fileName).ToBase64String();
+            var downloadFileName = fileName;
             if (fileDownloadUrl.IsNotEmptyOrNull())
             {
+                downloadFileName = GetFileNameFromUrl(fileDownloadUrl);
                 filePath = (fileDownloadUrl.StartsWith("http") ? fileDownloadUrl : domain + fileDownloadUrl).ToBase64String();
             }
             var kkFileDoMain = _appOptions.KKFileDomain;
             var kkurl = kkFileDoMain + "/onlinePreview?url=";
+            var previewUrl = kkurl + filePath;
+            if (Path.GetExtension(downloadFileName).IsNullOrEmpty() && Path.GetExtension(previewFileName ?? string.Empty).IsNotEmptyOrNull())
+            {
+                previewUrl += "&fullfilename=" + HttpUtility.UrlEncode(previewFileName, Encoding.UTF8);
+            }
 
-            return kkurl + filePath;
+            return previewUrl;
+        }
+
+        private string GetPreviewFileName(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
+        {
+            var downloadFileName = GetFileNameFromUrl(fileDownloadUrl);
+            foreach (var item in new[] { fileName, downloadFileName, originalFileName })
+            {
+                if (Path.GetExtension(item ?? string.Empty).IsNotEmptyOrNull())
+                    return item;
+            }
+            if (fileExtension.IsNotEmptyOrNull())
+                return string.Format("{0}.{1}", fileName, fileExtension.TrimStart('.'));
+            return fileName;
+        }
+
+        private string GetFileNameFromUrl(string fileUrl)
+        {
+            if (fileUrl.IsNullOrEmpty()) return string.Empty;
+            var url = fileUrl.Split('?').FirstOrDefault() ?? string.Empty;
+            return (url.Split('/').LastOrDefault() ?? string.Empty).Replace("@", ".");
         }
 
         #endregion

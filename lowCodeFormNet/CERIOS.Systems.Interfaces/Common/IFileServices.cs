@@ -12,7 +12,7 @@ namespace CERIOS.Systems.Interfaces.Common
     /// </summary>
     public interface IFileService
     {
-        Task<dynamic> Preview(string fileName, string fileDownloadUrl);
+        Task<dynamic> Preview(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension);
 
         dynamic DownloadUrl(string type, string fileName);
 
