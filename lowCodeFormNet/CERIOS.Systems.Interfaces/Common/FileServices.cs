@@ -420,22 +420,26 @@ namespace CERIOS.Systems.Interfaces.Common
         public string KKFileUploaderPreview(string fileName, string fileDownloadUrl, string previewFileName = null)
         {
             var domain = _appOptions.Domain;
-            var filePath = (domain + "/api/FormDb/Image/annex/" + fileName).ToBase64String();
+            var fileUrl = domain + "/api/FormDb/Image/annex/" + fileName;
             var downloadFileName = fileName;
             if (fileDownloadUrl.IsNotEmptyOrNull())
             {
                 downloadFileName = GetFileNameFromUrl(fileDownloadUrl);
-                filePath = (fileDownloadUrl.StartsWith("http") ? fileDownloadUrl : domain + fileDownloadUrl).ToBase64String();
-            }
-            var kkFileDoMain = _appOptions.KKFileDomain;
-            var kkurl = kkFileDoMain + "/onlinePreview?url=";
-            var previewUrl = kkurl + filePath;
-            if (Path.GetExtension(downloadFileName).IsNullOrEmpty() && Path.GetExtension(previewFileName ?? string.Empty).IsNotEmptyOrNull())
-            {
-                previewUrl += "&fullfilename=" + HttpUtility.UrlEncode(previewFileName, Encoding.UTF8);
+                fileUrl = fileDownloadUrl.StartsWith("http") ? fileDownloadUrl : domain + fileDownloadUrl;
             }
 
-            return previewUrl;
+            var fullFileName = previewFileName.IsNotEmptyOrNull() ? previewFileName : downloadFileName;
+            if (Path.GetExtension(fullFileName ?? string.Empty).IsNotEmptyOrNull())
+            {
+                var separator = fileUrl.Contains('?') ? "&" : "?";
+                fileUrl += separator + "fullfilename=" + HttpUtility.UrlEncode(fullFileName, Encoding.UTF8);
+            }
+
+            var kkFileDoMain = (_appOptions.KKFileDomain ?? string.Empty).TrimEnd('/');
+            var kkurl = kkFileDoMain.EndsWith("/onlinePreview", StringComparison.OrdinalIgnoreCase)
+                ? kkFileDoMain + "?url="
+                : kkFileDoMain + "/onlinePreview?url=";
+            return kkurl + HttpUtility.UrlEncode(fileUrl.ToBase64String(), Encoding.UTF8);
         }
 
         private string GetPreviewFileName(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
