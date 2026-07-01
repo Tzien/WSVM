@@ -439,7 +439,8 @@ namespace CERIOS.Systems.Interfaces.Common
             var kkurl = kkFileDoMain.EndsWith("/onlinePreview", StringComparison.OrdinalIgnoreCase)
                 ? kkFileDoMain + "?url="
                 : kkFileDoMain + "/onlinePreview?url=";
-            return kkurl + HttpUtility.UrlEncode(fileUrl.ToBase64String(), Encoding.UTF8);
+            var previewUrl = kkurl + HttpUtility.UrlEncode(fileUrl.ToBase64String(), Encoding.UTF8);
+            return previewUrl + "&forceUpdatedCache=true&_t=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         private string GetPreviewFileName(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
