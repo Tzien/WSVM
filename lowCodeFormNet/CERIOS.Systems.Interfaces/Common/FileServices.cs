@@ -429,11 +429,14 @@ namespace CERIOS.Systems.Interfaces.Common
                 fileUrl = fileUrl.Replace("/api/FormDb/Image/", "/api/FormDb/PreviewFile/");
             }
 
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var separator = fileUrl.Contains('?') ? "&" : "?";
+            fileUrl += separator + "kkPreview=" + timestamp;
+
             var fullFileName = previewFileName.IsNotEmptyOrNull() ? previewFileName : downloadFileName;
             if (Path.GetExtension(fullFileName ?? string.Empty).IsNotEmptyOrNull())
             {
-                var separator = fileUrl.Contains('?') ? "&" : "?kkPreview=1&";
-                fileUrl += separator + "fullfilename=" + HttpUtility.UrlEncode(fullFileName, Encoding.UTF8);
+                fileUrl += "&fullfilename=" + HttpUtility.UrlEncode(fullFileName, Encoding.UTF8);
             }
 
             var kkFileDoMain = (_appOptions.KKFileDomain ?? string.Empty).TrimEnd('/');
@@ -441,7 +444,7 @@ namespace CERIOS.Systems.Interfaces.Common
                 ? kkFileDoMain + "?url="
                 : kkFileDoMain + "/onlinePreview?url=";
             var previewUrl = kkurl + HttpUtility.UrlEncode(fileUrl.ToBase64String(), Encoding.UTF8);
-            return previewUrl + "&forceUpdatedCache=true&_t=" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            return previewUrl + "&forceUpdatedCache=true&_t=" + timestamp;
         }
 
         private string GetPreviewFileName(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
