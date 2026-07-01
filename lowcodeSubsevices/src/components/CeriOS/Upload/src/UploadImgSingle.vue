@@ -24,6 +24,7 @@
       :disabled="disabled"
       :show-upload-list="false"
       :action="getAction"
+      :data="getUploadData"
       :before-upload="beforeUpload"
       @change="handleChange"
       v-else>
@@ -67,6 +68,9 @@
   const getUrlPrefix = computed(() => (!props.actionPrefix ? apiUrl.value : props.actionPrefix));
   const getAction = computed(() => (!props.actionPrefix ? globSetting.uploadUrl + '/' + props.type : props.actionPrefix + props.type));
   // const getHeaders = computed(() => ({ Authorization: getToken() as string }));
+  const getUploadData = computed(() => (file?: { name?: string }) => ({
+    extension: getFileExtension(file),
+  }));
   const getImgSrc = computed<string>(() => toImageUrl(imageUrl.value));
   const getImgList = computed<string[]>(() => (getImgSrc.value ? [getImgSrc.value] : []));
 
@@ -89,6 +93,12 @@
     if (!url) return '';
     if (base64WithPrefixRegex.test(url) || absoluteUrlRegex.test(url)) return url;
     return getUrlPrefix.value + url;
+  }
+
+  function getFileExtension(file?: { name?: string }) {
+    const fileName = file?.name || '';
+    const index = fileName.lastIndexOf('.');
+    return index >= 0 ? fileName.slice(index + 1).toLowerCase() : '';
   }
 
   function beforeUpload(file) {

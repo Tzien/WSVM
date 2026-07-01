@@ -62,10 +62,11 @@ namespace CERIOS.Systems.Interfaces.Common
             IHttpContextAccessor httpContextAccessor,
             //IUserManager userManager,
             //ICacheManager cacheManager,
+            IOptions<AppOptions> appOptions,
             IFileManager fileManager)
         {
             _httpContextAccessor = httpContextAccessor;
-            //_appOptions = appOptions.Value;
+            _appOptions = appOptions.Value;
             //_captchaHandler = captchaHandler;
             //_userManager = userManager;
             _fileManager = fileManager;
@@ -77,10 +78,11 @@ namespace CERIOS.Systems.Interfaces.Common
         /// 上传文件预览.
         /// </summary>
         /// <returns></returns>
-        public async Task<dynamic> Preview(string fileName, string fileDownloadUrl)
+        public async Task<dynamic> Preview(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
         {
             string[]? typeList = new string[] { "doc", "docx", "xls", "xlsx", "ppt", "pptx", "pdf", "jpg", "jpeg", "gif", "png", "bmp" };
-            string? type = fileName.Split('.').LastOrDefault();
+            var previewFileName = GetPreviewFileName(fileName, fileDownloadUrl, originalFileName, fileExtension);
+            string? type = Path.GetExtension(previewFileName ?? string.Empty).Replace(".", string.Empty).ToLower();
             if (typeList.Contains(type))
             {
                 if (fileName.IsNotEmptyOrNull())
@@ -89,7 +91,7 @@ namespace CERIOS.Systems.Interfaces.Common
                     switch (_appOptions.PreviewType)
                     {
                         case PreviewType.kkfile:
-                            previewUrl = KKFileUploaderPreview(fileName, fileDownloadUrl);
+                            previewUrl = KKFileUploaderPreview(fileName, fileDownloadUrl, previewFileName);
                             break;
                         case PreviewType.yozo:
                             previewUrl = await YoZoUploaderPreview(fileName, 5, 1);
@@ -184,7 +186,7 @@ namespace CERIOS.Systems.Interfaces.Common
             string? url = string.Format("{0}|{1}|{2}", userId, fileName, type);
             string? encryptStr = DESEncryption.Encrypt(url, "CERIOS");
             //_cacheManager.Set(fileName, string.Empty);
-            return new { name = fileName, url = string.Format("/api/file/Download?encryption={0}", encryptStr) };
+            return new { name = fileName, url = string.Format("/api/FormDb/DownloadFile?encryption={0}", encryptStr) };
         }
 
         /// <summary>
@@ -225,7 +227,7 @@ namespace CERIOS.Systems.Interfaces.Common
             var userId = GetUser.GetUserIdByHttpContext(_httpContextAccessor);
             var downloadFileName = string.Format("{0}|{1}.zip|TemporaryFile", userId, fileName);
             //_cacheManager.Set(fileName + ".zip", string.Empty);
-            return new { downloadName = string.Format("文件{0}.zip", fileName), downloadVo = new { name = fileName, url = "/api/File/Download?encryption=" + DESEncryption.Encrypt(downloadFileName, "CERIOS") } };
+            return new { downloadName = string.Format("文件{0}.zip", fileName), downloadVo = new { name = fileName, url = "/api/FormDb/DownloadFile?encryption=" + DESEncryption.Encrypt(downloadFileName, "CERIOS") } };
         }
 
         /// <summary>
@@ -302,10 +304,13 @@ namespace CERIOS.Systems.Interfaces.Common
         /// <returns></returns>
         public async Task<dynamic> Uploader(string type, [FromForm] ChunkModel input)
         {
-            string? fileType = Path.GetExtension(input.file.FileName).Replace(".", string.Empty);
+            var fileExtension = ResolveFileExtension(input);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                throw new Exception("上传失败，文件后缀名不能为空");
+            string? fileType = fileExtension.Replace(".", string.Empty);
             if (!AllowFileType(fileType, type))
                 throw new Exception("上传失败，文件格式不允许上传");
-            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(input.file.FileName));
+            string saveFileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), fileExtension);
             var stream = input.file.OpenReadStream();
             input.type = type;
             _fileManager.GetChunkModel(input, saveFileName);
@@ -314,11 +319,11 @@ namespace CERIOS.Systems.Interfaces.Common
             {
                 var slStram = await _fileManager.GetFileStream(Path.Combine(input.folder, saveFileName));
                 await _fileManager.MakeThumbnail(slStram, saveFileName, input.folder);
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/File/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), thumbUrl = string.Format("/api/FormDb/Image/{0}/{1}", type, input.slImgName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.slImgName };
             }
             else
             {
-                return new FileControlsModel { name = input.fileName, url = string.Format("/api/File/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
+                return new FileControlsModel { name = input.fileName, url = string.Format("/api/FormDb/Image/{0}/{1}", type, input.fileName), fileExtension = fileType, fileSize = input.file.Length, fileName = input.fileName };
             }
         }
 
@@ -350,7 +355,7 @@ namespace CERIOS.Systems.Interfaces.Common
             string? fileName = string.Format("{0}{1}{2}", DateTime.Now.ToString("yyyyMMdd"), RandomExtensions.NextLetterAndNumberString(new Random(), 5), Path.GetExtension(file.FileName));
             var stream = file.OpenReadStream();
             await _fileManager.UploadFileByType(stream, filePath, fileName);
-            return new FileControlsModel { name = fileName, url = string.Format("/api/file/Image/userAvatar/{0}", fileName), fileSize = file.Length, fileExtension = ImgType };
+            return new FileControlsModel { name = fileName, url = string.Format("/api/FormDb/Image/userAvatar/{0}", fileName), fileSize = file.Length, fileExtension = ImgType };
         }
 
         /// <summary>
@@ -412,20 +417,54 @@ namespace CERIOS.Systems.Interfaces.Common
         /// <param name="fileName">文件名称.</param>
         /// <param name="fileDownloadUrl">文件地址.</param>
         /// <returns></returns>
-        public string KKFileUploaderPreview(string fileName, string fileDownloadUrl)
+        public string KKFileUploaderPreview(string fileName, string fileDownloadUrl, string previewFileName = null)
         {
-            var domain = App.App.Configuration["CERIOS_APP:Domain"];
-            var filePath = (domain + "/api/File/down/" + fileName).ToBase64String();
+            var domain = _appOptions.Domain;
+            var fileUrl = domain + "/api/FormDb/PreviewFile/annex/" + fileName;
+            var downloadFileName = fileName;
             if (fileDownloadUrl.IsNotEmptyOrNull())
             {
-                var list = fileDownloadUrl.Split('/');
-                var type = list.Length > 4 ? list[4] : string.Empty;
-                filePath = string.Format("{0}{1}{2}?type={3}", domain, "/api/File/down/", fileName, type).ToBase64String();
+                downloadFileName = GetFileNameFromUrl(fileDownloadUrl);
+                fileUrl = fileDownloadUrl.StartsWith("http") ? fileDownloadUrl : domain + fileDownloadUrl;
+                fileUrl = fileUrl.Replace("/api/FormDb/Image/", "/api/FormDb/PreviewFile/");
             }
-            var kkFileDoMain = App.App.Configuration["CERIOS_APP:KKFileDomain"];
-            var kkurl = kkFileDoMain + "/onlinePreview?url=";
 
-            return kkurl + filePath;
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            var separator = fileUrl.Contains('?') ? "&" : "?";
+            fileUrl += separator + "kkPreview=" + timestamp;
+
+            var fullFileName = previewFileName.IsNotEmptyOrNull() ? previewFileName : downloadFileName;
+            if (Path.GetExtension(fullFileName ?? string.Empty).IsNotEmptyOrNull())
+            {
+                fileUrl += "&fullfilename=" + HttpUtility.UrlEncode(fullFileName, Encoding.UTF8);
+            }
+
+            var kkFileDoMain = (_appOptions.KKFileDomain ?? string.Empty).TrimEnd('/');
+            var kkurl = kkFileDoMain.EndsWith("/onlinePreview", StringComparison.OrdinalIgnoreCase)
+                ? kkFileDoMain + "?url="
+                : kkFileDoMain + "/onlinePreview?url=";
+            var previewUrl = kkurl + HttpUtility.UrlEncode(fileUrl.ToBase64String(), Encoding.UTF8);
+            return previewUrl + "&forceUpdatedCache=true&_t=" + timestamp;
+        }
+
+        private string GetPreviewFileName(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
+        {
+            var downloadFileName = GetFileNameFromUrl(fileDownloadUrl);
+            foreach (var item in new[] { fileName, downloadFileName, originalFileName })
+            {
+                if (Path.GetExtension(item ?? string.Empty).IsNotEmptyOrNull())
+                    return item;
+            }
+            if (fileExtension.IsNotEmptyOrNull())
+                return string.Format("{0}.{1}", fileName, fileExtension.TrimStart('.'));
+            return fileName;
+        }
+
+        private string GetFileNameFromUrl(string fileUrl)
+        {
+            if (fileUrl.IsNullOrEmpty()) return string.Empty;
+            var url = fileUrl.Split('?').FirstOrDefault() ?? string.Empty;
+            return (url.Split('/').LastOrDefault() ?? string.Empty).Replace("@", ".");
         }
 
         #endregion
@@ -446,7 +485,7 @@ namespace CERIOS.Systems.Interfaces.Common
             string downloadAPI = _appOptions.YOZO.DownloadAPI;
             string yozoAppId = _appOptions.YOZO.AppId;
             string yozoAppKey = _appOptions.YOZO.AppKey;
-            string outputFilePath = string.Format("{0}/api/File/Image/annex/{1}", domain, fileName);
+            string outputFilePath = string.Format("{0}/api/FormDb/Image/annex/{1}", domain, fileName);
 
             Dictionary<string, string[]> dic = new Dictionary<string, string[]>();
             dic.Add("fileUrl", new string[] { outputFilePath });
@@ -559,6 +598,43 @@ namespace CERIOS.Systems.Interfaces.Common
             }
 
             return signRet;
+        }
+
+        private static string ResolveFileExtension(ChunkModel input)
+        {
+            var fileExtension = Path.GetExtension(input.file?.FileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.fileName);
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = Path.GetExtension(input.relativePath);
+            if (string.IsNullOrWhiteSpace(fileExtension) && !string.IsNullOrWhiteSpace(input.extension))
+                fileExtension = "." + input.extension.TrimStart('.');
+            if (string.IsNullOrWhiteSpace(fileExtension))
+                fileExtension = GetExtensionByMimeType(input.file?.ContentType ?? input.fileType);
+            return fileExtension.ToLower();
+        }
+
+        private static string GetExtensionByMimeType(string? fileType)
+        {
+            return fileType?.Split(';')[0].Trim().ToLowerInvariant() switch
+            {
+                "application/pdf" => ".pdf",
+                "application/msword" => ".doc",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+                "application/vnd.ms-excel" => ".xls",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+                "application/vnd.ms-powerpoint" => ".ppt",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" => ".pptx",
+                "text/plain" => ".txt",
+                "image/jpeg" => ".jpg",
+                "image/png" => ".png",
+                "image/gif" => ".gif",
+                "image/bmp" => ".bmp",
+                "image/webp" => ".webp",
+                "application/zip" => ".zip",
+                "application/x-rar-compressed" => ".rar",
+                _ => string.Empty,
+            };
         }
 
         /// <summary>

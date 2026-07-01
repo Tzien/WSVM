@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CERIOS.Common.Models;
 
 namespace CERIOS.Systems.Interfaces.Common
 {
@@ -11,6 +12,12 @@ namespace CERIOS.Systems.Interfaces.Common
     /// </summary>
     public interface IFileService
     {
+        Task<dynamic> Preview(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension);
+
+        dynamic DownloadUrl(string type, string fileName);
+
+        Task<dynamic> DownloadAll(string type, List<FileControlsModel> input);
+
         Task<dynamic> DownloadFile(string encryption, string name);
 
         //下载文件
