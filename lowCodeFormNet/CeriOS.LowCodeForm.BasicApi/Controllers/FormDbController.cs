@@ -2980,6 +2980,34 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
             string? filePath = Path.Combine(GetPathByType(type), fileName.Replace("@", "."));
             return await _fileManager.DownloadFileByType(filePath, fileName);
         }
+
+        [HttpGet("PreviewFile/{type}/{fileName}")]
+        public async Task<IActionResult> PreviewFile(string type, string fileName)
+        {
+            var previewFileName = fileName.Replace("@", ".");
+            string? filePath = Path.Combine(GetPathByType(type), previewFileName);
+            var result = await _fileManager.DownloadFileByType(filePath, previewFileName);
+            return new FileStreamResult(result.FileStream, GetPreviewContentType(previewFileName));
+        }
+
+        private static string GetPreviewContentType(string fileName)
+        {
+            return Path.GetExtension(fileName).ToLower() switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xls" => "application/vnd.ms-excel",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".ppt" => "application/vnd.ms-powerpoint",
+                ".pptx" => "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                _ => "application/octet-stream",
+            };
+        }
         /// <summary>
         /// 根据类型获取文件存储路径.
         /// </summary>

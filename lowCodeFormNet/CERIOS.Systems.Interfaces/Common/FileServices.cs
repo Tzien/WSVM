@@ -420,18 +420,19 @@ namespace CERIOS.Systems.Interfaces.Common
         public string KKFileUploaderPreview(string fileName, string fileDownloadUrl, string previewFileName = null)
         {
             var domain = _appOptions.Domain;
-            var fileUrl = domain + "/api/FormDb/Image/annex/" + fileName;
+            var fileUrl = domain + "/api/FormDb/PreviewFile/annex/" + fileName;
             var downloadFileName = fileName;
             if (fileDownloadUrl.IsNotEmptyOrNull())
             {
                 downloadFileName = GetFileNameFromUrl(fileDownloadUrl);
                 fileUrl = fileDownloadUrl.StartsWith("http") ? fileDownloadUrl : domain + fileDownloadUrl;
+                fileUrl = fileUrl.Replace("/api/FormDb/Image/", "/api/FormDb/PreviewFile/");
             }
 
             var fullFileName = previewFileName.IsNotEmptyOrNull() ? previewFileName : downloadFileName;
             if (Path.GetExtension(fullFileName ?? string.Empty).IsNotEmptyOrNull())
             {
-                var separator = fileUrl.Contains('?') ? "&" : "?";
+                var separator = fileUrl.Contains('?') ? "&" : "?kkPreview=1&";
                 fileUrl += separator + "fullfilename=" + HttpUtility.UrlEncode(fullFileName, Encoding.UTF8);
             }
 
