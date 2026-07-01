@@ -5,10 +5,11 @@
     :closable="false"
     :keyboard="false"
     :maskClosable="false"
+    :width="fullScreenRef ? '100%' : '80%'"
     class="common-container-modal ceri-full-modal full-modal file-preview-modal"
-    wrap-class-name="fullscreen-modal">
+    :wrap-class-name="getWrapClassName">
     <template #closeIcon>
-      <ModalClose :canFullscreen="false" @cancel="handleCancel" />
+      <ModalClose :fullScreen="fullScreenRef" @cancel="handleCancel" @fullscreen="handleFullScreen" />
     </template>
     <template #title>
       <div class="ceri-full-modal-header">
@@ -30,6 +31,7 @@
   import { reactive, toRefs } from 'vue';
   import { Modal as AModal } from 'ant-design-vue';
   import ModalClose from '@/components/Modal/src/components/ModalClose.vue';
+  import { useFullScreen } from '@/components/Modal/src/hooks/useModalFullScreen';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from 'vue-i18n';
   import { getDownloadUrl, previewFile } from '@/api/basic/common';
@@ -58,6 +60,7 @@
     file: null,
   });
   const { visible, loading, title, url } = toRefs(state);
+  const { handleFullScreen, getWrapClassName, fullScreenRef, resetFullScreen } = useFullScreen();
 
   defineExpose({ init });
 
@@ -91,6 +94,7 @@
   }
   function handleCancel() {
     state.visible = false;
+    resetFullScreen();
   }
   function handleDownload() {
     const file = state.file;
@@ -102,11 +106,36 @@
 </script>
 <style lang="less">
   .file-preview-modal {
+    top: 5vh;
+    max-width: 100%;
+
     .ant-modal-body {
+      height: 75vh;
       padding: 10px !important;
     }
     .header-txt {
       max-width: 80vw !important;
+    }
+  }
+
+  .fullscreen-modal {
+    overflow: hidden;
+
+    .file-preview-modal {
+      top: 0;
+      padding-bottom: 0;
+
+      .ant-modal-content {
+        height: 100vh;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .ant-modal-body {
+        flex: 1;
+        height: 0;
+      }
     }
   }
 </style>
