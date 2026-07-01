@@ -29,7 +29,7 @@
         <div class="menuBGWaterLogo" :style="menuBgStyle"></div>
         <a-menu class="SubMenuStyle" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys"
           :style="{ width: drawerStore.menuwidth }" mode="inline" :theme="drawerStore.theme" :items="items"
-          @click="menuClick" @select="menuSelect"></a-menu>
+          @click="menuClick" @select="menuSelect" @openChange="menuOpenChange"></a-menu>
         <div class="MenuColBtn" :class="!drawerStore.menuCollapsed ? 'RightIcon' : 'CenterIcon'">
           <MenuUnfoldOutlined class="MenuColBtnIcon" @click="toggleCollapsed" v-if="drawerStore.menuCollapsed" />
           <MenuFoldOutlined class="MenuColBtnIcon" @click="toggleCollapsed" v-else />
@@ -307,12 +307,6 @@ const menuSelect = (val) => {
       } else if (Array.isArray(ds.selected)) {
         ds.selected = val.selectedKeys
       }
-
-      if (typeof ds.setFoldmenu === 'function') {
-        ds.setFoldmenu(val.keyPath)
-      } else if (Array.isArray(ds.foldmenu)) {
-        ds.foldmenu = val.keyPath
-      }
     }
   } else {
     const nav = navigationStore
@@ -335,17 +329,62 @@ const menuSelect = (val) => {
       } else if (Array.isArray(dsLocal.selected)) {
         dsLocal.selected = val.selectedKeys
       }
-
-      if (typeof dsLocal.setFoldmenu === 'function') {
-        dsLocal.setFoldmenu(val.keyPath)
-      } else if (Array.isArray(dsLocal.foldmenu)) {
-        dsLocal.foldmenu = val.keyPath
-      }
     }
   }
 }
 
 const openKeys = ref([])
+const normalizeOpenKeys = (keys) => [...new Set(Array.isArray(keys) ? keys : [])]
+let hasInitOpenKeysFromFoldmenu = false
+
+const persistFoldmenu = (keys) => {
+  const normalized = normalizeOpenKeys(keys)
+
+  if (isQiankun) {
+    const ds = drawerStore.value || {}
+    if (typeof ds.setFoldmenu === 'function') {
+      ds.setFoldmenu(normalized)
+    } else if (Array.isArray(ds.foldmenu)) {
+      ds.foldmenu = normalized
+    }
+  } else {
+    if (typeof drawerStore.setFoldmenu === 'function') {
+      drawerStore.setFoldmenu(normalized)
+    } else if (Array.isArray(drawerStore.foldmenu)) {
+      drawerStore.foldmenu = normalized
+    }
+  }
+}
+
+const menuOpenChange = (keys) => {
+  const normalized = normalizeOpenKeys(keys)
+  openKeys.value = normalized
+  persistFoldmenu(normalized)
+  hasInitOpenKeysFromFoldmenu = true
+}
+
+if (isQiankun) {
+  watch(
+    () => drawerStore.value?.foldmenu,
+    (foldmenu) => {
+      if (hasInitOpenKeysFromFoldmenu) {
+        return
+      }
+
+      if (openKeys.value.length > 0) {
+        hasInitOpenKeysFromFoldmenu = true
+        return
+      }
+
+      if (Array.isArray(foldmenu) && foldmenu.length > 0) {
+        openKeys.value = normalizeOpenKeys(foldmenu)
+        hasInitOpenKeysFromFoldmenu = true
+      }
+    },
+    { immediate: true, deep: true }
+  )
+}
+
 function toggleCollapsed() {
   if (isQiankun) {
     const ds = drawerStore.value || {}
@@ -661,6 +700,11 @@ onMounted(() => {
   if (initialLanguage) {
     lastProcessedLanguage = initialLanguage
     debouncedLoadAntdLocale(initialLanguage)
+  }
+
+  if (!isQiankun) {
+    openKeys.value = normalizeOpenKeys(drawerStore.foldmenu)
+    hasInitOpenKeysFromFoldmenu = true
   }
 })
 
