@@ -6,7 +6,6 @@
         :class="drawerStore.theme == 'light' ? 'lightColor' : 'darkColor'" :width="drawerStore.menuwidth">
         <!-- 左侧菜单水印背景，作为侧边栏内部的绝对定位背景层 -->
         <div class="menuBGWaterLogo" :style="menuBgStyle"></div>
-
         <a-menu class="PlatformMenuStyle" v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys"
           :style="menuStyle" mode="inline" :theme="drawerStore.theme" :items="items" @click="platformMenuClick"
           @select="platformMenuSelect"></a-menu>
@@ -45,7 +44,6 @@
     <a-spin size="large" />
   </div>
 </template>
-
 <script setup>
 import { ref, watch, h, watchEffect, computed, nextTick, onMounted } from 'vue'
 import { useRouteStore, useUserStore, useDrawerStore, useNavigationStore } from './store/index.js'
@@ -60,10 +58,8 @@ import { message } from 'ant-design-vue'
 import * as Icons from '@ant-design/icons-vue'
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
 import menuBgUrl from '@/assets/images/menuBG.png'
-
 /* 防抖 */
 import { debounce } from 'lodash-es'
-
 /* 国际化相关 */
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
@@ -111,13 +107,11 @@ const debouncedLoadAntdLocale = debounce(async (language) => {
     dayjs.locale('zh-cn')
   }
 }, 100)
-
 const i18n = useI18n({ useScope: 'global' })
 const router = useRouter()
 const route = useRoute()
 const { globalStore } = useGlobalState()
 var isQiankun = qiankunWindow.__POWERED_BY_QIANKUN__
-
 var userStore = ref({})
 var drawerStore = ref({})
 var navigationStore = ref({})
@@ -128,12 +122,10 @@ const routeStore = useRouteStore()
 const isPageI18nLoading = ref(false)
 let pageI18nLoadingId = 0
 const normalizeLocale = (locale) => `${locale || ''}`.trim()
-
 const resolveRoles = () => {
   const rolesSource = userStore.value?.userRoles
   return Array.isArray(rolesSource) ? rolesSource : []
 }
-
 const buildLocaleRefreshKey = (locale) => {
   const hasToken = !!userStore.value?.access_token
   const roleKey = resolveRoles()
@@ -141,13 +133,11 @@ const buildLocaleRefreshKey = (locale) => {
     .join(',')
   return `${locale}@@${hasToken ? roleKey : 'guest'}`
 }
-
 const getCurrentPageCode = () => {
   const pageCode = route.meta?.KeepAliveName
   const normalizedPageCode = `${pageCode || ''}`.trim()
   return normalizedPageCode && normalizedPageCode !== 'unknown' ? normalizedPageCode : ''
 }
-
 const loadCurrentPageI18n = async (locale) => {
   const pageCode = getCurrentPageCode()
   if (!pageCode) return
@@ -161,22 +151,18 @@ const loadCurrentPageI18n = async (locale) => {
     }
   }
 }
-
 const applyLocaleAndRefreshMenu = async (locale) => {
   const targetLocale = normalizeLocale(locale) || 'zh'
   if (!targetLocale) return
-
   const refreshKey = buildLocaleRefreshKey(targetLocale)
   if (localeRefreshPromise && localeRefreshKey === refreshKey) {
     await localeRefreshPromise
     return
   }
-
   localeRefreshKey = refreshKey
   localeRefreshPromise = (async () => {
     const hasToken = !!userStore.value?.access_token
     const roles = resolveRoles()
-
     if (hasToken && roles.length > 0) {
       const routeSourceData = await routeStore.loadRoutes(roles, targetLocale)
       await loadLocaleMessages(i18n, targetLocale, {
@@ -190,15 +176,12 @@ const applyLocaleAndRefreshMenu = async (locale) => {
       })
       await loadCurrentPageI18n(targetLocale)
     }
-
     if (i18n.locale.value !== targetLocale) {
       i18n.locale.value = targetLocale
     }
-
     await nextTick()
     loadMenuItems()
   })()
-
   try {
     await localeRefreshPromise
   } finally {
@@ -208,29 +191,23 @@ const applyLocaleAndRefreshMenu = async (locale) => {
     }
   }
 }
-
 const applyI18nSnapshot = async (snapshot) => {
   if (!snapshot || typeof snapshot !== 'object') return
   const snapshotLocale = snapshot.locale || navigationStore.value?.language
   const hasSnapshotMessages = snapshot.messages && typeof snapshot.messages === 'object' && Object.keys(snapshot.messages).length > 0
-
   if (snapshotLocale && hasSnapshotMessages && typeof i18n.mergeLocaleMessage === 'function') {
     i18n.mergeLocaleMessage(snapshotLocale, snapshot.messages)
-
     if (i18n.locale.value !== snapshotLocale) {
       i18n.locale.value = snapshotLocale
     }
-
     await nextTick()
     loadMenuItems()
     return
   }
-
   if (snapshotLocale) {
     await applyLocaleAndRefreshMenu(snapshotLocale)
   }
 }
-
 if (!isQiankun) {
   userStore.value = useUserStore()
   drawerStore.value = useDrawerStore()
@@ -245,18 +222,14 @@ if (!isQiankun) {
     }
   })
 }
-
 // 本地菜单选中 keys，用于驱动左侧菜单高亮
 const selectedKeys = ref([])
-
 watch(
   () => route.path,
   (path) => {
     if (!path) return
-
     // 左侧菜单高亮始终跟随当前路由 path
     selectedKeys.value = [path]
-
     // 兼容原有依赖 drawerStore.selected 的逻辑（如果有）
     if (isQiankun) {
       if (drawerStore.value && drawerStore.value.changeSelected) {
@@ -274,12 +247,10 @@ watch(
   },
   { immediate: true }
 )
-
 const keepAliveComponents = ref([])
 const includedComponents = computed(() => {
   const name = route.meta.KeepAliveName
   if (!name) return keepAliveComponents.value
-
   const index = keepAliveComponents.value.indexOf(name)
   if (route.meta.IsKeepAlive && index === -1) {
     // 限制缓存组件数量，避免内存泄漏
@@ -292,7 +263,6 @@ const includedComponents = computed(() => {
   }
   return keepAliveComponents.value
 })
-
 // const syncDrawerToMain = () => {
 //   if (!isQiankun) return
 //   if (!globalStore.value) return
@@ -301,14 +271,12 @@ const includedComponents = computed(() => {
 //     drawerStore: drawerStore.value
 //   })
 // }
-
 const menuStyle = computed(() => ({
   width: drawerStore.value.menuwidth,
   maxHeight: 'calc(100vh - 96px - 35px)',
   overflowY: 'auto',
   backgroundColor: '#043684'
 }))
-
 const menuBgStyle = computed(() => ({
   width: drawerStore.value.menuCollapsed ? '50px' : '120px',
   backgroundImage: `url(${menuBgUrl})`,
@@ -321,7 +289,6 @@ const menuBgStyle = computed(() => ({
   left: '0',
   height: 'calc(100vh - 180px)'
 }))
-
 const menuColBtnStyle = {
   position: 'absolute',
   left: '0px',
@@ -332,7 +299,6 @@ const menuColBtnStyle = {
   alignItems: 'center',
   background: 'linear-gradient(to top, #1a335b, #053784)'
 }
-
 // 使用防抖优化菜单点击事件
 const platformMenuClick = (val) => {
   useInsertSysMenuRecord({
@@ -349,24 +315,18 @@ const platformMenuClick = (val) => {
     router.push({ path: val.item.path })
   }
 }
-
 const openKeys = ref([])
-
 const normalizeOpenKeys = (keys) => [...new Set(Array.isArray(keys) ? keys : [])]
-
 const getAncestorOpenKeys = (menuItems, targetKey) => {
   const walk = (nodes, ancestors) => {
     if (!Array.isArray(nodes)) {
       return null
     }
-
     for (const node of nodes) {
       const nodeKey = node?.key
-
       if (nodeKey === targetKey) {
         return ancestors
       }
-
       if (Array.isArray(node?.children) && node.children.length > 0) {
         const result = walk(node.children, nodeKey ? [...ancestors, nodeKey] : ancestors)
         if (result !== null) {
@@ -374,32 +334,24 @@ const getAncestorOpenKeys = (menuItems, targetKey) => {
         }
       }
     }
-
     return null
   }
-
   return walk(menuItems, []) ?? []
 }
-
 const persistFoldmenu = (keys) => {
   const normalized = normalizeOpenKeys(keys)
   const ds = drawerStore.value || {}
-
   if (typeof ds.setFoldmenu === 'function') {
     ds.setFoldmenu(normalized)
   } else if (Array.isArray(ds.foldmenu)) {
     ds.foldmenu = normalized
   }
 }
-
-let hasInitializedOpenKeysFromBranch = false
-
 function toggleCollapsed() {
   const ds = drawerStore.value || {}
   // 本地切换快照中的收起状态
   const prevCollapsed = !!ds.menuCollapsed
   ds.menuCollapsed = !prevCollapsed
-
   // 根据收起状态调整本地侧边栏宽度和展开的菜单 key
   if (!ds.menuCollapsed) {
     // 展开：还原为上次记录的宽度（如果有），并恢复折叠菜单
@@ -412,18 +364,15 @@ function toggleCollapsed() {
     ds.menuwidth = 80
     openKeys.value = []
   }
-
   // 将最新的抽屉状态通过 qiankun 全局状态回推给主应用的 Pinia drawerStore
   actions.setGlobalState({
     drawerStore: ds
   })
 }
-
 const platformMenuSelect = (val) => {
   const sysCode = import.meta.env.VITE_APP_APPNAME
   const innerPath = val.item.path
   const tabKey = sysCode ? `/${sysCode}${innerPath}` : innerPath
-
   const newTab = {
     key: tabKey,
     title: val.item.title,
@@ -431,15 +380,12 @@ const platformMenuSelect = (val) => {
     sysCode,
     i18nKey: val.item.i18nKey
   }
-
   if (!isQiankun) {
     const nav = navigationStore.value || {}
     const tabs = Array.isArray(nav.tabs) ? nav.tabs : []
-
     const exists = tabs.some((element) => {
       return element && element.key === tabKey
     })
-
     if (!exists) {
       // if (tabs.length >= 10) {
       //   message.warn('最多打开10个选项卡，请关闭一些后重试')
@@ -449,7 +395,6 @@ const platformMenuSelect = (val) => {
         nav.addTabs(newTab)
       }
     }
-
     if (drawerStore.value) {
       if (typeof drawerStore.value.changeSelected === 'function') {
         drawerStore.value.changeSelected(val.selectedKeys)
@@ -460,17 +405,14 @@ const platformMenuSelect = (val) => {
   } else {
     const navSnapshot = navigationStore.value || {}
     const tabs = Array.isArray(navSnapshot.tabs) ? navSnapshot.tabs : []
-
     const exists = tabs.some((element) => {
       return element && element.key === tabKey
     })
-
     if (!exists) {
       if (tabs.length >= 10) {
         message.warn('最多打开10个选项卡，请关闭一些后重试')
         return
       }
-
       if (typeof window !== 'undefined') {
         setTimeout(() => {
           window.dispatchEvent(
@@ -481,7 +423,6 @@ const platformMenuSelect = (val) => {
         }, 0)
       }
     }
-
     if (drawerStore.value) {
       if (typeof drawerStore.value.changeSelected === 'function') {
         drawerStore.value.changeSelected(val.selectedKeys)
@@ -491,10 +432,8 @@ const platformMenuSelect = (val) => {
     }
   }
 }
-
 // 动态映射图标
 const getIconComponent = (iconName) => Icons[iconName] || Icons['QuestionCircleOutlined']
-
 //构造菜单Item数据
 const generateMenuData = (routes) =>
   routes.map((route) => {
@@ -508,11 +447,9 @@ const generateMenuData = (routes) =>
       icon: route.icon ? () => h(getIconComponent(route.icon)) : undefined,
       children: route.children && route.children.length > 0 ? generateMenuData(route.children) : undefined
     }
-
     // 处理label和title，确保不为undefined
     // 使用i18n翻译，如果翻译失败则使用原始名称
     const fallbackName = route.originalName || route.name || '未命名'
-
     if (route.i18nKey) {
       const translated = i18n.t(route.i18nKey)
       const resolvedTitle = translated && translated !== route.i18nKey ? translated : fallbackName
@@ -522,30 +459,23 @@ const generateMenuData = (routes) =>
       menuItem.label = fallbackName
       menuItem.title = fallbackName
     }
-
     return menuItem
   })
-
 const items = ref([])
-
 watch(
   [items, () => route.path],
   ([menuItems, path]) => {
     if (!Array.isArray(menuItems) || menuItems.length === 0 || !path) {
       return
     }
-
     const branch = normalizeOpenKeys(getAncestorOpenKeys(menuItems, path))
-    persistFoldmenu(branch)
-
-    if (!hasInitializedOpenKeysFromBranch && branch.length > 0) {
-      openKeys.value = branch
-      hasInitializedOpenKeysFromBranch = true
+    if (branch.length > 0) {
+      openKeys.value = normalizeOpenKeys([...openKeys.value, ...branch])
+      persistFoldmenu(openKeys.value)
     }
   },
   { immediate: true, deep: true }
 )
-
 // 使用computed优化菜单数据生成
 const menuItems = computed(() => {
   const currentLocale = i18n.locale.value
@@ -555,7 +485,6 @@ const menuItems = computed(() => {
   const matched = routeStore.routes.find((item) => item.path === `/${import.meta.env.VITE_APP_APPNAME}`)
   return generateMenuData(matched?.children || [])
 })
-
 // 加载菜单项的函数
 function loadMenuItems() {
   if (!userStore.value.access_token || !routeStore.routes || routeStore.routes.length === 0) {
@@ -564,7 +493,6 @@ function loadMenuItems() {
   }
   items.value = menuItems.value
 }
-
 watch(
   () => userStore.value.access_token,
   async (token) => {
@@ -577,7 +505,6 @@ watch(
   },
   { immediate: true } // 初始化立即执行一次
 )
-
 // 监听路由数据变化，重新生成菜单
 watch(
   () => routeStore.routes,
@@ -587,14 +514,12 @@ watch(
     }
   }
 )
-
 // 优化store订阅，使用浅层监听减少性能开销
 watch(
   () => globalStore.value,
   (newGlobalStore) => {
     if (!isQiankun || !newGlobalStore) return
     const { userStore: us, drawerStore: ds, navigationStore: ns } = newGlobalStore
-
     // 使用浅比较，只在关键属性变化时更新
     if (userStore.value?.access_token !== us?.access_token || userStore.value?.userRoles !== us?.userRoles) {
       userStore.value = us
@@ -612,25 +537,20 @@ watch(
   },
   { immediate: true }
 )
-
 /* 监听语言变化重新加载Menu菜单 */
 watch(
   () => navigationStore.value.language,
   async (newLanguage, oldLanguage) => {
     try {
-
       // 如果已经处理过这个语言，跳过
       if (newLanguage === lastProcessedLanguage) {
         console.log('[语言切换] 已经处理过，跳过')
         return
       }
-
       if (!newLanguage) return
       if (newLanguage === oldLanguage) return
-
       // 标记正在处理
       lastProcessedLanguage = newLanguage
-
       await Promise.all([
         applyLocaleAndRefreshMenu(newLanguage),
         debouncedLoadAntdLocale(newLanguage)
@@ -644,12 +564,10 @@ watch(
   },
   { immediate: true, deep: true }
 )
-
 watch(
   () => globalStore.value?.i18nSnapshot,
   async (snapshot) => {
     if (!isQiankun || !snapshot) return
-
     try {
       await applyI18nSnapshot(snapshot)
       if (snapshot.locale && navigationStore.value && navigationStore.value.language !== snapshot.locale) {
@@ -661,7 +579,6 @@ watch(
   },
   { immediate: true }
 )
-
 onMounted(() => {
   const initialLanguage = normalizeLocale(navigationStore.value?.language) || 'zh'
   debouncedLoadAntdLocale(initialLanguage)
@@ -669,34 +586,26 @@ onMounted(() => {
 </script>
 <style lang="scss">
 .PlatForm {
-
   // 左侧菜单和水印背景，仅在子应用内部生效
   .PlatformSider {
     position: relative;
-
     // 左侧菜单水印背景，作为侧边栏内部的绝对定位背景层
     .menuBGWaterLogo {
       pointer-events: none;
     }
-
     .PlatformMenuStyle {
       max-height: calc(100vh - 96px - 35px);
       overflow-y: auto;
       background-color: #043684;
-
       .ant-menu-sub {
         background-color: #051a5a;
       }
-
       .ant-menu-item-selected {
         background: linear-gradient(to right, #80c3f7, #2e72ba, #2a6cb3);
         border-radius: 5px;
       }
     }
-
- 
   }
-
    // 整个滚动条区域
     ::-webkit-scrollbar {
       width: 5px;
@@ -704,13 +613,11 @@ onMounted(() => {
       background-color: rgb(202, 202, 202);
       border-radius: 5px;
     }
-
     // 滚动轴区域
     ::-webkit-scrollbar-thumb {
       background-color: rgb(161, 162, 162);
       border-radius: 5px;
     }
-
   //  .platformfootercss {
   //    text-align: right !important;
   //    height: 35px !important;
@@ -721,7 +628,6 @@ onMounted(() => {
   //    padding: 0px !important;
   //  }
 }
-
 .page-i18n-loading-mask {
   position: fixed;
   inset: 0;
