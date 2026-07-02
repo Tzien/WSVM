@@ -243,12 +243,10 @@ router.beforeEach(async (to, from, next) => {
         foldmenuStr.push(element.path)
       }
       if (drawerStore) {
-        const currentFoldmenu = Array.isArray(drawerStore.foldmenu) ? drawerStore.foldmenu : []
-        const mergedFoldmenu = [...new Set([...currentFoldmenu, ...foldmenuStr])]
         if (typeof drawerStore.setFoldmenu === 'function') {
-          drawerStore.setFoldmenu(mergedFoldmenu)
+          drawerStore.setFoldmenu(foldmenuStr)
         } else if (Array.isArray(drawerStore.foldmenu)) {
-          drawerStore.foldmenu = mergedFoldmenu
+          drawerStore.foldmenu = foldmenuStr
         }
       }
     }
