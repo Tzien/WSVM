@@ -472,7 +472,9 @@ watch(
     const branch = normalizeOpenKeys(getAncestorOpenKeys(menuItems, path))
     persistFoldmenu(branch)
 
-    if (!hasInitializedOpenKeysFromBranch) {
+    // 仅在首次拿到「非空的当前页父级链」时初始化一次展开项，
+    // 避免被 '/'、重定向等无父级的中间路由把初始化名额提前消耗掉，导致刷新后父级不展开。
+    if (!hasInitializedOpenKeysFromBranch && branch.length > 0) {
       openKeys.value = branch
       hasInitializedOpenKeysFromBranch = true
     }
