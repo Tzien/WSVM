@@ -6,6 +6,7 @@
           <div style="width: 220px; margin-left: 10px">
             <a-image :src="avatarImageURL" :preview="false" />
           </div>
+
           <div class="IconF">
             <div class="IconS" @click="showDrawer">
               <div>
@@ -67,6 +68,7 @@
     <a-spin size="large" />
   </div>
 </template>
+
 <script setup>
 import { ref, watch, watchEffect, h, computed, nextTick, onMounted } from 'vue'
 import * as Icons from '@ant-design/icons-vue'
@@ -78,6 +80,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { qiankunWindow } from 'vite-plugin-qiankun/dist/helper.js'
 import { useInsertSysMenuRecord } from '@/api/userLoginLogs.js'
 import { loadLocaleMessages, loadPageLocaleMessages } from './lang/i18n.js'
+
 /* 获取Logo图片 */
 import { MenuFoldOutlined, MenuUnfoldOutlined, createFromIconfontCN, SettingOutlined, PoweroffOutlined } from '@ant-design/icons-vue'
 import PublicDrawers from '@/components/PublicDrawers.vue'
@@ -87,14 +90,17 @@ import menuBgUrl from '@/assets/images/menuBG.png'
 import { Layout } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 import { debounce } from 'lodash-es'
+
 /* 国际化相关 */
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
 import 'dayjs/locale/id'
 import 'dayjs/locale/ru'
+
 const currentAntdLocale = ref(null)
 let lastProcessedLanguage = ''  // 缓存：记录最后处理的语言
+
 // 语言包映射表（Ant Design Vue）
 const antdLocaleMap = {
   'zh': () => import('ant-design-vue/es/locale/zh_CN'),
@@ -112,6 +118,7 @@ const dayjsLocaleMap = {
 // 创建防抖版本的 loadAntdLocale
 const debouncedLoadAntdLocale = debounce(async (language) => {
   if (!language) return
+
   try {
     const loader = antdLocaleMap[language]
     if (loader) {
@@ -134,11 +141,13 @@ const debouncedLoadAntdLocale = debounce(async (language) => {
     dayjs.locale('zh-cn')
   }
 }, 100)
+
 const i18n = useI18n({ useScope: 'global' })
 var isQiankun = qiankunWindow.__POWERED_BY_QIANKUN__
 const router = useRouter()
 const route = useRoute()
 const { globalStore } = useGlobalState()
+
 var userStore = ref({})
 var drawerStore = ref({})
 var navigationStore = ref({})
@@ -166,6 +175,7 @@ if (!isQiankun) {
     }
   })
 }
+
 const menuBgStyle = computed(() => {
   const collapsed = isQiankun ? !!drawerStore.value?.menuCollapsed : !!drawerStore?.menuCollapsed
   return {
@@ -181,14 +191,18 @@ const menuBgStyle = computed(() => {
     height: 'calc(100vh - 180px)'
   }
 })
+
 // 本地菜单选中 keys，用于驱动左侧菜单高亮
 const selectedKeys = ref([])
+
 watch(
   () => route.path,
   (path) => {
     if (!path) return
+
     // 左侧菜单高亮始终跟随当前路由 path
     selectedKeys.value = [path]
+
     if (isQiankun) {
       if (drawerStore.value && drawerStore.value.changeSelected) {
         drawerStore.value.changeSelected([path])
@@ -205,6 +219,7 @@ watch(
   },
   { immediate: true }
 )
+
 const keepAliveComponents = ref([])
 // 计算属性：根据路由元信息动态决定缓存的组件
 const includedComponents = computed(() => {
@@ -222,6 +237,7 @@ const includedComponents = computed(() => {
   // 也可以在此根据其他条件进行动态添加/删除组件
   return keepAliveComponents.value
 })
+
 const menuClick = (val) => {
   if (isQiankun) {
     useInsertSysMenuRecord({
@@ -232,6 +248,7 @@ const menuClick = (val) => {
     const sysCode = import.meta.env.VITE_APP_APPNAME
     const innerPath = val.item.path
     const tabKey = sysCode ? `/${sysCode}${innerPath}` : innerPath
+
     if (
       navigationStore.value.tabs.length < 9 ||
       navigationStore.value.tabs.some((element) => {
@@ -244,10 +261,12 @@ const menuClick = (val) => {
     router.push({ path: val.item.path })
   }
 }
+
 const menuSelect = (val) => {
   const sysCode = import.meta.env.VITE_APP_APPNAME
   const innerPath = val.item.path
   const tabKey = sysCode ? `/${sysCode}${innerPath}` : innerPath
+
   const newTab = {
     key: tabKey,
     title: val.item.title,
@@ -255,17 +274,21 @@ const menuSelect = (val) => {
     sysCode: sysCode,
     i18nKey: val.item.i18nKey
   }
+
   if (isQiankun) {
     const navSnapshot = navigationStore.value || {}
     const tabs = Array.isArray(navSnapshot.tabs) ? navSnapshot.tabs : []
+
     const exists = tabs.some((element) => {
       return element && element.key === tabKey
     })
+
     if (!exists) {
       if (tabs.length >= 9) {
         message.warn('最多打开10个选项卡，请关闭一些后重试')
         return
       }
+
       if (typeof window !== 'undefined') {
         setTimeout(() => {
           window.dispatchEvent(
@@ -276,6 +299,7 @@ const menuSelect = (val) => {
         }, 0)
       }
     }
+
     const ds = drawerStore.value
     if (ds) {
       if (typeof ds.changeSelected === 'function') {
@@ -287,14 +311,17 @@ const menuSelect = (val) => {
   } else {
     const nav = navigationStore
     const tabs = Array.isArray(nav.tabs) ? nav.tabs : []
+
     const exists = tabs.some((element) => {
       return element && element.key === tabKey
     })
+
     if (!exists) {
       if (typeof nav.addTabs === 'function') {
         nav.addTabs(newTab)
       }
     }
+
     const dsLocal = drawerStore
     if (dsLocal) {
       if (typeof dsLocal.changeSelected === 'function') {
@@ -305,18 +332,23 @@ const menuSelect = (val) => {
     }
   }
 }
+
 const openKeys = ref([])
 const normalizeOpenKeys = (keys) => [...new Set(Array.isArray(keys) ? keys : [])]
+
 const getAncestorOpenKeys = (menuItems, targetKey) => {
   const walk = (nodes, ancestors) => {
     if (!Array.isArray(nodes)) {
       return null
     }
+
     for (const node of nodes) {
       const nodeKey = node?.key
+
       if (nodeKey === targetKey) {
         return ancestors
       }
+
       if (Array.isArray(node?.children) && node.children.length > 0) {
         const result = walk(node.children, nodeKey ? [...ancestors, nodeKey] : ancestors)
         if (result !== null) {
@@ -324,12 +356,16 @@ const getAncestorOpenKeys = (menuItems, targetKey) => {
         }
       }
     }
+
     return null
   }
+
   return walk(menuItems, []) ?? []
 }
+
 const persistFoldmenu = (keys) => {
   const normalized = normalizeOpenKeys(keys)
+
   if (isQiankun) {
     const ds = drawerStore.value || {}
     if (typeof ds.setFoldmenu === 'function') {
@@ -345,12 +381,14 @@ const persistFoldmenu = (keys) => {
     }
   }
 }
+
 function toggleCollapsed() {
   if (isQiankun) {
     const ds = drawerStore.value || {}
     // 本地切换快照中的收起状态
     const prevCollapsed = !!ds.menuCollapsed
     ds.menuCollapsed = !prevCollapsed
+
     // 根据收起状态调整本地侧边栏宽度和展开的菜单 key
     if (!ds.menuCollapsed) {
       // 展开：还原为上次记录的宽度（如果有），并恢复折叠菜单
@@ -363,6 +401,7 @@ function toggleCollapsed() {
       ds.menuwidth = 80
       openKeys.value = []
     }
+
     // 将最新的抽屉状态通过 qiankun 全局状态回推给主应用的 Pinia drawerStore
     actions.setGlobalState({
       drawerStore: ds
@@ -378,10 +417,12 @@ function toggleCollapsed() {
     }
   }
 }
+
 // 动态映射图标
 const getIconComponent = (iconName) => {
   return Icons[iconName] ? Icons[iconName] : Icons['QuestionCircleOutlined'] // 提供一个默认图标
 }
+
 // 统一处理菜单标题：优先用多语言，失败时回退到原始 name
 const getMenuTitle = (route) => {
   const fallbackTitle = route.originalName || route.name || ''
@@ -390,6 +431,7 @@ const getMenuTitle = (route) => {
   const translated = i18n.t(key)
   return translated && translated !== key ? translated : fallbackTitle
 }
+
 //构造菜单Item数据
 const generateMenuData = (routes) => {
   return routes.map((route) => {
@@ -415,14 +457,20 @@ const generateMenuData = (routes) => {
     return menuItem
   })
 }
+
 var items = ref([])
+
 watch(
   [items, () => route.path],
   ([menuItems, path]) => {
     if (!Array.isArray(menuItems) || menuItems.length === 0 || !path) {
       return
     }
+
     const branch = normalizeOpenKeys(getAncestorOpenKeys(menuItems, path))
+
+    // 合并当前页父级链到已展开项：切换标签页时展开目标页父级，
+    // 同时保留用户/其它页面已展开的父级，不做整体替换。
     if (branch.length > 0) {
       openKeys.value = normalizeOpenKeys([...openKeys.value, ...branch])
       persistFoldmenu(openKeys.value)
@@ -430,23 +478,27 @@ watch(
   },
   { immediate: true, deep: true }
 )
+
 const hasAccessToken = () => {
   if (isQiankun) {
     return !!userStore.value?.access_token
   }
   return !!userStore.access_token
 }
+
 const getCurrentLanguage = () => {
   if (isQiankun) {
     return i18n.locale.value || navigationStore.value?.language || 'zh'
   }
   return i18n.locale.value || navigationStore.language || 'zh'
 }
+
 const getCurrentPageCode = () => {
   const pageCode = route.meta?.KeepAliveName
   const normalizedPageCode = `${pageCode || ''}`.trim()
   return normalizedPageCode && normalizedPageCode !== 'unknown' ? normalizedPageCode : ''
 }
+
 const loadCurrentPageI18n = async (language = getCurrentLanguage()) => {
   const pageCode = getCurrentPageCode()
   if (!pageCode) return
@@ -460,27 +512,33 @@ const loadCurrentPageI18n = async (language = getCurrentLanguage()) => {
     }
   }
 }
+
 const refreshStandaloneLocaleMessages = async (language, shouldReloadRoutes = false) => {
   if (isQiankun || !userStore.access_token) {
     return
   }
+
   if (shouldReloadRoutes) {
     await routeStore.loadRoutes(userStore.userRoles, language)
   }
+
   await loadLocaleMessages(i18n, language, {
     includeCommonMessages: true,
     includeRouteMessages: false
   })
+
   await loadLocaleMessages(i18n, language, {
     includeCommonMessages: false,
     includeRouteMessages: true,
     routeSourceData: routeStore.permissionSystemsCache
   })
 }
+
 const refreshQiankunLocaleMessages = async (language) => {
   if (!isQiankun || !hasAccessToken() || !language) {
     return
   }
+
   isRefreshingLanguage.value = true
   const routeSourceData = await routeStore.loadRoutes(userStore.value.userRoles, language)
   await loadLocaleMessages(i18n, language, {
@@ -493,6 +551,7 @@ const refreshQiankunLocaleMessages = async (language) => {
     routeSourceData
   })
 }
+
 async function loadMenuItems() {
   // 仅在本地还没有路由时才向后端请求，避免语言切换时重复 loadRoutes 导致卡顿
   const hasRoutes = Array.isArray(routeStore.routes) && routeStore.routes.length > 0
@@ -514,7 +573,9 @@ async function loadMenuItems() {
   const matchedItem = buildRouteSource.length > 0 ? buildRouteSource[0].children : []
   items.value = generateMenuData(matchedItem)
 }
+
 loadMenuItems()
+
 watch(
   () => i18n.locale?.value,
   async (locale, prevLocale) => {
@@ -525,6 +586,7 @@ watch(
     }
   }
 )
+
 watch(
   () => [route.fullPath, route.meta?.KeepAliveName],
   () => {
@@ -532,6 +594,7 @@ watch(
   },
   { immediate: true }
 )
+
 /* 监听语言变化重新加载Menu菜单 */
 if (!isQiankun) {
   watch(
@@ -549,6 +612,7 @@ if (!isQiankun) {
       debouncedLoadAntdLocale(language)
     }
   )
+
   watch(
     () => userStore.access_token,
     async (token) => {
@@ -563,6 +627,7 @@ if (!isQiankun) {
       debouncedLoadAntdLocale(currentLanguage)
     }
   )
+
   // 当动态路由（menu 权限）加载完成后，自动刷新左侧菜单
   watch(
     () => routeStore.routes,
@@ -573,6 +638,7 @@ if (!isQiankun) {
     },
     { deep: true }
   )
+
   /* 监听主题变化加载背景图片 */
   watch(
     () => drawerStore.theme,
@@ -587,6 +653,7 @@ if (!isQiankun) {
     async (snapshot) => {
       if (!snapshot) return
       if (!snapshot.locale) return
+
       // watch 层面去重：如果已经处理过这个语言，跳过
       if (snapshot.locale === lastProcessedLanguage) {
         console.log('[qiankun模式] 已处理过，跳过')
@@ -595,12 +662,15 @@ if (!isQiankun) {
       if (snapshot.locale === lastSnapshotLanguage) return
       lastSnapshotLanguage = snapshot.locale
       lastProcessedLanguage = snapshot.locale
+
       try {
         if (hasAccessToken()) {
           await refreshQiankunLocaleMessages(snapshot.locale)
           await loadCurrentPageI18n(snapshot.locale)
         }
+
         i18n.locale.value = snapshot.locale
+
         if (hasAccessToken()) {
           await nextTick()
           await loadMenuItems()
@@ -612,6 +682,7 @@ if (!isQiankun) {
     },
     { immediate: true, deep: true }
   )
+
   // 在 qiankun 场景下监听主应用 navigationStore.language，同步子应用语言和菜单
   watch(
     () =>
@@ -638,6 +709,7 @@ if (!isQiankun) {
     { immediate: true }
   )
 }
+
 // 初始化加载
 onMounted(() => {
   const initialLanguage = getCurrentLanguage()
@@ -646,6 +718,7 @@ onMounted(() => {
     debouncedLoadAntdLocale(initialLanguage)
   }
 })
+
 // 打开设置抽屉
 const showDrawer = () => {
   if (isQiankun) {
@@ -658,10 +731,12 @@ const showDrawer = () => {
     }
   }
 }
+
 const exitModal = ref(false)
 const logoff = () => {
   exitModal.value = true
 }
+
 const handleOk = () => {
   const mainRouter = useRouteStore()
   navigationStore.removeAllTab()
@@ -675,27 +750,32 @@ const handleOk = () => {
 <style lang="scss">
 .SubVue3Demo {
   .SubSider {
+
     // 整个滚动条区域
     ::-webkit-scrollbar {
       width: 5px;
       background-color: rgb(161, 162, 162);
       border-radius: 5px;
     }
+
     // 滚动轴区域
     ::-webkit-scrollbar-thumb {
       background-color: rgb(202, 202, 202);
       border-radius: 5px;
     }
   }
+
   // .tabsClass {
   //   .ant-tabs-nav {
   //     margin: 0px !important;
   //   }
   // }
+
   .DemoAppHeader {
     padding-inline: 0px !important;
     height: 96px;
     line-height: 96px;
+
     .HeaderContent {
       width: 100vw;
       display: flex;
@@ -703,17 +783,21 @@ const handleOk = () => {
       z-index: 99;
       background-image: url('/src/assets/images/HeaderBG.png');
     }
+
     .IconF {
       display: flex;
       margin-right: 20px;
+
       .IconS {
         text-align: center;
         width: 40px;
       }
+
       .IconS:hover {
         background-color: rgb(230, 229, 229);
         cursor: pointer;
       }
+
       .loginname {
         font-size: 18px;
         font-weight: 700;
@@ -727,6 +811,7 @@ const handleOk = () => {
     }
   }
 }
+
 .page-i18n-loading-mask {
   position: fixed;
   inset: 0;
