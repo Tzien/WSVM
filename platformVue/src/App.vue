@@ -351,6 +351,49 @@ const platformMenuClick = (val) => {
 }
 
 const openKeys = ref([])
+
+const normalizeOpenKeys = (keys) => [...new Set(Array.isArray(keys) ? keys : [])]
+
+const getAncestorOpenKeys = (menuItems, targetKey) => {
+  const walk = (nodes, ancestors) => {
+    if (!Array.isArray(nodes)) {
+      return null
+    }
+
+    for (const node of nodes) {
+      const nodeKey = node?.key
+
+      if (nodeKey === targetKey) {
+        return ancestors
+      }
+
+      if (Array.isArray(node?.children) && node.children.length > 0) {
+        const result = walk(node.children, nodeKey ? [...ancestors, nodeKey] : ancestors)
+        if (result !== null) {
+          return result
+        }
+      }
+    }
+
+    return null
+  }
+
+  return walk(menuItems, []) ?? []
+}
+
+const persistFoldmenu = (keys) => {
+  const normalized = normalizeOpenKeys(keys)
+  const ds = drawerStore.value || {}
+
+  if (typeof ds.setFoldmenu === 'function') {
+    ds.setFoldmenu(normalized)
+  } else if (Array.isArray(ds.foldmenu)) {
+    ds.foldmenu = normalized
+  }
+}
+
+let hasInitializedOpenKeysFromBranch = false
+
 function toggleCollapsed() {
   const ds = drawerStore.value || {}
   // 本地切换快照中的收起状态
@@ -413,12 +456,6 @@ const platformMenuSelect = (val) => {
       } else if (Array.isArray(drawerStore.value.selected)) {
         drawerStore.value.selected = val.selectedKeys
       }
-
-      if (typeof drawerStore.value.setFoldmenu === 'function') {
-        drawerStore.value.setFoldmenu(val.keyPath)
-      } else if (Array.isArray(drawerStore.value.foldmenu)) {
-        drawerStore.value.foldmenu = val.keyPath
-      }
     }
   } else {
     const navSnapshot = navigationStore.value || {}
@@ -450,12 +487,6 @@ const platformMenuSelect = (val) => {
         drawerStore.value.changeSelected(val.selectedKeys)
       } else if (Array.isArray(drawerStore.value.selected)) {
         drawerStore.value.selected = val.selectedKeys
-      }
-
-      if (typeof drawerStore.value.setFoldmenu === 'function') {
-        drawerStore.value.setFoldmenu(val.keyPath)
-      } else if (Array.isArray(drawerStore.value.foldmenu)) {
-        drawerStore.value.foldmenu = val.keyPath
       }
     }
   }
@@ -496,6 +527,24 @@ const generateMenuData = (routes) =>
   })
 
 const items = ref([])
+
+watch(
+  [items, () => route.path],
+  ([menuItems, path]) => {
+    if (!Array.isArray(menuItems) || menuItems.length === 0 || !path) {
+      return
+    }
+
+    const branch = normalizeOpenKeys(getAncestorOpenKeys(menuItems, path))
+    persistFoldmenu(branch)
+
+    if (!hasInitializedOpenKeysFromBranch && branch.length > 0) {
+      openKeys.value = branch
+      hasInitializedOpenKeysFromBranch = true
+    }
+  },
+  { immediate: true, deep: true }
+)
 
 // 使用computed优化菜单数据生成
 const menuItems = computed(() => {
