@@ -199,7 +199,7 @@ namespace CERIOS.Systems.Interfaces.Common
         {
             var fileName = RandomExtensions.NextLetterAndNumberString(new Random(), 7);
             //临时目录
-            string directoryPath = Path.Combine(App.App.GetConfig<AppOptions>("CERIOS_App", true).SystemPath, "TemporaryFile", fileName);
+            string directoryPath = Path.Combine(FileVariable.TemporaryFilePath, fileName);
             Directory.CreateDirectory(directoryPath);
             foreach (var item in input)
             {
