@@ -235,7 +235,7 @@ namespace CERIOS.Systems.Interfaces.Common
         /// </summary>
         public async Task<dynamic> DownloadFile(string encryption, string name = null)
         {
-            string decryptStr = DESEncryption.Decrypt(encryption, "CERI");
+            string decryptStr = DecryptDownloadToken(encryption);
             List<string> paramsList = decryptStr.Split("|").ToList();
             if (paramsList.Count > 0)
             {
@@ -445,6 +445,18 @@ namespace CERIOS.Systems.Interfaces.Common
                 : kkFileDoMain + "/onlinePreview?url=";
             var previewUrl = kkurl + HttpUtility.UrlEncode(fileUrl.ToBase64String(), Encoding.UTF8);
             return previewUrl + "&forceUpdatedCache=true&_t=" + timestamp;
+        }
+
+        private string DecryptDownloadToken(string encryption)
+        {
+            try
+            {
+                return DESEncryption.Decrypt(encryption, "CERIOS");
+            }
+            catch
+            {
+                return DESEncryption.Decrypt(encryption, "CERI");
+            }
         }
 
         private string GetPreviewFileName(string fileName, string fileDownloadUrl, string originalFileName, string fileExtension)
@@ -669,3 +681,4 @@ namespace CERIOS.Systems.Interfaces.Common
         #endregion
     }
 }
+

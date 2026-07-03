@@ -505,15 +505,17 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
         }
 
         [HttpGet("DownloadUrl")]
-        public dynamic DownloadUrl(string type, string fileName)
+        public QueryByIdResponseDto<dynamic> DownloadUrl(string type, string fileName)
         {
-            return _fileService.DownloadUrl(type, fileName);
+            var data = _fileService.DownloadUrl(type, fileName);
+            return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
         }
 
         [HttpPost("DownloadAll")]
-        public async Task<dynamic> DownloadAll(string type, [FromBody] List<FileControlsModel> input)
+        public async Task<QueryByIdResponseDto<dynamic>> DownloadAll(string type, [FromBody] List<FileControlsModel> input)
         {
-            return await _fileService.DownloadAll(type, input);
+            var data = await _fileService.DownloadAll(type, input);
+            return new QueryByIdResponseDto<dynamic>() { Code = 200, Success = true, Data = data };
         }
 
         [HttpPost("DownloadCode/{id}")]
