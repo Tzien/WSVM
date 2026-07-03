@@ -22,8 +22,8 @@
         </a-space>
       </div>
     </template>
-    <div class="basic-content bg-white" v-loading="loading">
-      <iframe v-if="url" :key="url" width="100%" height="100%" :src="url" frameborder="0"></iframe>
+    <div class="basic-content bg-white" v-loading="loading" element-loading-text="文件加载中...">
+      <iframe v-if="url" :key="url" width="100%" height="100%" :src="url" frameborder="0" @load="handleIframeLoad"></iframe>
     </div>
   </a-modal>
 </template>
@@ -79,7 +79,6 @@
     };
     previewFile(query)
       .then(res => {
-        state.loading = false;
         if (res.data) {
           state.url = res.data;
           return;
@@ -95,6 +94,9 @@
   function handleCancel() {
     state.visible = false;
     resetFullScreen();
+  }
+  function handleIframeLoad() {
+    state.loading = false;
   }
   function handleDownload() {
     const file = state.file;
