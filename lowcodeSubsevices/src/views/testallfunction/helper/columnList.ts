@@ -140,7 +140,7 @@
     "fixed": "none",
     "align": "left",
     "ceriKey": "inputNumber",
-    "sortable": false,
+    "sortable": true,
     "resizable": true,
     "width": null,
     "id": "sort",
