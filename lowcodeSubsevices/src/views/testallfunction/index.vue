@@ -46,6 +46,9 @@
                 :showOverflow="true"
                 detailed />
             </template>
+            <template v-if="column.ceriKey === 'inputNumber'">
+                <ceri-input-number v-model:value="record[column.dataIndex]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+            </template>
             <template v-if="column.ceriKey === 'datePicker'">
                 {{ formatDateCell(record[column.dataIndex], column.format || 'YYYY-MM-DD HH:mm:ss') }}
             </template>

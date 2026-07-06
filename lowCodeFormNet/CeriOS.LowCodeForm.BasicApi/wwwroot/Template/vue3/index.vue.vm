@@ -79,6 +79,9 @@
                     @<template v-if="column.ceriKey === 'input'">
                         @<ceri-input v-model:value="childRecord[column.dataIndex]" :useMask="column.useMask" :maskConfig="column.maskConfig" :showOverflow="@(Model.TableConfig.ShowOverflow.ToString().ToLower())" detailed />
                     @</template>
+                    @<template v-if="column.ceriKey === 'inputNumber'">
+                        @<ceri-input-number v-model:value="childRecord[column.dataIndex]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+                    @</template>
                   </template>
                 </BasicTable>
               </a-tab-pane>
@@ -123,6 +126,9 @@
                 :showOverflow="@(Model.TableConfig.ShowOverflow.ToString().ToLower())"
                 detailed />
             </template>
+            <template v-if="column.ceriKey === 'inputNumber'">
+                <ceri-input-number v-model:value="record[column.dataIndex]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+            </template>
             <template v-if="column.ceriKey === 'datePicker'">
                 {{ formatDateCell(record[column.dataIndex], column.format || 'YYYY-MM-DD HH:mm:ss') }}
             </template>
@@ -132,11 +138,6 @@
 @if(Model.HasRelationDetail || Model.HasSubTableRelationDetail) {
             @:<template v-if="column.ceriKey === 'relationForm'">
               @:<p class="link-text" @@click="toDetail(column.modelId, record[`${column.dataIndex}_id`],column.propsValue)">{{ record[column.dataIndex] }}</p>
-            @:</template>
-}
-@if(Model.HasThousands || Model.HasSubTableThousands) {
-            @:<template v-if="column.ceriKey === 'inputNumber'">
-              @:<ceri-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
             @:</template>
 }
 </template>
