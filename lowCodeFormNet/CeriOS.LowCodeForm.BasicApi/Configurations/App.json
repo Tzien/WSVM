@@ -109,7 +109,7 @@
       "172.16"
     ],
     "PreviewType": "kkfile", //文件预览方式 （kkfile，yozo）默认使用kkfile
-    "KKFileDomain": "http://127.0.0.1:30090/FileServer",
+    "KKFileDomain": "http://192.168.50.125:6021/FileServer",
     "Domain": "http://yinmai.tpddns.cn:7772",
     "FlowableDomain": "http://192.168.20.140:31000/api/Flow/",
     "YOZO": {

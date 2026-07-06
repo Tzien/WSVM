@@ -64,5 +64,9 @@ public class Mapper : IRegister
 			.Map(dest => dest.PicURL, src => ParseList<FileControlsModel>(src.PicURL))
 			.Map(dest => dest.FileURL, src => ParseList<FileControlsModel>(src.FileURL))
 		;
+                config.ForType<PictableEntity, PictableListOutput>()
+                        .Map(dest => dest.PicURL, src => ParseList<FileControlsModel>(src.PicURL))
+                        .Map(dest => dest.FileURL, src => ParseList<FileControlsModel>(src.FileURL))
+                ;
 	}
 }
