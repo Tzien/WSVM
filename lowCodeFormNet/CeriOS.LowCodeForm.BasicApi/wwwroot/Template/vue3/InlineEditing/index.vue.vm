@@ -1181,11 +1181,16 @@ function initViewList(currentId = '') {
     state.currentView = item;
   }
   function setListValue(data: any[] = [], defaultData: any[] = [], key) {
+    const sameId = (a, b) => String(a).toLowerCase() === String(b).toLowerCase();
     let list: any[] = [];
     for (let i = 0; i < data.length; i++) {
       for (let j = 0; j < defaultData.length; j++) {
-        if (data[i].show && data[i].id == defaultData[j][key]) list.push(defaultData[j]);
+        if (data[i].show && sameId(data[i].id, defaultData[j][key])) list.push(defaultData[j]);
       }
+    }
+    // 视图配置中没有记录的列（如新增字段）默认显示
+    for (let j = 0; j < defaultData.length; j++) {
+      if (!data.some((o) => sameId(o.id, defaultData[j][key]))) list.push(defaultData[j]);
     }
     return list;
   }
