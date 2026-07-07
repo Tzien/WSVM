@@ -67,11 +67,12 @@
 
   const getAction = computed(() => globSetting.uploadUrl + '/' + props.type);
   // const getHeaders = computed(() => ({ Authorization: getToken() as string }));
-  const getUploadData = computed(() => ({
+  const getUploadData = computed(() => (file?: { name?: string }) => ({
     pathType: props.pathType,
     sortRule: (props.sortRule || []).join(),
     timeFormat: props.timeFormat,
     folder: props.folder,
+    extension: getFileExtension(file),
   }));
   const getBindValues = computed(() => {
     return {
@@ -109,6 +110,12 @@
     }
     const list = Array.isArray(val) ? val : [val];
     return list.filter(o => o && (o.url || o.thumbUrl));
+  }
+
+  function getFileExtension(file?: { name?: string }) {
+    const fileName = file?.name || '';
+    const index = fileName.lastIndexOf('.');
+    return index >= 0 ? fileName.slice(index + 1).toLowerCase() : '';
   }
 
   function toImageUrl(url?: string) {

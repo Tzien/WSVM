@@ -52,6 +52,9 @@
             <template v-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
                 {{ formatOptionCell(record[column.dataIndex], column) }}
             </template>
+            <template v-if="column.ceriKey === 'inputNumber'">
+              <ceri-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+            </template>
 </template>
             <template v-if="column.flag === 'ACTION' && !record.top">
               <TableAction :actions="getTableActions(record)" />
@@ -225,7 +228,7 @@
   const { childColumnList, searchSchemas, viewList, currentView  } = toRefs(state);
   const defaultSearchInfo = {
     menuId:  route.path as string,
-    //moduleId:'93f012a4-4f34-4eee-ba52-b018d6fd5eca',
+    //moduleId:'67ee5d72-247c-4e7d-b283-5216923544de',
     superQueryJson: '',
   };
   const searchInfo:any = reactive({

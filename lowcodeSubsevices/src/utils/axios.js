@@ -34,7 +34,6 @@ export function createAxios(url, userStore) {
       return config
     },
     (error) => {
-      console.info(111, error)
       Promise.reject(error)
     }
   )

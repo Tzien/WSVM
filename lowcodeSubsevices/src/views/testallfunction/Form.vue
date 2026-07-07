@@ -27,20 +27,20 @@
         <a-row :gutter="15">
           <a-col :span="24" class="ant-col-item" >
             <a-form-item name="Name" :labelCol="{ style: { width: '100px' } }">
-              <template #label>名称</template>
+              <template #label>单行输入</template>
               <CeriInput v-model:value="dataForm.Name" placeholder='请输入' allowClear :style='{"width":"100%"}'  :showCount='false'  />
             </a-form-item>
           </a-col>
           <a-col :span="24" class="ant-col-item" >
             <a-form-item name="Remark" :labelCol="{ style: { width: '100px' } }">
-              <template #label>备注</template>
+              <template #label>多行输入</template>
               <CeriTextarea v-model:value="dataForm.Remark" placeholder='请输入' allowClear :autoSize='{"minRows":4,"maxRows":4}' :style='{"width":"100%"}'  :showCount='false'  />
             </a-form-item>
           </a-col>
           <a-col :span="24" class="ant-col-item" >
-            <a-form-item name="sort" :labelCol="{ style: { width: '100px' } }">
-              <template #label>排序</template>
-              <CeriInputNumber v-model:value="dataForm.sort" placeholder='请输入' :controls=false :style='{"width":"100%"}'  />
+            <a-form-item name="Sort" :labelCol="{ style: { width: '100px' } }">
+              <template #label>数字输入</template>
+              <CeriInputNumber v-model:value="dataForm.Sort" placeholder='请输入' :controls=false :style='{"width":"100%"}'  />
             </a-form-item>
           </a-col>
           <a-col :span="24" class="ant-col-item" >
@@ -109,18 +109,11 @@
       id: '',
       Name: undefined,
       Remark: undefined,
-      sort: undefined,
+      Sort: undefined,
       FileURL: [],
       PictureURL: [],
     },
     dataRule: {
-      Name: [
-        {
-          required: true,
-          message: '请输入名称',
-          trigger: 'blur',
-        },
-      ],
     },
     currVmodel: '',
     currTableConf:{},
@@ -190,7 +183,7 @@
       state.dataForm={
         Name: undefined,
         Remark: undefined,
-        sort: undefined,
+        Sort: undefined,
         FileURL: [],
         PictureURL: [],
       };

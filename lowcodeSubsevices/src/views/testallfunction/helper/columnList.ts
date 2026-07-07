@@ -1,6 +1,6 @@
 ﻿const columnList = [
   {
-    "label": "名称",
+    "label": "单行输入",
     "labelI18nCode": "",
     "prop": "Name",
     "fixed": "none",
@@ -10,13 +10,13 @@
     "resizable": true,
     "width": null,
     "id": "Name",
-    "fullName": "名称",
+    "fullName": "单行输入",
     "fullNameI18nCode": [
       ""
     ],
     "__config__": {
       "ceriKey": "input",
-      "label": "名称",
+      "label": "单行输入",
       "tipLabel": "",
       "showLabel": true,
       "tag": "CeriInput",
@@ -24,7 +24,7 @@
       "tableAlign": "left",
       "tableFixed": "none",
       "className": [],
-      "required": true,
+      "required": false,
       "layout": "colFormItem",
       "span": 24,
       "dragDisabled": false,
@@ -36,8 +36,8 @@
       "noShow": false,
       "regList": [],
       "trigger": "blur",
-      "formId": "formItem74cddc",
-      "renderKey": 1783318221157
+      "formId": "formItem26e8cb",
+      "renderKey": 1783407766123
     },
     "on": {
       "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}",
@@ -75,7 +75,7 @@
     "__vModel__": "Name"
   },
   {
-    "label": "备注",
+    "label": "多行输入",
     "labelI18nCode": "",
     "prop": "Remark",
     "fixed": "none",
@@ -85,13 +85,13 @@
     "resizable": true,
     "width": null,
     "id": "Remark",
-    "fullName": "备注",
+    "fullName": "多行输入",
     "fullNameI18nCode": [
       ""
     ],
     "__config__": {
       "ceriKey": "textarea",
-      "label": "备注",
+      "label": "多行输入",
       "tipLabel": "",
       "showLabel": true,
       "tag": "CeriTextarea",
@@ -111,8 +111,8 @@
       "noShow": false,
       "regList": [],
       "trigger": "blur",
-      "formId": "formItem3820ef",
-      "renderKey": 1783318222484
+      "formId": "formItem5aa73f",
+      "renderKey": 1783407766820
     },
     "on": {
       "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}",
@@ -134,23 +134,23 @@
     "__vModel__": "Remark"
   },
   {
-    "label": "排序",
+    "label": "数字输入",
     "labelI18nCode": "",
-    "prop": "sort",
+    "prop": "Sort",
     "fixed": "none",
     "align": "left",
     "ceriKey": "inputNumber",
     "sortable": false,
     "resizable": true,
     "width": null,
-    "id": "sort",
-    "fullName": "排序",
+    "id": "Sort",
+    "fullName": "数字输入",
     "fullNameI18nCode": [
       ""
     ],
     "__config__": {
       "ceriKey": "inputNumber",
-      "label": "排序",
+      "label": "数字输入",
       "tipLabel": "",
       "showLabel": true,
       "tag": "CeriInputNumber",
@@ -173,8 +173,8 @@
         "blur",
         "change"
       ],
-      "formId": "formItem0e82c8",
-      "renderKey": 1783318226604
+      "formId": "formItem0fdc6e",
+      "renderKey": 1783407767347
     },
     "on": {
       "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}",
@@ -191,7 +191,7 @@
     "isAmountChinese": false,
     "step": 1,
     "disabled": false,
-    "__vModel__": "sort"
+    "__vModel__": "Sort"
   },
   {
     "label": "文件上传",
@@ -231,8 +231,8 @@
       "noShow": false,
       "regList": [],
       "trigger": "change",
-      "formId": "formItem1f8d46",
-      "renderKey": 1783318256956
+      "formId": "formItem5a2771",
+      "renderKey": 1783407768051
     },
     "on": {
       "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}"
@@ -288,8 +288,8 @@
       "noShow": false,
       "regList": [],
       "trigger": "change",
-      "formId": "formItem5e6a0a",
-      "renderKey": 1783318257563
+      "formId": "formItem9a89d5",
+      "renderKey": 1783407768514
     },
     "on": {
       "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}"

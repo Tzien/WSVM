@@ -157,8 +157,8 @@
     }
     // 自定义状态
     file.customStatus = 'check';
-    options.query.fileType = file.fileType;
-    options.query.extension = file.getExtension();
+    options.query.fileType = file.getType();
+    options.query.extension = getFileExtension(file);
     computeMD5(file);
   }
   /**
@@ -231,12 +231,14 @@
     createMessage.error(t('component.upload.uploadError'));
   }
   function handleSuccess(file) {
+    const fileName = file.name.replaceAll('#', '');
+    const extension = getFileExtension(file);
     const query = {
       identifier: file.uniqueIdentifier,
-      fileName: file.name.replaceAll('#', ''),
+      fileName,
       fileSize: file.size,
       fileType: file.getType(),
-      extension: file.getExtension(),
+      extension,
       type: props.type,
       pathType: props.pathType,
       sortRule: (props.sortRule || []).join(),
@@ -247,10 +249,10 @@
       .then(res => {
         file.customCompleted = true;
         const data = {
-          name: file.name.replaceAll('#', ''),
+          name: fileName,
           fileId: res.data.name,
           fileSize: res.data.fileSize,
-          fileExtension: res.data.fileExtension,
+          fileExtension: res.data.fileExtension || extension,
           fileVersionId: res.data.fileVersionId,
           url: res.data.url,
         };
@@ -261,6 +263,14 @@
         file.cancel();
         createMessage.error(t('component.upload.uploadError'));
       });
+  }
+
+  function getFileExtension(file) {
+    const extension = file.getExtension?.() || '';
+    if (extension) return extension.replace(/^\./, '').toLowerCase();
+    const fileName = file.name || file.file?.name || '';
+    const index = fileName.lastIndexOf('.');
+    return index >= 0 ? fileName.slice(index + 1).toLowerCase() : '';
   }
 
   onMounted(() => {
