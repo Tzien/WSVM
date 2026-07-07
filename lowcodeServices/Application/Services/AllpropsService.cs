@@ -171,9 +171,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
         var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
         var __totalCount = await query.CountAsync();
         var data = await query.ToPagedListAsync(__currentPage, __pageSize);
-      var __mapConfig = new TypeAdapterConfig();
-      __mapConfig.Default.NameMatchingStrategy(NameMatchingStrategy.IgnoreCase);
-      var inlineEditorList = data.list.Adapt<List<AllpropsListOutput>>(__mapConfig);
+      var inlineEditorList = data.list.Adapt<List<AllpropsListOutput>>();
         return new
         {
            list = inlineEditorList,
