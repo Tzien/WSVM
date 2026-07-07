@@ -37,7 +37,7 @@
   import { useI18n } from 'vue-i18n';
   import { uploadFileProps, units } from '../props';
   import SparkMD5 from 'spark-md5';
-  // import { chunkMerge } from '@/api/basic/common';
+  import { chunkMerge } from '@/api/basic/common';
   import FileItem from './FileItem.vue';
   import { buildBitGUID } from '@/utils/guid';
   import 'vue-simple-uploader/dist/style.css';
@@ -56,7 +56,7 @@
   const uploaderRef = ref<any>(null);
   const uploaderBtnRef = ref<any>(null);
   const options = reactive({
-    target: globSetting.apiUrl + '/api/file/chunk',
+    target: globSetting.apiUrl + '/api/FormDb/chunk',
     chunkSize: 1024 * 1024 * 5,
     maxChunkRetries: 5,
     singleFile: props.limit === 1,
@@ -157,8 +157,8 @@
     }
     // 自定义状态
     file.customStatus = 'check';
-    options.query.fileType = file.fileType;
-    options.query.extension = file.getExtension();
+    options.query.fileType = file.getType();
+    options.query.extension = getFileExtension(file);
     computeMD5(file);
   }
   /**
@@ -231,36 +231,46 @@
     createMessage.error(t('component.upload.uploadError'));
   }
   function handleSuccess(file) {
+    const fileName = file.name.replaceAll('#', '');
+    const extension = getFileExtension(file);
     const query = {
       identifier: file.uniqueIdentifier,
-      fileName: file.name.replaceAll('#', ''),
+      fileName,
       fileSize: file.size,
       fileType: file.getType(),
-      extension: file.getExtension(),
+      extension,
       type: props.type,
       pathType: props.pathType,
       sortRule: (props.sortRule || []).join(),
       timeFormat: props.timeFormat,
       folder: props.folder,
     };
-    // chunkMerge(query)
-    //   .then(res => {
-    //     // 自定义完成状态
-    //     file.customCompleted = true;
-    //     const data = {
-    //       name: file.name.replaceAll('#', ''),
-    //       fileId: res.data.name,
-    //       fileSize: res.data.fileSize,
-    //       fileExtension: res.data.fileExtension,
-    //       fileVersionId: res.data.fileVersionId,
-    //       url: res.data.url,
-    //     };
-    //     emit('fileSuccess', data);
-    //     file.cancel();
-    //   })
-    //   .catch(() => {
-    //     file.cancel();
-    //   });
+     chunkMerge(query)
+      .then(res => {
+        file.customCompleted = true;
+        const data = {
+          name: fileName,
+          fileId: res.data.name,
+          fileSize: res.data.fileSize,
+          fileExtension: res.data.fileExtension || extension,
+          fileVersionId: res.data.fileVersionId,
+          url: res.data.url,
+        };
+        emit('fileSuccess', data);
+        file.cancel();
+      })
+      .catch(() => {
+        file.cancel();
+        createMessage.error(t('component.upload.uploadError'));
+      });
+  }
+
+  function getFileExtension(file) {
+    const extension = file.getExtension?.() || '';
+    if (extension) return extension.replace(/^\./, '').toLowerCase();
+    const fileName = file.name || file.file?.name || '';
+    const index = fileName.lastIndexOf('.');
+    return index >= 0 ? fileName.slice(index + 1).toLowerCase() : '';
   }
 
   onMounted(() => {

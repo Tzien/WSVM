@@ -1,14 +1,32 @@
 import { lowCodeInstance } from '@/utils/request'
 
 enum Api {
-  PreviewFile = '/api/file/Uploader/Preview',
-  Merge = '/api/file/merge',
+  PreviewFile = '/api/FormDb/Uploader/Preview',
+  DownloadUrl = '/api/FormDb/DownloadUrl',
+  DownloadAll = '/api/FormDb/DownloadAll',
+  Merge = '/api/FormDb/merge',
   AMap = '/api/system/Location'
 }
 
 // 输入提示
 export function getInputTips(data) {
   return lowCodeInstance.get(Api.AMap + '/inputtips', data)
+}
+
+export function chunkMerge(data) {
+  return lowCodeInstance.post(Api.Merge, data)
+}
+
+export function previewFile(data) {
+  return lowCodeInstance.get(Api.PreviewFile, { params: data })
+}
+
+export function getDownloadUrl(type, fileName) {
+  return lowCodeInstance.get(Api.DownloadUrl, { params: { type, fileName } })
+}
+
+export function getPackDownloadUrl(type, data) {
+  return lowCodeInstance.post(Api.DownloadAll, data, { params: { type } })
 }
 
 // 下载导入示例模板

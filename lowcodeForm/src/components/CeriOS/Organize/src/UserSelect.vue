@@ -61,7 +61,7 @@ import { DeleteOutlined } from '@ant-design/icons-vue'
 import { onMounted, computed, ref, unref, watch, nextTick, reactive } from 'vue'
 import { BasicTree, TreeActionType } from '@/components/Tree'
 import { ScrollContainer, ScrollActionType } from '@/components/Container'
-import { depSelectProps } from './props'
+import { userSelectProps } from './props'
 import ModalClose from '@/components/Modal/src/components/ModalClose.vue'
 import { useI18n } from 'vue-i18n'
 import { useAttrs } from '@/hooks/core/useAttrs'
@@ -69,8 +69,8 @@ import { cloneDeep, pick } from 'lodash-es'
 
 import { useGetOraganizeUserTreeAsync } from '@/api/system/organization'
 
-defineOptions({ name: 'CeriDepSelect', inheritAttrs: false })
-const props = defineProps(depSelectProps)
+defineOptions({ name: 'CeriUserSelect', inheritAttrs: false })
+const props = defineProps(userSelectProps)
 const emit = defineEmits(['update:value', 'change', 'labelChange'])
 const attrs: any = useAttrs({ excludeDefaultKeys: false })
 const { t } = useI18n()
@@ -88,7 +88,7 @@ const finish = ref<boolean>(false)
 const isAsync = ref<boolean>(false)
 const activeKey = ref('')
 const infiniteBody = ref<Nullable<ScrollActionType>>(null)
-// const treeData = ref<any[]>([])
+const treeData = ref<any[]>([])
 const options = ref([])
 const selectedData = ref([])
 const formItemContext = Form.useInjectFormItemContext()
@@ -144,17 +144,39 @@ watch(
   }
 )
 
-function setValue() {
+function collectSelectedFromTree(source, ids) {
+  const idSet = new Set(ids || [])
+  const result: any[] = []
+  const dfs = (nodes) => {
+    if (!Array.isArray(nodes)) return
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i]
+      if (!n) continue
+      if (n.id && idSet.has(n.id)) {
+        result.push({ id: n.id, fullName: n.fullName || n.title || n.name })
+      }
+      if (n.children?.length) dfs(n.children)
+    }
+  }
+  dfs(source)
+  return result
+}
+
+async function setValue() {
   if (!props.value || !props.value.length) return setNullValue()
   let ids = props.multiple ? (props.value as any[]) : [props.value]
   if (!Array.isArray(ids)) return
   const selectSysData: any[] = getSelectSysData(ids)
   ids = ids.filter((o) => o.indexOf('@') < 0)
   if (!ids.length) return setOptions(selectSysData)
-  // getSelectedList(ids).then(res => {
-  //   if (!props.value || !props.value.length) return setNullValue();
-  //   setOptions([...(res.data.list || []), ...selectSysData]);
-  // });
+  if (!treeData.value.length) {
+    await getList()
+  }
+  const selectedList = collectSelectedFromTree(treeData.value, ids)
+  const fallbackList = ids
+    .filter((id) => !selectedList.some((o) => o.id === id))
+    .map((id) => ({ id, fullName: id }))
+  setOptions([...(selectedList || []), ...(fallbackList || []), ...selectSysData])
 }
 function setOptions(data) {
   if (!props.value || !props.value.length) return setNullValue()
@@ -294,7 +316,6 @@ function handleNodeSelect(selectedKeys, info) {
 }
 
 const searchStr = ref()
-const treeData = ref([])
 // 搜索过滤后的数据
 const filteredTreeData = computed(() => {
   if (!searchStr.value) {
@@ -327,12 +348,10 @@ function filterTree(data, keyword) {
 
 async function getList() {
   // if (pagination.keyword) nodeId.value = '0'
-  const data = await useGetOraganizeUserTreeAsync()
-  console.info(data.data)
-  if (data.code === 200 && data.success) {
-    treeData.value = convertTree(data.data,'')
-    console.info(111,treeData.value)
-  }
+  const res: any = await useGetOraganizeUserTreeAsync()
+  const payload: any = res?.data ?? res
+  const treeSource: any = payload?.data ?? payload ?? []
+  treeData.value = convertTree(treeSource, '')
 }
 
 function convertTree(data, userName) {

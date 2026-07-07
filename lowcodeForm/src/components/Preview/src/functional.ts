@@ -6,6 +6,7 @@ import { createVNode, render } from 'vue';
 let instance: ReturnType<typeof createVNode> | null = null;
 export function createImgPreview(options: Options) {
   if (!isClient) return;
+  if (!options?.imageList?.length) return;
   const propsData: Partial<Props> = {};
   const container = document.createElement('div');
   Object.assign(propsData, { show: true, index: options.index || 0, scaleStep: 20 }, options);

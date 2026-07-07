@@ -3,9 +3,9 @@ import { createAxios } from './axios'
 const usls = {
   IdentityServer: 'http://192.168.50.125:6014',
   Business: 'http://192.168.50.125:6015',
-   //lowcodeformapi: 'http://192.168.50.125:5235',
+   lowcodeformapi: 'http://192.168.50.125:5235',
   // lowcodeformapi: 'http://localhost:5235',
-  lowcodeformapi: 'http://localhost:5235',
+  //lowcodeformapi: 'http://192.168.57.124:5235',
 
   // //测试环境
   // IdentityServer: 'http://192.168.50.104:6014',
