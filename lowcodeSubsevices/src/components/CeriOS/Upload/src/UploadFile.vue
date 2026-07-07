@@ -39,7 +39,7 @@ import { uploadFileProps, fileItem } from './props';
 import { useGlobSetting } from '@/hooks/setting';
 import { useMessage } from '@/hooks/web/useMessage';
 import { useI18n } from 'vue-i18n';
-// import { createImgPreview } from '@/components/Preview/index';
+import { createImgPreview } from '@/components/Preview/index';
 import { toFileSize } from '@/utils/ceri';
 import { downloadByUrl } from '@/utils/file/download';
 import Preview from './Preview.vue';
@@ -92,7 +92,7 @@ function handlePreview(file: fileItem) {
   // 图片预览
   if (imgTypeList.includes(fileExtension)) {
     const imageList = [apiUrl.value + file.url];
-    // createImgPreview({ imageList: imageList });
+    createImgPreview({ imageList: imageList });
     return;
   }
   // 文件预览
