@@ -52,6 +52,9 @@
             <template v-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
                 {{ formatOptionCell(record[column.dataIndex], column) }}
             </template>
+            <template v-if="column.ceriKey === 'inputNumber'">
+              <ceri-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+            </template>
 </template>
             <template v-if="column.flag === 'ACTION' && !record.top">
               <TableAction :actions="getTableActions(record)" />

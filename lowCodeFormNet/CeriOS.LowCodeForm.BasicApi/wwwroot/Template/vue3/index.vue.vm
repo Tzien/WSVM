@@ -134,11 +134,9 @@
               @:<p class="link-text" @@click="toDetail(column.modelId, record[`${column.dataIndex}_id`],column.propsValue)">{{ record[column.dataIndex] }}</p>
             @:</template>
 }
-@if(Model.HasThousands || Model.HasSubTableThousands) {
-            @:<template v-if="column.ceriKey === 'inputNumber'">
-              @:<ceri-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
-            @:</template>
-}
+            <template v-if="column.ceriKey === 'inputNumber'">
+              <ceri-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+            </template>
 </template>
 @if(Model.HasFlow){
             <!-- 有工作流：开始 -->
