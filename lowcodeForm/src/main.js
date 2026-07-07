@@ -16,6 +16,7 @@ import { useUserStore, useDrawerStore, useRouteStore, useNavigationStore } from 
 import { initGlobalStateListener, clearGlobalStateListener, addGlobalStateListener, getGlobalState } from './shared/globalStateManager'
 
 import { registerGlobComp } from '@/components/registerGlobComp'
+import { setSubAppContainer } from '@/utils'
 
 // 引入SurelyVue
 import '@surely-vue/table/dist/index.less'
@@ -60,6 +61,10 @@ async function waitForGlobalStateReady(maxWaitMs = 3000) {
 
 async function render(props = {}) {
   const { container } = props
+  if (qiankunWindow.__POWERED_BY_QIANKUN__ && container) {
+    // 弹窗等 teleport 组件需要挂到带 data-qiankun 作用域标记的容器内，样式才能命中
+    setSubAppContainer(container.closest?.('[data-qiankun]') || container)
+  }
   instance = createApp(App)
   instance.use(STable)
   instance.use(pinia)

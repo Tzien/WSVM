@@ -1,5 +1,5 @@
 <template>
-  <BasicModal v-bind="$attrs" @register="registerModal" title="数据选择" @ok="handleSubmit" :width="800" class="ceri-list-modal">
+  <BasicModal v-bind="$attrs" @register="registerModal" title="数据选择" @ok="handleSubmit" :width="800" class="ceri-list-modal" :getContainer="getSubAppContainer">
     <BasicTable style="height: calc(750px - 150px)" :searchInfo="searchInfo" @register="registerTable" class="ceri-sub-table"></BasicTable>
   </BasicModal>
 </template>
@@ -7,6 +7,7 @@
 import { getDataModelList } from '@/api/demoApi/configDB'
 import { reactive } from 'vue'
 import { BasicModal, useModalInner } from '@/components/Modal'
+import { getSubAppContainer } from '@/utils'
 import { BasicTable, useTable } from '@/components/Table'
 import { useI18n } from 'vue-i18n'
 
