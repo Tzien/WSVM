@@ -165,3 +165,24 @@
 .ml-10{
   margin-left: 10px;
 }
+
+/* 数据选择等列表弹窗：弹窗被 teleport 到 document.body，脱离 qiankun 子应用样式作用域，
+   需把弹窗体高度/滚动规则放到全局注入的 common.css 里才能生效（与分页样式同理） */
+.ant-modal.ceri-list-modal .ant-modal-body {
+  height: 70vh;
+  overflow: hidden;
+}
+.ant-modal.ceri-list-modal .ant-modal-body > .scrollbar {
+  padding: 0;
+}
+.ant-modal.ceri-list-modal .ant-modal-body > .scrollbar > .scrollbar__bar {
+  display: none !important;
+}
+.ant-modal.ceri-list-modal .ant-modal-body > .scrollbar .scrollbar__wrap .scrollbar__view {
+  height: 100%;
+  overflow: hidden;
+}
+.ant-modal.ceri-list-modal .ant-modal-body > .scrollbar .scrollbar__wrap .scrollbar__view > div {
+  height: 100% !important;
+  max-height: 100% !important;
+}
