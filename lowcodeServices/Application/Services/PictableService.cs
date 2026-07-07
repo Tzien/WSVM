@@ -198,7 +198,9 @@ public class PictableService : ControllerBase, IPictableService
         var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
         var __totalCount = await query.CountAsync();
         var data = await query.ToPagedListAsync(__currentPage, __pageSize);
-      var inlineEditorList = data.list.Adapt<List<PictableListOutput>>();
+      var __mapConfig = new TypeAdapterConfig();
+      __mapConfig.Default.NameMatchingStrategy(NameMatchingStrategy.IgnoreCase);
+      var inlineEditorList = data.list.Adapt<List<PictableListOutput>>(__mapConfig);
         return new
         {
            list = inlineEditorList,
