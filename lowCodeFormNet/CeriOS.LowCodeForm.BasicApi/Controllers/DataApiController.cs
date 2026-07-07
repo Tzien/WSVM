@@ -331,7 +331,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controllers
             var request = new HttpRequestMessage(HttpMethod.Post, getTokenHost + "/connect/token");
             var collection = new List<KeyValuePair<string, string>>
                         {
-                            new("client_id", "lowcode"),
+                            new("client_id", "other"),
                             new("client_secret", "secret"),
                             new("grant_type", "client_credentials")
                         };
@@ -345,38 +345,129 @@ namespace CeriOS.LowCodeForm.BasicApi.Controllers
         }
 
 
+        //public static string ReplaceSqlParams(string sql, List<ApiDataParams> paramList)
+        //{
+        //    foreach (var param in paramList)
+        //    {
+        //        string placeholder = "{" + param.paramName + "}";
+
+        //        if (!sql.Contains(placeholder)) continue;
+
+        //        string valueStr = param.defaultValue?.ToString() ?? "";
+
+        //        switch (param.paramType.ToLower())
+        //        {
+        //            case "string":
+        //                valueStr = "'"+valueStr+"'";
+        //                break;
+        //            case "datetime":
+        //                if (param.defaultValue is DateTime dt)
+        //                    valueStr = $"{dt.ToString("yyyy-MM-dd HH:mm:ss")}";
+        //                break;
+        //            case "bool":
+        //                valueStr = (Convert.ToBoolean(param.defaultValue) ? "1" : "0"); // SQL Server bool 也可以用 1/0
+        //                break;
+        //                // int、double 等其他类型直接使用 ToString
+        //        }
+
+        //        sql = sql.Replace(placeholder, valueStr);
+        //    }
+
+        //    return sql;
+        //}
+
         public static string ReplaceSqlParams(string sql, List<ApiDataParams> paramList)
         {
+            if (paramList == null || paramList.Count == 0)
+                return sql;
+
+            // 分离 WHERE 子句
+            string[] parts = sql.Split(new[] { " where " }, StringSplitOptions.None);
+            string selectPart = parts[0];
+            string wherePart = parts.Length > 1 ? parts[1] : "";
+
+            var conditions = new List<string>();
+            var usedParams = new List<ApiDataParams>();
+
+            // 遍历参数，只处理非空的
             foreach (var param in paramList)
             {
+                // 判断参数是否为空
+                if (IsParamEmpty(param))
+                    continue;
+
                 string placeholder = "{" + param.paramName + "}";
 
-                if (!sql.Contains(placeholder)) continue;
+                // 如果原 SQL 中不包含该占位符，跳过
+                if (!wherePart.Contains(placeholder))
+                    continue;
 
                 string valueStr = param.defaultValue?.ToString() ?? "";
 
+                // 根据类型处理值
                 switch (param.paramType.ToLower())
                 {
                     case "string":
-                        valueStr = $"{valueStr}";
+                        valueStr = "'" + valueStr.Replace("'", "''") + "'"; // 防 SQL 注入
                         break;
                     case "datetime":
                         if (param.defaultValue is DateTime dt)
-                            valueStr = $"{dt.ToString("yyyy-MM-dd HH:mm:ss")}";
+                            valueStr = $"'{dt.ToString("yyyy-MM-dd HH:mm:ss")}'";
                         break;
                     case "bool":
-                        valueStr = (Convert.ToBoolean(param.defaultValue) ? "1" : "0"); // SQL Server bool 也可以用 1/0
+                        valueStr = Convert.ToBoolean(param.defaultValue) ? "1" : "0";
                         break;
-                        // int、double 等其他类型直接使用 ToString
+                        // int、double 等直接使用 ToString
                 }
 
-                sql = sql.Replace(placeholder, valueStr);
+                // 替换占位符
+                string condition = wherePart;
+                condition = condition.Replace(placeholder, valueStr);
+
+                // 如果 wherePart 中有多个占位符，需要分别处理
+                // 这里简化处理，假设每个条件独立
+                conditions.Add(condition);
+                usedParams.Add(param);
             }
 
-            return sql;
+            // 重新构建 SQL
+            if (conditions.Count > 0)
+            {
+                return selectPart + " WHERE " + string.Join(" AND ", conditions);
+            }
+            else
+            {
+                // 所有参数都为空，移除 WHERE 子句
+                return selectPart;
+            }
         }
 
+        private static bool IsParamEmpty(ApiDataParams param)
+        {
+            if (param == null || param.defaultValue == null)
+                return true;
 
+            // 根据类型判断是否为空
+            switch (param.paramType.ToLower())
+            {
+                case "string":
+                    return string.IsNullOrEmpty(param.defaultValue.ToString());
+                case "int":
+                case "double":
+                case "decimal":
+                case "float":
+                    // 数字类型：0 视为空
+                    return Convert.ToDouble(param.defaultValue) == 0;
+                case "datetime":
+                    // 日期类型：最小值视为空
+                    return param.defaultValue is DateTime dt && dt == DateTime.MinValue;
+                case "bool":
+                    // bool 类型通常不会视为空，保留
+                    return false;
+                default:
+                    return param.defaultValue == null;
+            }
+        }
 
 
         /// <summary>

@@ -10,7 +10,7 @@
         "SKYWALKING__SERVICENAME": "Demo"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5235" //https://localhost:7168;
+      "applicationUrl": "http://192.168.57.124:5235" //https://localhost:7168;
     },
     "IIS Express": {
       "commandName": "IISExpress",

@@ -1,4 +1,4 @@
-﻿﻿@*是否需要上传文件引用*@
+﻿﻿﻿@*是否需要上传文件引用*@
 @if(Model.IsUploading)
 {
 @:using JNPF.Common.Models;
@@ -80,6 +80,10 @@ GetListOutputToInlineEditorOutput();
 }
 break;
 }
+}
+@if(Model.WebType == 2)
+{
+GetEntityToListOutput();
 }
 	}
 }
@@ -263,6 +267,46 @@ break;
 case "uploadImg":
 case "uploadFile":
 			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseList<FileControlsModel>(src.@(column.ColumnName)))
+break;
+default:
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
+break;
+}
+}
+}
+		@:;
+	}
+	@*实体转列表输出*@
+	void GetEntityToListOutput()
+	{
+		@:config.ForType<@(Model.ClassName)Entity, @(Model.ClassName)ListOutput>()
+@foreach (var column in Model.TableField)
+{
+@if (column.PrimaryKey)
+{
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName))
+}
+else if (column.IsShow)
+{
+switch(column.ceriKey)
+{
+case "uploadImg":
+case "uploadFile":
+			@:.Map(dest => dest.@(column.LowerColumnName), src => ParseList<FileControlsModel>(src.@(column.ColumnName)))
+break;
+case "createTime":
+			@:.Map(dest => dest.@(column.LowerColumnName), src => string.Format("{0:yyyy-MM-dd HH:mm:ss}", src.@(column.ColumnName)))
+break;
+case "modifyTime":
+case "datePicker":
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? string.Format("{0:yyyy-MM-dd HH:mm:ss}", src.@(column.ColumnName)) : null)
+break;
+case "switch":
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName).ToString() : null)
+break;
+case "relationForm":
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
+			@:.Map(dest => dest.@(column.LowerColumnName)_id, src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)
 break;
 default:
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.ColumnName) != null ? src.@(column.ColumnName) : null)

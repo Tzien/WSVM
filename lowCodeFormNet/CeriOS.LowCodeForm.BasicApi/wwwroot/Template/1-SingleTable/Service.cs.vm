@@ -1,4 +1,4 @@
-﻿using CeriOS.Core.Common.DB;
+﻿﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
 using CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
@@ -262,6 +262,22 @@ case "page":
             @:}
         @:}
 
+        @:var __orderFields = new List<string>();
+        @:foreach (var __rawSortField in (input.sidx ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries))
+        @:{
+            @:var __sortField = __rawSortField.Trim();
+            @:var __isDesc = __sortField.StartsWith("-");
+            @:var __sortFieldName = __isDesc ? __sortField.Substring(1) : __sortField;
+            @:var __sortColumn = entityInfo.Columns.FirstOrDefault(o =>
+                @:string.Equals(o?.PropertyName, __sortFieldName, System.StringComparison.OrdinalIgnoreCase) ||
+                @:string.Equals(o?.DbColumnName, __sortFieldName, System.StringComparison.OrdinalIgnoreCase));
+            @:if (__sortColumn == null) continue;
+            @:__orderFields.Add(__sortColumn.DbColumnName + (__isDesc ? " DESC" : " ASC"));
+        @:}
+        @:if (__orderFields.Count > 0)
+        @:{
+            @:query = query.OrderBy(string.Join(",", __orderFields));
+        @:}
        @: var __currentPage = input.currentPage <= 0 ? 1 : input.currentPage;
        @: var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
        @: var __totalCount = await query.CountAsync();

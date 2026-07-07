@@ -6,8 +6,8 @@
     ],
     //系统文件路径
     //"SystemPath": "C:\\Users\\12896\\Desktop\\生成代码文件\\test",
-    "SystemPath": "G:\\DYXM\\WWWROOT\\Resources",
-    //"SystemPath": "/mnt/WWWROOT/Resources",
+    //"SystemPath": "G:\\DYXM\\WWWROOT\\Resources",
+    "SystemPath": "/mnt/WWWROOT/Resources",
     //微信公众号允许上传文件类型
     "MPUploadFileType": [
       "bmp",
@@ -109,8 +109,8 @@
       "172.16"
     ],
     "PreviewType": "kkfile", //文件预览方式 （kkfile，yozo）默认使用kkfile
-    "KKFileDomain": "http://192.168.50.125:6021/FileServer",
-    "Domain": "http://yinmai.tpddns.cn:7772",
+    "KKFileDomain": "http://192.168.50.125:6021",
+    "Domain": "http://192.168.50.125:18001",
     "FlowableDomain": "http://192.168.20.140:31000/api/Flow/",
     "YOZO": {
       "domain": "http://dcsapi.com/",

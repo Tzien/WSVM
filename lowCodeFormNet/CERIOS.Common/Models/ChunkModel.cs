@@ -73,7 +73,7 @@ public class ChunkModel
     /// <summary>
     /// 文件大小.
     /// </summary>
-    public string fileSize { get; set; } = string.Empty;
+    public long fileSize { get; set; }
 
     /// <summary>
     /// 是否生成文件名.
