@@ -75,6 +75,10 @@ async function render(props = {}) {
       host.setAttribute('data-qiankun', appName)
       document.body.appendChild(host)
     }
+    // 子应用页面通常位于主应用的抽屉/弹层（z-index≈1000）内，
+    // host 需要更高的堆叠层级，否则其中的弹窗会被主应用弹层盖住
+    host.style.position = 'relative'
+    host.style.zIndex = '2000'
     setSubAppContainer(host)
   }
   instance = createApp(App)
