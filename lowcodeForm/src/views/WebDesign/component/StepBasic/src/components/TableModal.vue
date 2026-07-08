@@ -1,6 +1,6 @@
 <template>
   <BasicModal v-bind="$attrs" @register="registerModal" title="数据选择" @ok="handleSubmit" :width="800" class="ceri-list-modal" :getContainer="getSubAppContainer" transitionName="" maskTransitionName="">
-    <BasicTable style="height: calc(750px - 150px)" :searchInfo="searchInfo" @register="registerTable" class="ceri-sub-table"></BasicTable>
+    <BasicTable style="height: calc(70vh - 200px)" :searchInfo="searchInfo" @register="registerTable" class="ceri-sub-table"></BasicTable>
   </BasicModal>
 </template>
 <script lang="ts" setup>

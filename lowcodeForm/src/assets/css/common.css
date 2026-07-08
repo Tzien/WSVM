@@ -186,4 +186,11 @@
   height: 100% !important;
   max-height: 100% !important;
 }
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ceri-basic-table-header {
+  height: auto !important;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-table.ant-table-fixed-header {
+  height: auto !important;
+  max-height: calc(70vh - 200px) !important;
+}
 
