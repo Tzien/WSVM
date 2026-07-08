@@ -62,8 +62,20 @@ async function waitForGlobalStateReady(maxWaitMs = 3000) {
 async function render(props = {}) {
   const { container } = props
   if (qiankunWindow.__POWERED_BY_QIANKUN__ && container) {
-    // 弹窗等 teleport 组件需要挂到带 data-qiankun 作用域标记的容器内，样式才能命中
-    setSubAppContainer(container.closest?.('[data-qiankun]') || container)
+    // 弹窗等 teleport 组件需要挂到带 data-qiankun 作用域标记的节点内，样式才能命中。
+    // 不能直接挂进主应用布局容器（会受其 overflow/transform 影响），
+    // 因此在 body 下创建一个带同名 data-qiankun 标记的独立宿主节点
+    const scopedEl = container.closest?.('[data-qiankun]')
+    const appName = scopedEl?.getAttribute('data-qiankun') || import.meta.env.VITE_APP_APPNAME
+    const hostId = `${appName}-popup-host`
+    let host = document.getElementById(hostId)
+    if (!host) {
+      host = document.createElement('div')
+      host.id = hostId
+      host.setAttribute('data-qiankun', appName)
+      document.body.appendChild(host)
+    }
+    setSubAppContainer(host)
   }
   instance = createApp(App)
   instance.use(STable)
