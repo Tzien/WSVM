@@ -76,7 +76,6 @@
           v-if="isVisible && btnObj.isShowInterface.isShow"
           @click="interfaceClick"
           style="width: 110px; margin: 0 2px"
-
           :icon="showIcon(btnObj.isShowInterface.Icon)"
         >
           {{ showInterface ? '隐藏接口' : '展示接口' }}</a-button
@@ -371,13 +370,13 @@ const editRolePermission = async () => {
   }
 
   const btnMsg = { buttonOperationId: '',
-   belongPage: '权限配置管理', 
+   belongPage: '权限配置管理',
    buttonName: '保存权限',
    operationDescription: JSON.stringify(submitData),
    operationType:'保存',
    operationPersonId:userStore.value.userid
   }
-  
+
   const data = await useEditRolePermissionAsync(submitData)
   if (data.code === 200 && data.success) {
     message.success(data.message)
@@ -409,19 +408,20 @@ async function roleSelected(id) {
   selectAllState.value = false
   morbori_treeData.value = []
   sys_checkedKeys.value = []
-  sys_selectedKeys.value = []
+  //sys_selectedKeys.value = []
   role_selectedKeys.value = [id]
   await rolesysData(id)
+  if (sys_selectedKeys.value.length != 0) {
+    await sysSelect()  
+  }
 }
 
 //sys
 const sys_expandedKeys = ref([])
 const sys_selectedKeys = ref([])
 const sys_checkedKeys = ref([])
-const sys_handleSelect = () => {
-  clearTimeout(timer)
-  timer = setTimeout(async () => {
-    isVisible.value = false
+const sysSelect = async () => {
+  isVisible.value = false
     morbori_treeData.value = []
     morbori_checkedKeys.value = []
     if (!role_selectedKeys.value[0]) {
@@ -432,6 +432,11 @@ const sys_handleSelect = () => {
       await rolesysData(role_selectedKeys.value[0])
       await permissionData(role_selectedKeys.value[0], sys_selectedKeys.value[0], showInterface.value)
     }
+}
+const sys_handleSelect = () => {
+  clearTimeout(timer)
+  timer = setTimeout(async () => {
+    await sysSelect()
   }, 300)
 }
 //morbori_treeData
@@ -652,7 +657,7 @@ const dbclick = (type, key, children) => {
   margin: 10px;
 }
 
-.tishi{
+.tishi {
   font-size: 14px;
   color: rgb(228, 65, 65);
   margin-left: auto;

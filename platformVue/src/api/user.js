@@ -40,3 +40,16 @@ export const useGetAllUserMessageAsync = (userId) => {
   })
 }
 
+export const useGetSuperiorAndSubordinateAsync = (obj) => {
+  return businessInstance.post('/api/User/GetSuperiorAndSubordinateAsync', obj)
+}
+
+export const useGetUserGradeAsync = (userId,grade) => {
+  return businessInstance.get('/api/User/GetUserGradeAsync', {
+    params: { userId:userId,grade:grade }
+  })
+}
+
+export const useInsertUserGradeAsync = (obj) => {
+  return businessInstance.post('/api/User/InsertUserGradeAsync', obj)
+}

@@ -115,6 +115,16 @@
         ></a-col>
       </a-row>
       <a-row>
+        <a-col :span="12"
+          ><a-form-item label="所属上级" v-bind="validateInfos.superior">
+            <a-input :readonly="true" @click="user_superior" v-model:value="treeTableObj.superiorInput" /> </a-form-item
+        ></a-col>
+        <a-col :span="12"
+          ><a-form-item label="管理下级" v-bind="validateInfos.subordinate">
+            <a-input :readonly="true" @click="user_subordinate" v-model:value="treeTableObj.subordinateInput" /> </a-form-item
+        ></a-col>
+      </a-row>
+      <a-row>
         <a-col :span="12">
           <div>
             <a-form-item label="上传头像">
@@ -159,7 +169,7 @@
     </a-form>
   </div>
   <div>
-    <a-drawer size="large" :title="treeTableObj.title" :closable="false" :open="open" @close="onClose">
+    <a-drawer class="drawer" size="large" :title="treeTableObj.title" :closable="false" :open="open" @close="onClose">
       <a-space align="center" style="margin-bottom: 16px">
         <!-- <template v-if="treeTableObj.roleisSelectAll">
           <a-button @click="rolecheckall(true)">全选</a-button>
@@ -170,6 +180,20 @@
         <a-button @click="condition(true)">重置查询</a-button>
       </a-space>
       <a-table :columns="columns" :data-source="treeTableData" :row-selection="oraganizerowSelection" :pagination="false" />
+      <div class="fenye" v-if="drawerpage">
+        <a-pagination
+          v-model:current="pagination.current"
+          v-model:page-size="pagination.pageSize"
+          :total="pagination.total"
+          :show-total="() => `共 ${pagination.total} 条数据`"
+          :show-size-changer="pagination.showSizeChanger"
+          :show-quick-jumper="pagination.showQuickJumper"
+          :page-size-options="pagination.pageSizeOptions"
+          @showSizeChange="handlePageSizeChange"
+          @change="handlePageChange"
+        >
+        </a-pagination>
+      </div>
     </a-drawer>
   </div>
 </template>
@@ -185,7 +209,16 @@ import { PlusOutlined } from '@ant-design/icons-vue'
 import { useGetPostsAsync, useGetOraganizeTreeAsync } from '@/api/BaseInfoConfig/organization'
 import { useGetWeChatOraganizeUserTree, useGetDingTalkOraganizeUserTree } from '@/api/Msg/msg'
 import { useGetRolesAsync } from '@/api/permission'
-import { useAddUserAsync, useGetUsersByIdAsync, useUpdateUserAsync, useInitializePassword, useSoftDeletionUserAsync } from '@/api/user'
+import {
+  useAddUserAsync,
+  useGetUsersByIdAsync,
+  useUpdateUserAsync,
+  useInitializePassword,
+  useSoftDeletionUserAsync,
+  useGetSuperiorAndSubordinateAsync,
+  useGetUserGradeAsync,
+  useInsertUserGradeAsync
+} from '@/api/user'
 
 const isOneself = ref(false)
 var userStore = ref()
@@ -235,6 +268,8 @@ const modelRef = ref({
   depts: [],
   managingJobs: [],
   managingRoles: [],
+  superior: [], //上级人员
+  subordinate: [], //下级人员
   sort: 999,
   iconUrl: '',
   signUrl: '',
@@ -531,6 +566,7 @@ const beforeSignUpload = async (file) => {
 //**********************TreeTable************************* */
 const oraganizerowSelection = ref()
 const open = ref(false)
+const drawerpage = ref(false)
 const treeTableObj = ref({
   //roleselectedRowKeys: [],
   title: '',
@@ -543,7 +579,9 @@ const treeTableObj = ref({
   deptinput: '',
   managingJobsInput: '',
   managingRolesInput: '',
-  roleisSelectAll: false
+  roleisSelectAll: false,
+  superiorInput: '',
+  subordinateInput: ''
 })
 //动态a-table
 // const selectedRowKeysObj = reactive({
@@ -558,10 +596,13 @@ const managingSelectedRowKey = ref([])
 const deptSelectedRowKey = ref([])
 const managingJobSelectedRowKey = ref([])
 const managingRoleSelectedRowKey = ref([])
+const superiorSelectedRowKey = ref([])
+const subordinateSelectedRowKey = ref([])
 //选择所属部门数据，作为直属部门选择数据
 const DirectlyUnderDept = ref([])
 //需要改岗位现在没接口
 const user_posts = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '所在岗位'
   oraganizerowSelection.value = {
     selectedRowKeys: postsSelectedRowKeys,
@@ -602,6 +643,7 @@ const user_posts = () => {
   posts()
 }
 const user_managingJobs = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '管理岗位'
   oraganizerowSelection.value = {
     selectedRowKeys: managingJobSelectedRowKey,
@@ -646,6 +688,7 @@ const user_oraganize = () => {
     message.warning('请先勾选所属部门！')
     return
   }
+  drawerpage.value = false
   treeTableData.value = DirectlyUnderDept.value
   treeTableObj.value.title = '直属部门'
   oraganizerowSelection.value = {
@@ -684,6 +727,7 @@ const user_oraganize = () => {
   //oraganize()
 }
 const user_role = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '所在角色'
   oraganizerowSelection.value = {
     //columnTitle: ' ',
@@ -725,6 +769,7 @@ const user_role = () => {
   roleData()
 }
 const user_managingRole = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '管理角色'
   oraganizerowSelection.value = {
     //columnTitle: ' ',
@@ -766,6 +811,7 @@ const user_managingRole = () => {
   roleData()
 }
 const user_managing = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '管理部门'
   oraganizerowSelection.value = {
     selectedRowKeys: managingSelectedRowKey,
@@ -806,6 +852,7 @@ const user_managing = () => {
   oraganize()
 }
 const user_depts = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '所属部门'
   oraganizerowSelection.value = {
     selectedRowKeys: deptSelectedRowKey,
@@ -857,6 +904,7 @@ const user_depts = () => {
 }
 //微信用户
 const user_wechat = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '微信用户'
   oraganizerowSelection.value = {
     selectedRowKeys: wechatSelectedRowKeys,
@@ -889,6 +937,7 @@ const user_wechat = () => {
 }
 //钉钉用户
 const user_dingtalk = () => {
+  drawerpage.value = false
   treeTableObj.value.title = '钉钉用户'
   oraganizerowSelection.value = {
     selectedRowKeys: dingtalkSelectedRowKeys,
@@ -919,7 +968,160 @@ const user_dingtalk = () => {
   open.value = true
   dingtalkuser()
 }
+
+//*******************所属上级分页************************ */
+const handlePageChange = (newPage) => {
+  pagination.value.current = newPage
+  getSuperiorAndSubordinateData('')
+}
+const handlePageSizeChange = (newPageSize, currentPage) => {
+  pagination.value.current = newPageSize
+  pagination.value.pageSize = currentPage
+  getSuperiorAndSubordinateData('')
+}
+
+const pagination = ref({
+  position: ['bottomRight'],
+  current: 1, // 当前页数
+  pageSize: 10, // 每页条数
+  total: 0, // 数据总数
+  showSizeChanger: true, // 是否可以改变每页条数
+  showQuickJumper: true, // 是否可以快速跳转至某页
+  onChange: handlePageChange, // 页码改变的回调
+  onShowSizeChange: handlePageSizeChange, // 每页条数改变的回调
+  showTotal: (total) => `共 ${total} 条数据`,
+  pageSizeOptions: ['10', '20', '30', '40', '50']
+})
+const superiorAndSubordinatecolumns = () => {
+  columns.value = [
+    {
+      title: '序号',
+      width: '10%',
+      key: 'nonEditable',
+      align: 'center',
+      customRender: (obj) => {
+        return (pagination.value.current - 1) * pagination.value.pageSize + obj.index + 1
+      }
+    },
+    {
+      title: '用户名称',
+      dataIndex: 'realName',
+      align: 'center',
+      key: 'realName',
+      width: '20%'
+    },
+    {
+      title: '性别',
+      dataIndex: 'sex',
+      align: 'center',
+      key: 'sex',
+      width: '10%',
+      customRender: (obj) => {
+        return obj.text == 0 ? '男' : '女'
+      }
+    },
+    {
+      title: '用户状态',
+      dataIndex: 'enabled',
+      align: 'center',
+      key: 'enabled',
+      width: '15%',
+      customRender: (obj) => {
+        return obj.text == true ? '正常' : '冻结'
+      }
+    },
+    {
+      title: '用户编码',
+      dataIndex: 'code',
+      align: 'center',
+      key: 'code',
+      width: '20%'
+    },
+    {
+      title: '直属部门',
+      dataIndex: 'oraganizeName',
+      align: 'center',
+      key: 'oraganizeName',
+      width: '30%'
+    }
+  ]
+}
+//*******************所属上级抽屉************************ */
+const user_superior = () => {
+  drawerpage.value = true
+  treeTableObj.value.title = '所属上级'
+  getSuperiorAndSubordinateData('')
+  //表头
+  superiorAndSubordinatecolumns()
+  oraganizerowSelection.value = {
+    selectedRowKeys: superiorSelectedRowKey,
+    type: 'checkbox',
+    preserveSelectedRowKeys: true,
+    onChange: (selectedRowKeys, selectedRows) => {
+      modelRef.value.superior = []
+      treeTableObj.value.superiorInput = ''
+      let superiorarry = []
+      selectedRows.forEach((item) => {
+        superiorarry.push(item.realName)
+      })
+      treeTableObj.value.superiorInput = superiorarry.join(',')
+      modelRef.value.superior = selectedRowKeys
+      superiorSelectedRowKey.value = selectedRowKeys
+    },
+    getCheckboxProps: (record) => {
+       if (!isOneself.value) {
+        return {
+          disabled: false
+        }
+      }
+      return {
+        disabled: record.isReadyOnly
+      }
+    }
+  }
+  drawer_tabletype.value = '8'
+  open.value = true
+}
+
+const user_subordinate = () => {
+  drawerpage.value = true
+  treeTableObj.value.title = '管理下级'
+  getSuperiorAndSubordinateData('')
+  superiorAndSubordinatecolumns()
+  oraganizerowSelection.value = {
+    selectedRowKeys: subordinateSelectedRowKey,
+    type: 'checkbox',
+    preserveSelectedRowKeys: true,
+    onChange: (selectedRowKeys, selectedRows) => {
+      modelRef.value.subordinate = []
+      treeTableObj.value.subordinateInput = ''
+      let subordinatearry = []
+      selectedRows.forEach((item) => {
+        subordinatearry.push(item.realName)
+      })
+      treeTableObj.value.subordinateInput = subordinatearry.join(',')
+      modelRef.value.subordinate = selectedRowKeys
+      subordinateSelectedRowKey.value = selectedRowKeys
+    },
+    getCheckboxProps: (record) => {
+       if (!isOneself.value) {
+        return {
+          disabled: false
+        }
+      }
+      return {
+        disabled: record.isReadyOnly
+      }
+    }
+  }
+  drawer_tabletype.value = '8'
+  open.value = true
+}
+
 const onClose = () => {
+  pagination.value.current = 1
+  pagination.value.pageSize = 10
+  pagination.value.total = 0
   treeTableData.value = []
   treeTableObj.value.roleisSelectAll = false
   open.value = false
@@ -990,6 +1192,8 @@ const condition = (resetting) => {
   } else if (drawer_tabletype.value === '7') {
     //所属部门
     oraganize('', query.value)
+  } else if (drawer_tabletype.value === '8') {
+    getSuperiorAndSubordinateData(query.value)
   }
 }
 //************微信部门逻辑**************** */
@@ -1114,6 +1318,23 @@ const roleData = async (roleName) => {
     message.error('角色查询失败!')
   }
 }
+//************所属上级;管理下级逻辑**************** */
+const getSuperiorAndSubordinateData = async (userName) => {
+  const org = treeTableObj.value.title == '所属上级' ? modelRef.value.organization : ''
+  const parameter = {
+    oraganizeId: org,
+    managingOrgIds: modelRef.value.managingOrganizations,
+    userId: props.userid,
+    userName: userName,
+    pageIndex: pagination.value.current,
+    pageSize: pagination.value.pageSize
+  }
+  const data = await useGetSuperiorAndSubordinateAsync(parameter)
+  if (data.code === 200 && data.success) {
+    treeTableData.value = data.data
+    pagination.value.total = data.total
+  }
+}
 //*********************************************** */
 const refreshForm = () => {
   resetFields()
@@ -1128,6 +1349,8 @@ const refreshForm = () => {
     deptinput: '',
     managingJobsInput: '',
     managingRolesInput: '',
+    superiorInput: '',
+    subordinateInput: '',
     roleisSelectAll: false
   }
   DirectlyUnderDept.value = []
@@ -1138,6 +1361,8 @@ const refreshForm = () => {
   deptSelectedRowKey.value = []
   managingJobSelectedRowKey.value = []
   managingRoleSelectedRowKey.value = []
+  superiorSelectedRowKey.value = []
+  subordinateSelectedRowKey.value = []
   removeImage()
 }
 //************反选逻辑**************** */
@@ -1158,6 +1383,8 @@ const userbyidData = (userid) => {
       treeTableObj.value.deptinput = data.data.displayName.deptName
       treeTableObj.value.managingJobsInput = data.data.displayName.managingJobsName
       treeTableObj.value.managingRolesInput = data.data.displayName.managingRolesName
+      treeTableObj.value.superiorInput = data.data.displayName.superiorName
+      treeTableObj.value.subordinateInput = data.data.displayName.subordinateName
       DirectlyUnderDept.value = data.data.displayName.dptData
       wechatSelectedRowKeys.value[0] = modelRef.value.weChatUserId
       dingtalkSelectedRowKeys.value[0] = modelRef.value.dingTalkUserId
@@ -1168,6 +1395,8 @@ const userbyidData = (userid) => {
       roleSelectedRowKeys.value = modelRef.value.roles
       managingSelectedRowKey.value = modelRef.value.managingOrganizations
       deptSelectedRowKey.value = modelRef.value.depts
+      superiorSelectedRowKey.value = modelRef.value.superior
+      subordinateSelectedRowKey.value = modelRef.value.subordinate
       LconList.value = []
       SignList.value = []
       if (data.data.userFormDto.iconUrl != null && data.data.userFormDto.iconUrl != '') {
@@ -1224,5 +1453,14 @@ watch(
   /* 设置图片的最大高度 */
   pointer-events: none;
   /* 禁用鼠标事件 */
+}
+
+.drawer {
+  position: relative;
+}
+.fenye {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
 }
 </style>
