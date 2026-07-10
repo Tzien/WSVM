@@ -165,3 +165,32 @@
 .ml-10{
   margin-left: 10px;
 }
+
+/* qiankun 环境下弹窗挂在 popup-host 内，作用域样式命中不了，
+   这里以全局样式补齐 ceri-list-modal 的完整布局规则（仅作用于 popup-host 内） */
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-modal-body {
+  height: 70vh;
+  overflow: hidden;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-modal-body > .scrollbar {
+  padding: 0;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-modal-body > .scrollbar > .scrollbar__bar {
+  display: none !important;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-modal-body > .scrollbar .scrollbar__wrap .scrollbar__view {
+  height: 100%;
+  overflow: hidden;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-modal-body > .scrollbar .scrollbar__wrap .scrollbar__view > div {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ceri-basic-table-header {
+  height: auto !important;
+}
+[id$="-popup-host"] .ant-modal.ceri-list-modal .ant-table.ant-table-fixed-header {
+  height: auto !important;
+  max-height: calc(70vh - 200px) !important;
+}
+

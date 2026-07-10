@@ -66,6 +66,20 @@ export function getPopupContainer(node?: HTMLElement): HTMLElement {
   return (node?.parentNode as HTMLElement) ?? document.body
 }
 
+/**
+ * qiankun 子应用容器：弹窗等 teleport 组件挂到该容器内，
+ * 才能命中 experimentalStyleIsolation 加了作用域前缀的子应用样式
+ */
+let subAppContainer: HTMLElement | null = null
+
+export function setSubAppContainer(el: HTMLElement | null) {
+  subAppContainer = el
+}
+
+export function getSubAppContainer(): HTMLElement {
+  return subAppContainer ?? document.body
+}
+
 // dynamic use hook props
 export function getDynamicProps<T extends Record<string, unknown>, U>(props: T): Partial<U> {
   const ret: Recordable = {};

@@ -16,6 +16,7 @@ import { useUserStore, useDrawerStore, useRouteStore, useNavigationStore } from 
 import { initGlobalStateListener, clearGlobalStateListener, addGlobalStateListener, getGlobalState } from './shared/globalStateManager'
 
 import { registerGlobComp } from '@/components/registerGlobComp'
+import { setSubAppContainer } from '@/utils'
 
 // 引入SurelyVue
 import '@surely-vue/table/dist/index.less'
@@ -60,6 +61,26 @@ async function waitForGlobalStateReady(maxWaitMs = 3000) {
 
 async function render(props = {}) {
   const { container } = props
+  if (qiankunWindow.__POWERED_BY_QIANKUN__ && container) {
+    // 弹窗等 teleport 组件需要挂到带 data-qiankun 作用域标记的节点内，样式才能命中。
+    // 不能直接挂进主应用布局容器（会受其 overflow/transform 影响），
+    // 因此在 body 下创建一个带同名 data-qiankun 标记的独立宿主节点
+    const scopedEl = container.closest?.('[data-qiankun]')
+    const appName = scopedEl?.getAttribute('data-qiankun') || import.meta.env.VITE_APP_APPNAME
+    const hostId = `${appName}-popup-host`
+    let host = document.getElementById(hostId)
+    if (!host) {
+      host = document.createElement('div')
+      host.id = hostId
+      host.setAttribute('data-qiankun', appName)
+      document.body.appendChild(host)
+    }
+    // 子应用页面通常位于主应用的抽屉/弹层（z-index≈1000）内，
+    // host 需要更高的堆叠层级，否则其中的弹窗会被主应用弹层盖住
+    host.style.position = 'relative'
+    host.style.zIndex = '2000'
+    setSubAppContainer(host)
+  }
   instance = createApp(App)
   instance.use(STable)
   instance.use(pinia)
