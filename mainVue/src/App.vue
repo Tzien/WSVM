@@ -207,11 +207,17 @@
 
                         <div class="workbench-item"
                           style="margin-top: 20px; width: 400px; text-align: center; border-radius: 0px 4px 4px 0px">
-                          <div @click="JumpToOA()">
-                            <img src="/src/assets/images/icons/OASVG.svg" alt="Loading..." />
-                          </div>
-                          <div>
-                            <img src="/src/assets/images/icons/brainSVG.svg" alt="Loading..." />
+                          <div class="BoxRightAll" v-for="item in rightBoxList" :key="item.id"
+                            style="background-image: url('/src/assets/workbenchRightBg/LCZX.png');">
+                            <div class="BoxRightTitle">{{ item.title }}</div>
+                            <div class="BoxRightDesc">{{ item.description }}</div>
+                            <div style="margin-top: 10px;">
+                              <a-button type="primary" shape="round" @click="checkURL(item.url)">
+                                <template #icon>
+                                  点击进入
+                                </template>
+                              </a-button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -269,7 +275,7 @@
               <div class="IconS" @click="GoToRuleEngineDesign()">
                 <a-tooltip title="规则引擎设计器">
                   <div>
-                    <img src="/src/assets/RuleEngine.svg"  :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
+                    <img src="/src/assets/RuleEngine.svg" :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
                       style="width: 18px; height: 20px; margin-bottom: 5px" />
                   </div>
                 </a-tooltip>
@@ -285,7 +291,7 @@
               <div class="IconS" @click="GoToConfigurationDesigner()">
                 <a-tooltip title="组态设计器">
                   <div>
-                    <img src="/src/assets/configuration.svg"  :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
+                    <img src="/src/assets/configuration.svg" :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
                       style="width: 18px; height: 20px; margin-bottom: 5px" />
                   </div>
                 </a-tooltip>
@@ -293,7 +299,7 @@
               <div class="IconS" @click="GoToDSJ()">
                 <a-tooltip title="大数据平台">
                   <div>
-                    <img src="/src/assets/DSJ.svg"  :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
+                    <img src="/src/assets/DSJ.svg" :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
                       style="width: 18px; height: 20px; margin-bottom: 5px" />
                   </div>
                 </a-tooltip>
@@ -444,21 +450,21 @@
                   <span v-if="activeKey == '1'">
                     {{ item.sendUser }} 发布了
                     <span style="color: #1677ff; cursor: pointer" @click="msgDetail(item.msgRecordId)"> 《{{ item.title
-                      }}》 </span>
+                    }}》 </span>
                   </span>
                   <span v-if="activeKey == '2'">
                     {{ item.sendUser }} 发送了
                     <span style="color: #1677ff; cursor: pointer" @click="msgDetail(item.msgRecordId)"> 《{{ item.title
-                      }}》 </span>
+                    }}》 </span>
                   </span>
                   <span v-if="activeKey == '3'">
                     {{ item.sendUser }} 发送了
                     <span style="color: #1677ff; cursor: pointer" @click="msgDetail(item.msgRecordId)"> 《{{ item.title
-                      }}》 </span>
+                    }}》 </span>
                   </span>
                   <span v-if="activeKey == '4'">
                     <span style="color: #1677ff; cursor: pointer" @click="msgDetail(item.msgRecordId)">【{{ item.content
-                      }}】</span>
+                    }}】</span>
                   </span>
                 </span>
                 <span> {{ item.sendTime }}<span style="color: red">●</span> </span>
@@ -500,7 +506,7 @@ import { useUserStore, useDrawerStore, useNavigationStore, useSignalRStore, useR
 import { notification, message } from 'ant-design-vue'
 import { getNoReadMsgApi, getDingSelectState, getWeChatSelectState } from './api/Msg/msg'
 
-import { getFavInfoList, AddFavInfo, DelFavInfo, GetFixedInfoList, getSysMenuRecord, getPlatformNameApi, getAllApi } from '@/api/sysinfo.js'
+import { getFavInfoList, AddFavInfo, DelFavInfo, GetFixedInfoList, GetWorkBenchFunctionList, getSysMenuRecord, getPlatformNameApi, getAllApi } from '@/api/sysinfo.js'
 
 import { usePassWordLogin, useGetSFToken, useUpdatePassword } from '@/api/user'
 import { registerMicroApps, start } from 'qiankun'
@@ -517,7 +523,7 @@ const i18nReady = ref(false)
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-import { debounce } from 'lodash-es'
+import { debounce, forEach } from 'lodash-es'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
@@ -568,6 +574,7 @@ watch(
   { immediate: true }
 )
 
+
 const buildRoleKey = (roles) => {
   const roleList = Array.isArray(roles) ? roles : Array.isArray(roles?.value) ? roles.value : []
   return [...roleList]
@@ -614,6 +621,19 @@ function bindContextMenus() {
     })
   })
 }
+
+const rightBoxList = ref([])
+
+function getWorkBenchFunctionList() {
+  GetWorkBenchFunctionList().then((res) => {
+    if (res.code == 200 && res.success) {
+      rightBoxList.value = res.data
+      return
+    }
+    message.error('获取链接门户列表异常，请刷新重试')
+  })
+}
+
 
 function base64UrlToUtf8Json_legacy(b64url) {
   let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/')
@@ -760,6 +780,7 @@ onMounted(async () => {
   getFavList()
   getSysMenuRecords()
   getFixedList()
+  getWorkBenchFunctionList()
 })
 
 // 监听 token，就绪后补齐路由与路由文案，避免刷新后出现 Key
@@ -1280,9 +1301,7 @@ function JumpToMenu(item, sysCode) {
   }
 }
 
-function JumpToOA() {
-  window.open(`https://iam.ceri.com.cn/idp/authcenter/ActionAuthChain?entityId=SCXTBGWEB&authnLcKey=612d0d18-b86f-4704-a9d0-46a568814627`)
-}
+
 
 /* 获取最近访问 */
 const menuRecords = ref([])
@@ -1711,6 +1730,10 @@ const GoToConfigurationDesigner = () => {
 
 const GoToDSJ = () => {
   window.open('http://172.16.139.7:28180/index/menu?self_auth_enable=true', '_blank')
+}
+
+function checkURL(url) {
+  window.open(url, '_blank')
 }
 
 function test() {
@@ -2236,6 +2259,27 @@ const handlecancel = () => {
             border-radius: 2px;
             background-color: #e5f1ff;
             // text-decoration: underline;
+          }
+
+          .BoxRightAll {
+            text-align: left;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+
+            .BoxRightTitle {
+              color: #082E5F;
+              font-weight: bold;
+              font-size: 16px;
+            }
+
+            .BoxRightDesc {
+              color: #082E5FCC
+            }
+
           }
         }
       }

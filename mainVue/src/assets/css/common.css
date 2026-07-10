@@ -96,4 +96,14 @@
   top: -2px;
 }
 
+.PlatForm ::-webkit-scrollbar {
+  width: 5px;
+  height: 7px;
+  background-color: rgb(202, 202, 202);
+  border-radius: 5px;
+}
 
+.PlatForm ::-webkit-scrollbar-thumb {
+  background-color: rgb(161, 162, 162);
+  border-radius: 5px;
+}

@@ -107,3 +107,9 @@ export const DelFavInfo = (obj) => {
 export const GetFixedInfoList = (obj) => {
   return businessInstance.get('/api/SysPermission/GetAllFixedSysinfoAsync', { params: obj })
 }
+
+//获取固定系统信息
+export const GetWorkBenchFunctionList = (obj) => {
+  return businessInstance.get('/api/FunctionList/GetWorkBenchFunctionList')
+}
+
