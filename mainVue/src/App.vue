@@ -208,7 +208,7 @@
                         <div class="workbench-item"
                           style="margin-top: 20px; width: 400px; text-align: center; border-radius: 0px 4px 4px 0px">
                           <div class="BoxRightAll" v-for="item in rightBoxList" :key="item.id"
-                            :style="{ backgroundImage: `url('${getWorkbenchBg(item.url)}')` }">
+                            :style="{ backgroundImage: `url(${getWorkbenchBg(item.url)})` }">
                             <div class="BoxRightTitle">{{ item.title }}</div>
                             <div class="BoxRightDesc">{{ item.description }}</div>
                             <div style="margin-top: 10px;">
@@ -647,7 +647,11 @@ const workbenchBgImages = {
 }
 
 function getWorkbenchBg(name) {
-  return workbenchBgImages[String(name).trim().toUpperCase()]
+  const imageName = String(name ?? '')
+    .trim()
+    .replace(/\.png$/i, '')
+    .toUpperCase()
+  return workbenchBgImages[imageName] || LCZXBg
 }
 
 
