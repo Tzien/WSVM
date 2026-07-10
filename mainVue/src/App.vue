@@ -208,11 +208,11 @@
                         <div class="workbench-item"
                           style="margin-top: 20px; width: 400px; text-align: center; border-radius: 0px 4px 4px 0px">
                           <div class="BoxRightAll" v-for="item in rightBoxList" :key="item.id"
-                            :style="{ backgroundImage: `url('${getWorkbenchBg(item.url)}')` }">
+                            :style="{ backgroundImage: `url(${getWorkbenchBg(item.picName)})` }">
                             <div class="BoxRightTitle">{{ item.title }}</div>
                             <div class="BoxRightDesc">{{ item.description }}</div>
                             <div style="margin-top: 10px;">
-                              <a-button type="primary" shape="round" @click="checkURL(item.url)">
+                              <a-button type="primary" class="BoxRightBtn" shape="round" @click="checkURL(item.url)">
                                 <template #icon>
                                   点击进入
                                 </template>
@@ -272,7 +272,7 @@
                   <div><CodeOutlined :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''" style="font-size: 16px" /></div>
                 </a-tooltip>
               </div> -->
-              <div class="IconS" @click="GoToRuleEngineDesign()">
+              <!-- <div class="IconS" @click="GoToRuleEngineDesign()">
                 <a-tooltip title="规则引擎设计器">
                   <div>
                     <img src="/src/assets/RuleEngine.svg" :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
@@ -303,7 +303,7 @@
                       style="width: 18px; height: 20px; margin-bottom: 5px" />
                   </div>
                 </a-tooltip>
-              </div>
+              </div> -->
               <div class="IconS" @click="showDrawer">
                 <a-tooltip title="设置">
                   <div>
@@ -512,6 +512,11 @@ import { usePassWordLogin, useGetSFToken, useUpdatePassword } from '@/api/user'
 import { registerMicroApps, start } from 'qiankun'
 import { buildPermissionQuery } from './utils/commonTools'
 import { loadLocaleMessages } from './lang/i18n'
+import DDMSJBg from './assets/workbenchRightBg/DDMSJ.png'
+import DSJBg from './assets/workbenchRightBg/DSJ.png'
+import GZYQBg from './assets/workbenchRightBg/GZYQ.png'
+import LCZXBg from './assets/workbenchRightBg/LCZX.png'
+import ZTSJBg from './assets/workbenchRightBg/ZTSJ.png'
 const userStore = useUserStore()
 const routeStore = useRouteStore()
 const drawerStore = useDrawerStore()
@@ -633,13 +638,20 @@ function getWorkBenchFunctionList() {
   })
 }
 
-const workbenchBgImages = import.meta.glob(
-  './assets/workbenchRightBg/*.png',
-  { eager: true, import: 'default' }
-)
+const workbenchBgImages = {
+  DDMSJ: DDMSJBg,
+  DSJ: DSJBg,
+  GZYQ: GZYQBg,
+  LCZX: LCZXBg,
+  ZTSJ: ZTSJBg
+}
 
 function getWorkbenchBg(name) {
-  return workbenchBgImages[`./assets/workbenchRightBg/${String(name).trim()}.png`]
+  const imageName = String(name ?? '')
+    .trim()
+    .replace(/\.png$/i, '')
+    .toUpperCase()
+  return workbenchBgImages[imageName] || LCZXBg
 }
 
 
@@ -1723,22 +1735,22 @@ const showDrawer = () => {
   drawerStore.setOpen(true)
 }
 
-const GoToRuleEngineDesign = () => {
-  window.open('http://192.168.50.128:1881/', '_blank')
-}
+// const GoToRuleEngineDesign = () => {
+//   window.open('http://192.168.50.128:1881/', '_blank')
+// }
 
-const GoToAIAddress = () => {
-  window.open('http://192.168.57.218:8000/', '_blank')
-}
+// const GoToAIAddress = () => {
+//   window.open('http://192.168.57.218:8000/', '_blank')
+// }
 
 
-const GoToConfigurationDesigner = () => {
-  window.open('http://175.27.188.92:1880/', '_blank')
-}
+// const GoToConfigurationDesigner = () => {
+//   window.open('http://175.27.188.92:1880/', '_blank')
+// }
 
-const GoToDSJ = () => {
-  window.open('http://172.16.139.7:28180/index/menu?self_auth_enable=true', '_blank')
-}
+// const GoToDSJ = () => {
+//   window.open('http://172.16.139.7:28180/index/menu?self_auth_enable=true', '_blank')
+// }
 
 function checkURL(url) {
   window.open(url, '_blank')
@@ -2288,6 +2300,12 @@ const handlecancel = () => {
               color: #082E5FCC
             }
 
+            .BoxRightBtn {
+              background-color: #6BAEFF;
+            }
+            .BoxRightBtn:hover {
+              background-color: #0988ff;
+            }
           }
         }
       }
