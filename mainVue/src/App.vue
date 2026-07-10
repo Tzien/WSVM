@@ -512,6 +512,11 @@ import { usePassWordLogin, useGetSFToken, useUpdatePassword } from '@/api/user'
 import { registerMicroApps, start } from 'qiankun'
 import { buildPermissionQuery } from './utils/commonTools'
 import { loadLocaleMessages } from './lang/i18n'
+import DDMSJBg from './assets/workbenchRightBg/DDMSJ.png'
+import DSJBg from './assets/workbenchRightBg/DSJ.png'
+import GZYQBg from './assets/workbenchRightBg/GZYQ.png'
+import LCZXBg from './assets/workbenchRightBg/LCZX.png'
+import ZTSJBg from './assets/workbenchRightBg/ZTSJ.png'
 const userStore = useUserStore()
 const routeStore = useRouteStore()
 const drawerStore = useDrawerStore()
@@ -633,13 +638,16 @@ function getWorkBenchFunctionList() {
   })
 }
 
-const workbenchBgImages = import.meta.glob(
-  './assets/workbenchRightBg/*.png',
-  { eager: true, import: 'default' }
-)
+const workbenchBgImages = {
+  DDMSJ: DDMSJBg,
+  DSJ: DSJBg,
+  GZYQ: GZYQBg,
+  LCZX: LCZXBg,
+  ZTSJ: ZTSJBg
+}
 
 function getWorkbenchBg(name) {
-  return workbenchBgImages[`./assets/workbenchRightBg/${String(name).trim()}.png`]
+  return workbenchBgImages[String(name).trim().toUpperCase()]
 }
 
 
