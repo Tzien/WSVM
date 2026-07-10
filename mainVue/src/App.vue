@@ -212,7 +212,7 @@
                             <div class="BoxRightTitle">{{ item.title }}</div>
                             <div class="BoxRightDesc">{{ item.description }}</div>
                             <div style="margin-top: 10px;">
-                              <a-button type="primary" shape="round" @click="checkURL(item.url)">
+                              <a-button type="primary" class="BoxRightBtn" shape="round" @click="checkURL(item.url)">
                                 <template #icon>
                                   点击进入
                                 </template>
@@ -272,7 +272,7 @@
                   <div><CodeOutlined :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''" style="font-size: 16px" /></div>
                 </a-tooltip>
               </div> -->
-              <div class="IconS" @click="GoToRuleEngineDesign()">
+              <!-- <div class="IconS" @click="GoToRuleEngineDesign()">
                 <a-tooltip title="规则引擎设计器">
                   <div>
                     <img src="/src/assets/RuleEngine.svg" :class="drawerStore.theme == 'dark' ? 'darkColorFont' : ''"
@@ -303,7 +303,7 @@
                       style="width: 18px; height: 20px; margin-bottom: 5px" />
                   </div>
                 </a-tooltip>
-              </div>
+              </div> -->
               <div class="IconS" @click="showDrawer">
                 <a-tooltip title="设置">
                   <div>
@@ -1735,22 +1735,22 @@ const showDrawer = () => {
   drawerStore.setOpen(true)
 }
 
-const GoToRuleEngineDesign = () => {
-  window.open('http://192.168.50.128:1881/', '_blank')
-}
+// const GoToRuleEngineDesign = () => {
+//   window.open('http://192.168.50.128:1881/', '_blank')
+// }
 
-const GoToAIAddress = () => {
-  window.open('http://192.168.57.218:8000/', '_blank')
-}
+// const GoToAIAddress = () => {
+//   window.open('http://192.168.57.218:8000/', '_blank')
+// }
 
 
-const GoToConfigurationDesigner = () => {
-  window.open('http://175.27.188.92:1880/', '_blank')
-}
+// const GoToConfigurationDesigner = () => {
+//   window.open('http://175.27.188.92:1880/', '_blank')
+// }
 
-const GoToDSJ = () => {
-  window.open('http://172.16.139.7:28180/index/menu?self_auth_enable=true', '_blank')
-}
+// const GoToDSJ = () => {
+//   window.open('http://172.16.139.7:28180/index/menu?self_auth_enable=true', '_blank')
+// }
 
 function checkURL(url) {
   window.open(url, '_blank')
@@ -2300,6 +2300,12 @@ const handlecancel = () => {
               color: #082E5FCC
             }
 
+            .BoxRightBtn {
+              background-color: #6BAEFF;
+            }
+            .BoxRightBtn:hover {
+              background-color: #0988ff;
+            }
           }
         }
       }
