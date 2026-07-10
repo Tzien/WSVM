@@ -208,7 +208,7 @@
                         <div class="workbench-item"
                           style="margin-top: 20px; width: 400px; text-align: center; border-radius: 0px 4px 4px 0px">
                           <div class="BoxRightAll" v-for="item in rightBoxList" :key="item.id"
-                            style="background-image: url('/src/assets/workbenchRightBg/LCZX.png');">
+                            :style="{ backgroundImage: `url('${getWorkbenchBg(item.url)}')` }">
                             <div class="BoxRightTitle">{{ item.title }}</div>
                             <div class="BoxRightDesc">{{ item.description }}</div>
                             <div style="margin-top: 10px;">
@@ -523,7 +523,7 @@ const i18nReady = ref(false)
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-import { debounce, forEach } from 'lodash-es'
+import { debounce } from 'lodash-es'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
@@ -573,7 +573,6 @@ watch(
   },
   { immediate: true }
 )
-
 
 const buildRoleKey = (roles) => {
   const roleList = Array.isArray(roles) ? roles : Array.isArray(roles?.value) ? roles.value : []
@@ -632,6 +631,15 @@ function getWorkBenchFunctionList() {
     }
     message.error('获取链接门户列表异常，请刷新重试')
   })
+}
+
+const workbenchBgImages = import.meta.glob(
+  './assets/workbenchRightBg/*.png',
+  { eager: true, import: 'default' }
+)
+
+function getWorkbenchBg(name) {
+  return workbenchBgImages[`./assets/workbenchRightBg/${String(name).trim()}.png`]
 }
 
 
