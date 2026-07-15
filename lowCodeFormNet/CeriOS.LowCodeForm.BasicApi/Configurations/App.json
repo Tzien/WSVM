@@ -110,7 +110,7 @@
     ],
     "PreviewType": "kkfile", //文件预览方式 （kkfile，yozo）默认使用kkfile
     "KKFileDomain": "http://192.168.50.125:6021",
-    "Domain": "http://192.168.50.125:18001",
+    "Domain": "http://192.168.50.125:5235",
     "FlowableDomain": "http://192.168.20.140:31000/api/Flow/",
     "YOZO": {
       "domain": "http://dcsapi.com/",
