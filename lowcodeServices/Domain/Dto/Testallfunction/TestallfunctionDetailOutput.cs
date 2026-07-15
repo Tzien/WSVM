@@ -5,7 +5,7 @@ using System;
 namespace CeriOS.示例.Entitys.Dto.Testallfunction;
 
 /// <summary>
-/// 第三版详情输出参数.
+/// 第四版详情输出参数.
 /// </summary>
 public class TestallfunctionDetailOutput
 {
@@ -33,5 +33,10 @@ public class TestallfunctionDetailOutput
     /// .
     /// </summary>
     public string? Remark { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string Sort { get; set; }
 
 }

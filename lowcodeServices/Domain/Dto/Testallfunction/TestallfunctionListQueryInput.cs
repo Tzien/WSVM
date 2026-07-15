@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace CeriOS.示例.Entitys.Dto.Testallfunction;
 
 /// <summary>
-/// 第三版列表查询输入.
+/// 第四版列表查询输入.
 /// </summary>
 public class TestallfunctionListQueryInput : PageInputBase
 {

@@ -61,12 +61,14 @@ public class Mapper : IRegister
 			.Map(dest => dest.Name, src => src.Name != null ? src.Name : null)
 			.Map(dest => dest.PictureURL, src => ToJson(src.PictureURL))
 			.Map(dest => dest.Remark, src => src.Remark != null ? src.Remark : null)
+			.Map(dest => dest.Sort, src => src.Sort != null ? src.Sort : null)
 		;
 		config.ForType<TestallfunctionEntity, TestallfunctionInfoOutput>()
 			.Map(dest => dest.FileURL, src => ParseList<FileControlsModel>(src.FileURL))
 			.Map(dest => dest.Name, src => src.Name != null ? src.Name : null)
 			.Map(dest => dest.PictureURL, src => ParseList<FileControlsModel>(src.PictureURL))
 			.Map(dest => dest.Remark, src => src.Remark != null ? src.Remark : null)
+			.Map(dest => dest.Sort, src => src.Sort != null ? src.Sort : null)
 		;
 		config.ForType<TestallfunctionEntity, TestallfunctionListOutput>()
 			.Map(dest => dest.FileURL, src => ParseList<FileControlsModel>(src.FileURL))
@@ -74,6 +76,7 @@ public class Mapper : IRegister
 			.Map(dest => dest.Name, src => src.Name != null ? src.Name : null)
 			.Map(dest => dest.PictureURL, src => ParseList<FileControlsModel>(src.PictureURL))
 			.Map(dest => dest.Remark, src => src.Remark != null ? src.Remark : null)
+			.Map(dest => dest.Sort, src => src.Sort != null ? src.Sort : null)
 		;
 	}
 }

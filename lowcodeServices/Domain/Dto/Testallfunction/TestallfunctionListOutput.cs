@@ -4,7 +4,7 @@ using JNPF.Common.Models;
 namespace CeriOS.示例.Entitys.Dto.Testallfunction;
 
 /// <summary>
-/// 第三版输入参数.
+/// 第四版输入参数.
 /// </summary>
 public class TestallfunctionListOutput
 {
@@ -32,5 +32,10 @@ public class TestallfunctionListOutput
     /// .
     /// </summary>
     public string? Remark { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string Sort { get; set; }
 
 }

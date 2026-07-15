@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace CeriOS.示例.Entitys.Dto.Testallfunction;
  
 /// <summary>
-/// 第三版修改输入参数.
+/// 第四版修改输入参数.
 /// </summary>
 public class TestallfunctionCrInput
 {
@@ -28,5 +28,10 @@ public class TestallfunctionCrInput
     /// .
     /// </summary>
     public string? Remark { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public int? Sort { get; set; }
 
 }

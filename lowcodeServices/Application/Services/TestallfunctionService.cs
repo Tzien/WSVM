@@ -17,7 +17,7 @@ using CeriOS.Core.Common.Helper;
 namespace Application.Services;
 
 /// <summary>
-/// 业务实现：第三版.
+/// 业务实现：第四版.
 /// </summary>
 [ApiDescriptionSettings(Tag = "示例", Name = "Testallfunction", Order = 200)]
 [Route("api/[controller]")]
@@ -69,7 +69,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
 
 
     /// <summary>
-    /// 获取第三版.
+    /// 获取第四版.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>
@@ -86,7 +86,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
     }
 
     /// <summary>
-    /// 获取第三版列表.
+    /// 获取第四版列表.
     /// </summary>
     /// <param name="input">请求参数.</param>
     /// <returns></returns>
@@ -212,7 +212,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
     }
 
     /// <summary>
-    /// 新建第三版.
+    /// 新建第四版.
     /// </summary>
     /// <param name="input">参数.</param>
     /// <returns></returns>
@@ -251,7 +251,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
     }
 
     /// <summary>
-    /// 更新第三版.
+    /// 更新第四版.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <param name="input">参数.</param>
@@ -281,7 +281,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
     }
 
     /// <summary>
-    /// 删除第三版.
+    /// 删除第四版.
     /// </summary>
     /// <returns></returns>
     [HttpDelete("{id}")]
@@ -306,7 +306,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
     }
 
     /// <summary>
-    /// 批量删除第三版.
+    /// 批量删除第四版.
     /// </summary>
     /// <param name="input">主键数组.</param>
     /// <returns></returns>
@@ -319,7 +319,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
             var entitys = await _db.Context.Queryable<TestallfunctionEntity>().In(it => it.id, ids).ToListAsync();
             if (entitys.Count > 0)
             {
-                 // 批量删除第三版
+                 // 批量删除第四版
                 await _db.Context.Deleteable<TestallfunctionEntity>().In(it => it.id, ids).ExecuteCommandAsync();
             }
         }
@@ -332,7 +332,7 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
     }
 
     /// <summary>
-    /// 第三版详情.
+    /// 第四版详情.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>

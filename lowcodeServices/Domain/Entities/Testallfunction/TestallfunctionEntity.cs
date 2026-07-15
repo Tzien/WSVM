@@ -4,7 +4,7 @@ using System;
 namespace CeriOS.示例.Entitys;
 
 /// <summary>
-/// 第三版实体.
+/// 第四版实体.
 /// </summary>
 [SugarTable("testallfunction")]
 public class TestallfunctionEntity
@@ -38,6 +38,12 @@ public class TestallfunctionEntity
     /// </summary>
     [SugarColumn(ColumnName = "Remark")]
     public string? Remark { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    [SugarColumn(ColumnName = "Sort")]
+    public int? Sort { get; set; }
 
   
 

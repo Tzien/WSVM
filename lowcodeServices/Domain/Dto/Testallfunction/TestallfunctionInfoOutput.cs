@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace CeriOS.示例.Entitys.Dto.Testallfunction;
  
 /// <summary>
-/// 第三版输出参数.
+/// 第四版输出参数.
 /// </summary>
 public class TestallfunctionInfoOutput
 {
@@ -34,5 +34,10 @@ public class TestallfunctionInfoOutput
     /// .
     /// </summary>
     public string? Remark { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public int? Sort { get; set; }
 
 }
