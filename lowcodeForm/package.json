@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "serve": "vite",
-    "build": "vite build",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build",
     "build-new": "cross-env NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 vite build --sourcemap=false",
     "preview": "vite preview"
   },

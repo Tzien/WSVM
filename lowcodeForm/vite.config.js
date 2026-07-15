@@ -93,7 +93,7 @@ export default defineConfig({
   },
   base: process.env.NODE_ENV === 'development' ? '/' : '/subapp/lowcode',
   build: {
-    sourcemap: true, // 对于 Vite
+    sourcemap: false, // 全量 sourcemap 会导致打包内存溢出，需要时可用 vite build --sourcemap 开启
     // 指定输出目录
     outDir: `lowcode`,
     target: 'esnext', // 修改打包目标环境
