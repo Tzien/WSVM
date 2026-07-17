@@ -1,4 +1,4 @@
-﻿namespace JNPF.示例.Entitys.Dto.I18Ntag;
+﻿namespace CeriOS.示例.Entitys.Dto.I18Ntag;
  
 /// <summary>
 /// 测试其他模板输出参数.

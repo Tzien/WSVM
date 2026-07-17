@@ -1,121 +1,72 @@
-﻿using JNPF.Common.Core.Manager;
-using JNPF.Engine.Entity.Model123;
-using JNPF.Engine.Entity.Model;
-using JNPF.ClayObject;
-using JNPF.Common.Models.NPOI;
-using JNPF.Common.CodeGen.ExportImport;
-using JNPF.Common.Core.Manager.Files;
+﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
-using JNPF.Common.CodeGen.DataParsing;
-using JNPF.Common.Const;
-using JNPF.Common.Manager;
-using JNPF.Common.Enums;
-using JNPF.Common.Extension;
 using JNPF.Common.Filter;
-using JNPF.Common.Models;
-using JNPF.Common.Security;
-using JNPF.DependencyInjection;
-using JNPF.DynamicApiController;
-using JNPF.FriendlyException;
-using JNPF.Systems.Entitys.Permission;
-using JNPF.Systems.Entitys.System;
-using JNPF.Systems.Interfaces.System;
-using JNPF.Common.Dtos.Datainterface;
-using JNPF.示例.Entitys.Dto.I18Ntag;
-using JNPF.示例.Entitys;
-using JNPF.示例.Interfaces;
+using CeriOS.示例.Entitys.Dto.I18Ntag;
+using CeriOS.示例.Entitys;
+using CeriOS.示例.Interfaces;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
-using JNPF.Common.Models.Authorize;
-using JNPF.DatabaseAccessor;
-using JNPF.Common.Dtos;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using CeriOS.Core.Common.Helper;
 
-namespace JNPF.示例;
+namespace Application.Services;
 
 /// <summary>
 /// 业务实现：测试其他模板.
 /// </summary>
 [ApiDescriptionSettings(Tag = "示例", Name = "I18Ntag", Order = 200)]
-[Route("api/示例/[controller]")]
-public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
+[Route("api/[controller]")]
+public class I18NtagService : ControllerBase, II18NtagService
 {
-    /// <summary>
-    /// 服务基础仓储.
-    /// </summary>
-    private readonly ISqlSugarRepository<I18NtagEntity> _repository;
+    public Repository<I18NtagEntity> _db { get; set; }
 
-
-    /// <summary>
-    /// 数据库管理.
-    /// </summary>
-    private readonly IDataBaseManager _dataBaseManager;
-
-    /// <summary>
-    /// 数据接口服务.
-    /// </summary>
-    private readonly IDataInterfaceService _dataInterfaceService;
-    
-    /// <summary>
-    /// 缓存管理.
-    /// </summary>
-    private readonly ICacheManager _cacheManager;
-    
-    /// <summary>
-    /// 通用数据解析.
-    /// </summary>
-    private readonly ControlParsing _controlParsing;
-
-    /// <summary>
-    /// 用户管理.
-    /// </summary>
-    private readonly IUserManager _userManager;
-    
-    /// <summary>
-    /// 代码生成导出数据帮助类.
-    /// </summary>
-    private readonly ExportImportDataHelper _exportImportDataHelper;
-
-    /// <summary>
-    /// 文件服务.
-    /// </summary>
-    private readonly IFileManager _fileManager;
-
-
-    /// <summary>
-    /// 客户端.
-    /// </summary>
-    private static SqlSugarScope? _sqlSugarClient;
-
-    /// <summary>
-    /// 导出字段.
-    /// </summary>
-    private readonly List<ParamsModel> paramList = "[{\"value\":\"名称\",\"field\":\"TagName\"},{\"value\":\"Code\",\"field\":\"Code\"}]".ToList<ParamsModel>();
+    static I18NtagService()
+    {
+        var cfg = TypeAdapterConfig.GlobalSettings;
+        new CeriOS.示例.Entitys.Mapper.I18Ntag.Mapper().Register(cfg);
+    }
 
     /// <summary>
     /// 初始化一个<see cref="I18NtagService"/>类型的新实例.
     /// </summary>
-    public I18NtagService(
-        ISqlSugarRepository<I18NtagEntity> repository,
-        IDataInterfaceService dataInterfaceService,
-        IDataBaseManager dataBaseManager,
-        ISqlSugarClient context,
-        ExportImportDataHelper exportImportDataHelper,
-        IFileManager fileManager,
-        ICacheManager cacheManager,
-        ControlParsing controlParsing,
-        IUserManager userManager)
+    public I18NtagService(Repository<I18NtagEntity> db)
     {
-        _repository = repository;
-        _dataBaseManager = dataBaseManager;
-        _sqlSugarClient = (SqlSugarScope)context;
-        _exportImportDataHelper = exportImportDataHelper;
-        _fileManager = fileManager;
-        _dataInterfaceService = dataInterfaceService;
-        _cacheManager = cacheManager;
-        _controlParsing = controlParsing;
-        _userManager = userManager;
+       _db = db;
     }
+
+        private static IDictionary<string, JsonElement> GetExtraFilters(object input)
+   {
+       if (input == null) return null;
+       var type = input.GetType();
+       var prop = type.GetProperty("Extra");
+       if (prop == null) prop = type.GetProperty("extra");
+       if (prop == null) return null;
+       return prop.GetValue(input) as IDictionary<string, JsonElement>;
+   }
+
+   private static T JsonToObject<T>(object input)
+   {
+       if (input == null) return default;
+       if (input is JsonElement jsonElement) return JsonSerializer.Deserialize<T>(jsonElement.GetRawText());
+       if (input is string json)
+       {
+           if (string.IsNullOrWhiteSpace(json)) return default;
+           return JsonSerializer.Deserialize<T>(json);
+       }
+
+       return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(input));
+   }
+
+   private static string JsonToString(object input)
+   {
+       return JsonSerializer.Serialize(input);
+   }
+
 
     /// <summary>
     /// 获取测试其他模板.
@@ -125,13 +76,13 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     [HttpGet("{id}")]
     public async Task<dynamic> GetInfo(string id)
     {
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
-        var data = (await _sqlSugarClient.Queryable<I18NtagEntity>()
-            .FirstAsync(it => it.id.Equals(id))).Adapt<I18NtagInfoOutput>();
-
-            return data;
+        var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<I18NtagInfoOutput>();
+        return new
+        {
+            code = 200,
+            msg = "获取成功",
+            data
+        };      
     }
 
     /// <summary>
@@ -142,26 +93,107 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     [HttpPost("List")]
     public async Task<dynamic> GetList([FromBody] I18NtagListQueryInput input)
     {
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
+        var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(I18NtagEntity));
         var selectIds = input.selectIds?.Split(",").ToList();
-        var data = await _sqlSugarClient.Queryable<I18NtagEntity>()
-            .WhereIF(selectIds!=null && selectIds.Any() && input.dataType.Equals(2), it => selectIds.Contains(it.id))
-            .WhereIF(!string.IsNullOrEmpty(input.TagName), it => it.TagName.Contains(input.TagName))
-            .Where(it => it.FlowId==null)
-            .Select(it => new I18NtagListOutput
-            {
-                id = it.id,
-            }).MergeTable().OrderByIF(string.IsNullOrEmpty(input.sidx), it => it.id).OrderByIF(!string.IsNullOrEmpty(input.sidx), input.sidx + " " + input.sort).ToPagedListAsync(input.currentPage, input.pageSize);
-
-        var inlineEditorList = data.list.Adapt<List<I18NtagInlineEditorOutput>>();
-
-        return PageResult<I18NtagInlineEditorOutput>.SqlSugarPageResult(new SqlSugarPagedList<I18NtagInlineEditorOutput>
+      var query = _db.Context.Queryable<I18NtagEntity>();
+      var isDeletedColumn = entityInfo.Columns.FirstOrDefault(o =>
+        string.Equals(o?.PropertyName, "IsDeleted", System.StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(o?.DbColumnName, "IsDeleted", System.StringComparison.OrdinalIgnoreCase));
+      if (isDeletedColumn != null)
+      {
+          query = query.Where(new List<IConditionalModel>
+          {
+              new ConditionalModel { FieldName = isDeletedColumn.DbColumnName, ConditionalType = ConditionalType.Equal, FieldValue = "0" }
+          });
+      }
+       var extra = GetExtraFilters(input);
+       if (extra != null && extra.Count > 0)
         {
-            pagination = data.pagination,
-            list = inlineEditorList
-        });
+          Dictionary<string, int> searchTypes = null;
+          if (extra.TryGetValue("__searchTypes", out var __stEl) && __stEl.ValueKind == JsonValueKind.Object)
+          {
+              try
+              {
+                  searchTypes = JsonSerializer.Deserialize<Dictionary<string, int>>(__stEl.GetRawText());
+              }
+              catch
+              {
+              }
+          }
+          var columnMap = entityInfo.Columns
+                .Where(o => !string.IsNullOrWhiteSpace(o?.PropertyName) && !string.IsNullOrWhiteSpace(o?.DbColumnName))
+                .GroupBy(o => o.PropertyName, System.StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().DbColumnName, System.StringComparer.OrdinalIgnoreCase);
+                 foreach (var col in entityInfo.Columns)
+            {
+                if (string.IsNullOrWhiteSpace(col?.DbColumnName) || string.IsNullOrWhiteSpace(col?.PropertyName)) continue;
+                if (!columnMap.ContainsKey(col.DbColumnName))
+                {
+                    columnMap[col.DbColumnName] = col.DbColumnName;
+                }
+            }
+          var conditions = new List<IConditionalModel>();
+          foreach (var kv in extra)
+            {
+                var rawField = kv.Key;
+                if (string.IsNullOrWhiteSpace(rawField)) continue;
+                if (rawField.Equals("__searchTypes", System.StringComparison.OrdinalIgnoreCase)) continue;
+                if (!columnMap.TryGetValue(rawField, out var field) || string.IsNullOrWhiteSpace(field)) continue;
+                var v = kv.Value;
+                if (v.ValueKind == JsonValueKind.Null || v.ValueKind == JsonValueKind.Undefined) continue;
+                if (v.ValueKind == JsonValueKind.String)
+                {
+                    var s = v.GetString();
+                    if (string.IsNullOrWhiteSpace(s)) continue;
+                    var __st = 0;
+                    if (searchTypes != null && searchTypes.TryGetValue(rawField, out var __t)) __st = __t;
+                    if (__st == 1)
+                    {
+                        conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.Equal, FieldValue = s });
+                    }
+                    else
+                    {
+                        conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.Like, FieldValue = $"%{s}%" });
+                    }
+                    continue;
+                }
+                if (v.ValueKind == JsonValueKind.Number || v.ValueKind == JsonValueKind.True || v.ValueKind == JsonValueKind.False)
+                {
+                    conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.Equal, FieldValue = v.ToString() });
+                    continue;
+                }
+                if (v.ValueKind == JsonValueKind.Array)
+                {
+                    var list = v.EnumerateArray()
+                        .Select(o => o.ToString())
+                        .Where(o => !string.IsNullOrWhiteSpace(o))
+                        .ToList();
+                    if (list.Count == 0) continue;
+                    conditions.Add(new ConditionalModel { FieldName = field, ConditionalType = ConditionalType.In, FieldValue = string.Join(",", list) });
+                    continue;
+                }
+            }
+            if (conditions.Count > 0)
+            {
+                query = query.Where(conditions);
+            }
+        }
+        var __currentPage = input.currentPage <= 0 ? 1 : input.currentPage;
+        var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
+        var __totalCount = await query.CountAsync();
+        var data = await query.ToPagedListAsync(__currentPage, __pageSize);
+      var listOutputs = data.list.Adapt<List<I18NtagListOutput>>();
+      var inlineEditorList = listOutputs.Adapt<List<I18NtagInlineEditorOutput>>();
+        return new
+        {
+           list = inlineEditorList,
+           pagination = new
+           {
+               currentPage = __currentPage,
+               pageSize = __pageSize,
+               total = __totalCount,
+           }
+        };
     }
 
     /// <summary>
@@ -170,17 +202,35 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     /// <param name="input">参数.</param>
     /// <returns></returns>
     [HttpPost("")]
-    public async Task Create([FromBody] I18NtagCrInput input)
+    public async Task<dynamic> Create([FromBody] I18NtagCrInput input)
     {
-        input = CodeGenHelper.SetEmptyStringNull(input);
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
+        if (input == null)
+        {
+            return new
+            {
+                code = 400,
+                msg = "参数为空",
+                data = (object)null
+            };
+        }
         var entity = input.Adapt<I18NtagEntity>();
-        entity.id = GuidHelper.BuildGuid();
-    var entity = input.Adapt<I18NtagEntity>();
-    await _repository.InsertAsync(entity);
-        if (!(isOk > 0)) throw Oops.Oh(ErrorCode.COM1000);
+        entity.id = Guid.NewGuid().ToString("N");
+        var isOk = await _db.InsertAsync(entity);
+        if (!isOk)
+        {
+            return new
+            {
+                code = 200,
+                msg = "保存失败",
+                data = (object)null
+            };
+        };
+        return new
+         {
+             code = 200,
+             msg = "保存成功",
+             data = (object)null
+         };
     }
 
     /// <summary>
@@ -190,17 +240,26 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     /// <param name="input">参数.</param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    public async Task Update(string id, [FromBody] I18NtagUpInput input)
+    public async Task<dynamic> Update(string id, [FromBody] I18NtagUpInput input)
     {
-        input = CodeGenHelper.SetEmptyStringNull(input);
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
         var entity = input.Adapt<I18NtagEntity>();
-    var entity = input.Adapt<I18NtagEntity>();
-    entity.id = id;
-    await _repository.UpdateAsync(entity);
-        if (!(isOk > 0)) throw Oops.Oh(ErrorCode.COM1001);
+        entity.id = id;
+        var isOk = await _db.UpdateAsync(entity);
+        if (!isOk)
+        {
+            return new
+            {
+                code = 200,
+                 msg = "保存失败",
+                data = (object)null
+            };
+        };
+       return new
+       {
+           code = 200,
+           msg = "保存成功",
+           data = (object)null
+       };
     }
 
     /// <summary>
@@ -208,13 +267,24 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     /// </summary>
     /// <returns></returns>
     [HttpDelete("{id}")]
-    public async Task Delete(string id)
+    public async Task<dynamic> Delete(string id)
     {
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
-        var isOk = await _sqlSugarClient.Deleteable<I18NtagEntity>().Where(it => it.id.Equals(id)).ExecuteCommandAsync();    
-        if (!(isOk > 0)) throw Oops.Oh(ErrorCode.COM1002);
+        var isOk = await _db.Context.Deleteable<I18NtagEntity>().Where(it => it.id.Equals(id)).ExecuteCommandAsync();   
+        if (isOk == 0)
+        {
+            return new
+            {
+                code = 200,
+                msg = "删除失败",
+                data = (object)null
+            };
+        };
+         return new
+         {
+             code = 200,
+             msg = "删除成功",
+             data = (object)null
+        };
     }
 
     /// <summary>
@@ -223,18 +293,24 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     /// <param name="input">主键数组.</param>
     /// <returns></returns>
     [HttpPost("batchRemove")]
-    [UnitOfWork]
-    public async Task BatchRemove([FromBody] BatchRemoveInput input)
+    public async Task<dynamic> BatchRemove([FromBody] List<string>? delids)
     {
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
-        var entitys = await _sqlSugarClient.Queryable<I18NtagEntity>().In(it => it.id, input.ids).ToListAsync();
-        if (entitys.Count > 0)
+        var ids = delids ?? new List<string>();
+        if (ids.Count > 0)
         {
-            // 批量删除测试其他模板
-            await _sqlSugarClient.Deleteable<I18NtagEntity>().In(it => it.id,input.ids).ExecuteCommandAsync();
+            var entitys = await _db.Context.Queryable<I18NtagEntity>().In(it => it.id, ids).ToListAsync();
+            if (entitys.Count > 0)
+            {
+                 // 批量删除测试其他模板
+                await _db.Context.Deleteable<I18NtagEntity>().In(it => it.id, ids).ExecuteCommandAsync();
+            }
         }
+        return new
+        {
+            code = 200,
+            msg = "删除成功",
+            data = (object)null
+        };
     }
 
     /// <summary>
@@ -243,17 +319,14 @@ public class I18NtagService : II18NtagService, IDynamicApiController, ITransient
     /// <param name="id">主键值.</param>
     /// <returns></returns>
     [HttpGet("Detail/{id}")]
-    [UnifySerializerSetting("special")]
     public async Task<dynamic> GetDetails(string id)
     {
-        var dbLink = await _repository.AsSugarClient().Queryable<DbLinkEntity>().FirstAsync(it => it.Id.Equals("13424066e0734d79bb37112cca9b7239"));
-        _sqlSugarClient = _dataBaseManager.ChangeDataBase(dbLink);
-
-        var data = await _sqlSugarClient.Queryable<I18NtagEntity>()
-            .Select(it => new I18NtagDetailOutput
-            {
-                id = it.id,
-            }).MergeTable().Where(it => it.id == id).ToListAsync();
-        return data.FirstOrDefault();
+          var data = (await _db.GetFirstAsync(it => it.id.Equals(id))).Adapt<I18NtagDetailOutput>();
+          return new
+          {
+             code = 200,
+             msg = "获取成功",
+             data
+          };         
     }
 }

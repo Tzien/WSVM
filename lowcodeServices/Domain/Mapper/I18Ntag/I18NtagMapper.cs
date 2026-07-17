@@ -1,6 +1,5 @@
 ﻿﻿﻿
 using CeriOS.示例.Entitys.Dto.I18Ntag;
-using JNPF.示例.Entitys.Dto.I18Ntag;
 using Mapster;
 using System.Collections.Generic;
 using System.Text.Json;
