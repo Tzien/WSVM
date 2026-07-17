@@ -212,10 +212,8 @@
                             <div class="BoxRightTitle">{{ item.title }}</div>
                             <div class="BoxRightDesc">{{ item.description }}</div>
                             <div style="margin-top: 10px;">
-                              <a-button type="primary" class="BoxRightBtn" shape="round" @click="checkURL(item.url)">
-                                <template #icon>
-                                  点击进入
-                                </template>
+                              <a-button class="BoxRightBtn" @click="checkURL(item.url)">
+                                点击进入
                               </a-button>
                             </div>
                           </div>
@@ -2301,10 +2299,23 @@ const handlecancel = () => {
             }
 
             .BoxRightBtn {
-              background-color: #6BAEFF;
+              min-width: 96px;
+              height: 32px;
+              padding: 0 18px;
+              color: #fff;
+              font-style: italic;
+              border: none;
+              border-radius: 0;
+              background: linear-gradient(90deg, rgb(37, 100, 170), rgb(129, 195, 248));
+              box-shadow: none;
             }
-            .BoxRightBtn:hover {
-              background-color: #0988ff;
+
+            .BoxRightBtn:hover,
+            .BoxRightBtn:focus,
+            .BoxRightBtn:active {
+              color: #fff;
+              border: none;
+              background: linear-gradient(90deg, rgb(37, 100, 170), rgb(129, 195, 248));
             }
           }
         }
