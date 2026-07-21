@@ -4,15 +4,27 @@
       <a-form :colon="false" size="middle" layout="vertical" labelAlign="left" :model="dataForm" :rules="dataRule" ref="formRef">
         <a-row :gutter="15">
           <a-col :span="24" class="ant-col-item" >
-            <a-form-item name="TagName" :labelCol="{ style: { width: '100px' } }">
-              <template #label>名称</template>
-              <CeriInput v-model:value="dataForm.TagName" placeholder='请输入' allowClear :style='{"width":"100%"}'  :showCount='false'  />
+            <a-form-item name="Name" :labelCol="{ style: { width: '100px' } }">
+              <template #label>单行输入</template>
+              <CeriInput v-model:value="dataForm.Name" placeholder='请输入' allowClear :style='{"width":"100%"}'  :showCount='false'  />
             </a-form-item>
           </a-col>
           <a-col :span="24" class="ant-col-item" >
-            <a-form-item name="Code" :labelCol="{ style: { width: '100px' } }">
-              <template #label>Code</template>
-              <CeriTextarea v-model:value="dataForm.Code" placeholder='请输入' allowClear :autoSize='{"minRows":4,"maxRows":4}' :style='{"width":"100%"}'  :showCount='false'  />
+            <a-form-item name="Remark" :labelCol="{ style: { width: '100px' } }">
+              <template #label>多行输入</template>
+              <CeriTextarea v-model:value="dataForm.Remark" placeholder='请输入' allowClear :autoSize='{"minRows":4,"maxRows":4}' :style='{"width":"100%"}'  :showCount='false'  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="Sort" :labelCol="{ style: { width: '100px' } }">
+              <template #label>数字输入</template>
+              <CeriInputNumber v-model:value="dataForm.Sort" placeholder='请输入' :controls=false :style='{"width":"100%"}'  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="Enabled" :labelCol="{ style: { width: '100px' } }">
+              <template #label>开关</template>
+              <CeriSwitch v-model:value="dataForm.Enabled"  />
             </a-form-item>
           </a-col>
         </a-row>
@@ -24,12 +36,12 @@
   import { create, update, getInfo } from './helper/api';
   import { reactive, toRefs, nextTick, ref, unref, computed } from 'vue';
   import { BasicModal, useModal } from '@/components/Modal';
-  import { JnpfRelationForm } from '@/components/Jnpf';
+  import { CeriRelationForm } from '@/components/CeriOS';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from '@/hooks/web/useI18n';
-  import { useUserStore } from '@/store/modules/user';
+  import { useUserStore } from '@/store/user';
   import type { FormInstance } from 'ant-design-vue';
-  import { thousandsFormat, getTimeUnit, getDateTimeUnit } from '@/utils/jnpf';
+  import { thousandsFormat, getTimeUnit, getDateTimeUnit } from '@/utils/ceri';
   import { getDictionaryDataSelector } from '@/api/systemData/dictionary';
   import { getDataInterfaceRes } from '@/api/systemData/dataInterface';
   import dayjs from 'dayjs';
@@ -53,8 +65,10 @@
   const state = reactive<State>({
     dataForm: {
       id: '',
-      TagName: undefined,
-      Code: undefined,
+      Name: undefined,
+      Remark: undefined,
+      Sort: undefined,
+      Enabled: 0,
     },
     dataRule: {
     },
@@ -69,13 +83,13 @@
 
   function init(data) {
     state.isContinue = false;
-    state.title = !data.id || data.id === 'jnpfAdd' ? '新增' : '编辑';
+    state.title = !data.id || data.id === 'ceriAdd' ? '新增' : '编辑';
     setFormProps({ continueLoading: false });
     openModal();
     nextTick(() => {
       getForm().resetFields();
       state.dataForm = JSON.parse(JSON.stringify(data.formData));
-      state.dataForm.id = !data.id || data.id === 'jnpfAdd' ? '' : data.id;
+      state.dataForm.id = !data.id || data.id === 'ceriAdd' ? '' : data.id;
     });
   }
   function getForm() {

@@ -1,7 +1,6 @@
-﻿﻿using CeriOS.Core.Common.DB;
+﻿﻿﻿using CeriOS.Core.Common.DB;
 using JNPF.Common.Dtos;
 using JNPF.Common.Filter;
-using JNPF.Common.Security;
 using CeriOS.示例.Entitys.Dto.Allprops;
 using CeriOS.示例.Entitys;
 using CeriOS.示例.Interfaces;
@@ -18,7 +17,7 @@ using CeriOS.Core.Common.Helper;
 namespace Application.Services;
 
 /// <summary>
-/// 业务实现：测试全部功能.
+/// 业务实现：测试其他模板2.
 /// </summary>
 [ApiDescriptionSettings(Tag = "示例", Name = "Allprops", Order = 200)]
 [Route("api/[controller]")]
@@ -50,9 +49,27 @@ public class AllpropsService : ControllerBase, IAllpropsService
        return prop.GetValue(input) as IDictionary<string, JsonElement>;
    }
 
+   private static T JsonToObject<T>(object input)
+   {
+       if (input == null) return default;
+       if (input is JsonElement jsonElement) return JsonSerializer.Deserialize<T>(jsonElement.GetRawText());
+       if (input is string json)
+       {
+           if (string.IsNullOrWhiteSpace(json)) return default;
+           return JsonSerializer.Deserialize<T>(json);
+       }
+
+       return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(input));
+   }
+
+   private static string JsonToString(object input)
+   {
+       return JsonSerializer.Serialize(input);
+   }
+
 
     /// <summary>
-    /// 获取测试全部功能.
+    /// 获取测试其他模板2.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>
@@ -69,7 +86,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 获取测试全部功能列表.
+    /// 获取测试其他模板2列表.
     /// </summary>
     /// <param name="input">请求参数.</param>
     /// <returns></returns>
@@ -79,6 +96,16 @@ public class AllpropsService : ControllerBase, IAllpropsService
         var entityInfo = _db.Context.EntityMaintenance.GetEntityInfo(typeof(AllpropsEntity));
         var selectIds = input.selectIds?.Split(",").ToList();
       var query = _db.Context.Queryable<AllpropsEntity>();
+      var isDeletedColumn = entityInfo.Columns.FirstOrDefault(o =>
+        string.Equals(o?.PropertyName, "IsDeleted", System.StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(o?.DbColumnName, "IsDeleted", System.StringComparison.OrdinalIgnoreCase));
+      if (isDeletedColumn != null)
+      {
+          query = query.Where(new List<IConditionalModel>
+          {
+              new ConditionalModel { FieldName = isDeletedColumn.DbColumnName, ConditionalType = ConditionalType.Equal, FieldValue = "0" }
+          });
+      }
        var extra = GetExtraFilters(input);
        if (extra != null && extra.Count > 0)
         {
@@ -151,11 +178,28 @@ public class AllpropsService : ControllerBase, IAllpropsService
                 query = query.Where(conditions);
             }
         }
+        var __orderFields = new List<string>();
+        foreach (var __rawSortField in (input.sidx ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var __sortField = __rawSortField.Trim();
+            var __isDesc = __sortField.StartsWith("-");
+            var __sortFieldName = __isDesc ? __sortField.Substring(1) : __sortField;
+            var __sortColumn = entityInfo.Columns.FirstOrDefault(o =>
+                string.Equals(o?.PropertyName, __sortFieldName, System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(o?.DbColumnName, __sortFieldName, System.StringComparison.OrdinalIgnoreCase));
+            if (__sortColumn == null) continue;
+            __orderFields.Add(__sortColumn.DbColumnName + (__isDesc ? " DESC" : " ASC"));
+        }
+        if (__orderFields.Count > 0)
+        {
+            query = query.OrderBy(string.Join(",", __orderFields));
+        }
         var __currentPage = input.currentPage <= 0 ? 1 : input.currentPage;
         var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
         var __totalCount = await query.CountAsync();
         var data = await query.ToPagedListAsync(__currentPage, __pageSize);
-      var inlineEditorList = data.list.Adapt<List<AllpropsListOutput>>();
+      var listOutputs = data.list.Adapt<List<AllpropsListOutput>>();
+      var inlineEditorList = listOutputs.Adapt<List<AllpropsInlineEditorOutput>>();
         return new
         {
            list = inlineEditorList,
@@ -169,7 +213,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 新建测试全部功能.
+    /// 新建测试其他模板2.
     /// </summary>
     /// <param name="input">参数.</param>
     /// <returns></returns>
@@ -186,7 +230,6 @@ public class AllpropsService : ControllerBase, IAllpropsService
             };
         }
         var entity = input.Adapt<AllpropsEntity>();
-        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
         entity.id = Guid.NewGuid().ToString("N");
         var isOk = await _db.InsertAsync(entity);
         if (!isOk)
@@ -207,7 +250,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 更新测试全部功能.
+    /// 更新测试其他模板2.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <param name="input">参数.</param>
@@ -216,7 +259,6 @@ public class AllpropsService : ControllerBase, IAllpropsService
     public async Task<dynamic> Update(string id, [FromBody] AllpropsUpInput input)
     {
         var entity = input.Adapt<AllpropsEntity>();
-        entity.Text = input.Text != null && input.Text.Count > 0 ? input.Text.ToJsonString().Replace("\r\n", "").Replace(" ", "") : null;
         var isOk = await _db.UpdateAsync(entity);
         if (!isOk)
         {
@@ -236,7 +278,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 删除测试全部功能.
+    /// 删除测试其他模板2.
     /// </summary>
     /// <returns></returns>
     [HttpDelete("{id}")]
@@ -261,7 +303,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 批量删除测试全部功能.
+    /// 批量删除测试其他模板2.
     /// </summary>
     /// <param name="input">主键数组.</param>
     /// <returns></returns>
@@ -274,7 +316,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
             var entitys = await _db.Context.Queryable<AllpropsEntity>().In(it => it.id, ids).ToListAsync();
             if (entitys.Count > 0)
             {
-                 // 批量删除测试全部功能
+                 // 批量删除测试其他模板2
                 await _db.Context.Deleteable<AllpropsEntity>().In(it => it.id, ids).ExecuteCommandAsync();
             }
         }
@@ -287,7 +329,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 测试全部功能详情.
+    /// 测试其他模板2详情.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>

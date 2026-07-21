@@ -1,13 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CeriOS.示例.Entitys.Dto.Allprops;
+﻿﻿namespace CeriOS.示例.Entitys.Dto.Allprops;
 
 /// <summary>
-/// 测试全部功能输入参数.
+/// 测试其他模板2输入参数.
 /// </summary>
 public class AllpropsListOutput
 {
+    /// <summary>
+    /// .
+    /// </summary>
+    public int Enabled { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string Enabled_name { get; set; }
+
     /// <summary>
     /// .
     /// </summary>
@@ -21,12 +28,7 @@ public class AllpropsListOutput
     /// <summary>
     /// .
     /// </summary>
-    public string Sort { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string? Text { get; set; }
+    public string Name_name { get; set; }
 
     /// <summary>
     /// .
@@ -36,36 +38,16 @@ public class AllpropsListOutput
     /// <summary>
     /// .
     /// </summary>
-    public string CreateTime { get; set; }
+    public string Remark_name { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public byte? IsDeleted { get; set; }
+    public int? Sort { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string Enabled { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public DateTime? LastLoginTime { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string Enmu { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string HK { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string PF { get; set; }
+    public int? Sort_name { get; set; }
 
 }
