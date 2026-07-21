@@ -325,7 +325,7 @@
   });
   const getTableBindValue = computed(() => {
     let columns = unref(getColumns);
-    const defaultSortConfig = [{ field: 'Sort', sort: 'asc' }]; 
+    const defaultSortConfig = []; 
     const sortField = defaultSortConfig.map(o => (o.sort === 'desc' ? '-' : '') + o.field); 
     const data: any = {
       pagination: { pageSize: 20 }, //有分页
