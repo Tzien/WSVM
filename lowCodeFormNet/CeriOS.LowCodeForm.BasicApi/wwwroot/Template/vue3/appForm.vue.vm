@@ -1638,7 +1638,7 @@ case "areaSelect":
 							@:<@(children.Tag) v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" @(children.Placeholder)@(children.Level)@(children.Multiple)@(children.Disabled)@(children.IsLinked ? "@change='"+ @children.LowerName +"TableChange(i)' ":"")/>
 break;
 case "billRule":
-							@:<JnpfInput v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :placeholder="$t('component.jnpf.common.autoGenerate')" disabled/>
+							@:<CeriInput v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :placeholder="$t('component.jnpf.common.autoGenerate')" disabled/>
 break;
 case "treeSelect":
 							@:<@(children.Tag) v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :options="@(children.IsLinkage ? "dataForm." + item.Name + "[i]." + children.LowerName + "Options" : item.Name + "_" + children.LowerName + "Options")" :props="@(item.Name + "_" + @children.LowerName)Props" @(children.Filterable)@(children.Disabled)@(children.Placeholder)@(children.Multiple)@(children.IsLinked ? "@change='"+ @children.LowerName +"TableChange(i)' ":"")/>
@@ -1660,13 +1660,13 @@ case "popupAttr":
 							@:<@(children.Tag) showField="@(children.ShowField)" @(children.IsStorage == 1 ? "v-model='" + Model.FormModel + "." + item.Name + "[i]." + children.LowerName + "'" : "") :relationField="'@(item.Name)-@(children.RelationField)'+i" :isStorage="@(children.IsStorage)" type='popupAttr'/>
 break;
 case "popupTableSelect":
-							@:<JnpfPopupSelect v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" @(children.InterfaceId)@(children.Placeholder)@(children.Disabled)@(children.ColumnOptions)@(children.RelationField)@(children.PropsValue)@(children.HasPage)@(children.PageSize)@(children.PopupTitle)@(children.Multiple)@(children.Filterable)@(children.TemplateJson)@(children.IsLinked ? "@change='"+ @children.LowerName +"TableChange(i)' ":""):vModel="'@(item.Name + "-" +@children.LowerName)'+i" @(children.IsLinkage ? ":formData='dataForm' :rowIndex='i' ": "")/>
+							@:<CeriPopupSelect v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" @(children.InterfaceId)@(children.Placeholder)@(children.Disabled)@(children.ColumnOptions)@(children.RelationField)@(children.PropsValue)@(children.HasPage)@(children.PageSize)@(children.PopupTitle)@(children.Multiple)@(children.Filterable)@(children.TemplateJson)@(children.IsLinked ? "@change='"+ @children.LowerName +"TableChange(i)' ":""):vModel="'@(item.Name + "-" +@children.LowerName)'+i" @(children.IsLinkage ? ":formData='dataForm' :rowIndex='i' ": "")/>
 break;
 case "autoComplete":
 							@:<@(children.Tag) v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" @(children.Total)@(children.InterfaceId)@(children.Placeholder)@(children.Disabled)@(children.Clearable)@(children.RelationField)@(children.TemplateJson)@(children.IsLinked ? "@change='"+ @children.LowerName +"TableChange(i)' ":""):vModel="'@(item.Name + "-" +@children.LowerName)'+i" @(children.IsLinkage ? ":formData='dataForm' :rowIndex='i' ": "")/>
 break;
 default:
-							@:<JnpfInput v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :placeholder="$t('component.jnpf.common.autoGenerate')" disabled/>
+							@:<CeriInput v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :placeholder="$t('component.jnpf.common.autoGenerate')" disabled/>
 break;
 }
 						@:</u-form-item>
@@ -1696,7 +1696,7 @@ break;
 					@:</view>
 					@:<view class="u-p-l-20 u-p-r-20 form-item-box">
 						@:<u-form-item v-for="(item,i) in @(item.LowerChildTableName)()" :key="i" :label="item.name" :label-width="item?.labelWidth? item.labelWidth * 1.5 : ''">
-							@:<JnpfInput v-model="item.val" disabled placeholder="" />
+							@:<CeriInput v-model="item.val" disabled placeholder="" />
 						@:</u-form-item>
 					@:</view>
 				@:</view>
@@ -1882,19 +1882,19 @@ case "popupSelect":
 					@:<@(item.Tag) @(item.vModel)@(item.Disabled)@(item.PropsValue)@(item.RelationField)@(item.ColumnOptions)@(item.InterfaceId)@(item.Placeholder)@(item.HasPage)@(item.PageSize)@(item.PopupType)@(item.PopupTitle)@(item.PopupWidth)@(item.TemplateJson)vModel="@(item.Name)" @(item.IsLinked ? "@change='"+ @item.LowerName +"Change' ":"") @(item.IsLinkage ? ":formData='dataForm' ": "")type="popup" @(item.ExtraOptions)/>
 break;
 case "popupTableSelect":
-					@:<JnpfPopupSelect @(item.vModel)@(item.InterfaceId)@(item.Placeholder)@(item.Disabled)@(item.ColumnOptions)@(item.RelationField)@(item.PropsValue)@(item.HasPage)@(item.PageSize)@(item.PopupTitle)@(item.Multiple)@(item.Filterable)@(item.TemplateJson)@(item.IsLinked ? "@change='"+ @item.LowerName +"Change' ":""):vModel="'@(item.LowerName)'" @(item.IsLinkage ? ":formData='dataForm' ": "")/>
+					@:<CeriPopupSelect @(item.vModel)@(item.InterfaceId)@(item.Placeholder)@(item.Disabled)@(item.ColumnOptions)@(item.RelationField)@(item.PropsValue)@(item.HasPage)@(item.PageSize)@(item.PopupTitle)@(item.Multiple)@(item.Filterable)@(item.TemplateJson)@(item.IsLinked ? "@change='"+ @item.LowerName +"Change' ":""):vModel="'@(item.LowerName)'" @(item.IsLinkage ? ":formData='dataForm' ": "")/>
 break;
 case "createUser":
 case "createTime":
 case "currOrganize":
 case "currPosition":
-					@:<JnpfOpenData v-model="@(Model.FormModel).@(item.LowerName)" @(item.Type)@(item.Disabled)/>
+					@:<CeriOpenData v-model="@(Model.FormModel).@(item.LowerName)" @(item.Type)@(item.Disabled)/>
 break;
 case "autoComplete":
 					@:<@(item.Tag) v-model="@(Model.FormModel).@(item.LowerName)" vModel="@(item.Name)" @(item.IsLinked ? "@change='"+ @item.LowerName +"Change' ":"")@(item.IsLinkage ? ":formData='dataForm' ": "")@(item.TemplateJson)@(item.Total)@(item.InterfaceId)@(item.Placeholder)@(item.Disabled)@(item.Clearable)@(item.RelationField)/>
 break;
 default:
-					@:<JnpfInput v-model="@(Model.FormModel).@(item.LowerName)" :placeholder="$t('component.jnpf.common.autoGenerate')" disabled/>
+					@:<CeriInput v-model="@(Model.FormModel).@(item.LowerName)" :placeholder="$t('component.jnpf.common.autoGenerate')" disabled/>
 break;
 }
 				@:</u-form-item>
