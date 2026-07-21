@@ -1,4 +1,4 @@
-﻿namespace JNPF.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
+﻿namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 
 /// <summary>
 /// @(Model.BusName)输入参数.
