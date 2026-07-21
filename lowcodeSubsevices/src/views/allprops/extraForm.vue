@@ -36,12 +36,12 @@
   import { create, update, getInfo } from './helper/api';
   import { reactive, toRefs, nextTick, ref, unref, computed } from 'vue';
   import { BasicModal, useModal } from '@/components/Modal';
-  import { JnpfRelationForm } from '@/components/Jnpf';
+  import { CeriRelationForm } from '@/components/CeriOS';
   import { useMessage } from '@/hooks/web/useMessage';
   import { useI18n } from '@/hooks/web/useI18n';
-  import { useUserStore } from '@/store/modules/user';
+  import { useUserStore } from '@/store/user';
   import type { FormInstance } from 'ant-design-vue';
-  import { thousandsFormat, getTimeUnit, getDateTimeUnit } from '@/utils/jnpf';
+  import { thousandsFormat, getTimeUnit, getDateTimeUnit } from '@/utils/ceri';
   import { getDictionaryDataSelector } from '@/api/systemData/dictionary';
   import { getDataInterfaceRes } from '@/api/systemData/dataInterface';
   import dayjs from 'dayjs';
@@ -83,13 +83,13 @@
 
   function init(data) {
     state.isContinue = false;
-    state.title = !data.id || data.id === 'jnpfAdd' ? '新增' : '编辑';
+    state.title = !data.id || data.id === 'ceriAdd' ? '新增' : '编辑';
     setFormProps({ continueLoading: false });
     openModal();
     nextTick(() => {
       getForm().resetFields();
       state.dataForm = JSON.parse(JSON.stringify(data.formData));
-      state.dataForm.id = !data.id || data.id === 'jnpfAdd' ? '' : data.id;
+      state.dataForm.id = !data.id || data.id === 'ceriAdd' ? '' : data.id;
     });
   }
   function getForm() {
