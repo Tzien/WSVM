@@ -539,7 +539,7 @@ case "uploadFile":
 							@:<@(children.Tag) v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :noShowBtn="false" @(children.Limit)@(children.SizeUnit)@(children.FileSize)@(children.Accept) detailed/>
 break;
 case "uploadImg":
-							@:<JnpfUploadImg v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" detailed />
+							@:<CeriUploadImg v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" detailed />
 break;
 @*关联表单*@
 case "relationForm":
@@ -579,7 +579,7 @@ break;
 					@:</view>
 					@:<view class="u-p-l-20 u-p-r-20 form-item-box">
 						@:<u-form-item v-for="(item,i) in @(item.LowerChildTableName)()" :key="i" :label="item.name" :label-width="item?.labelWidth? item.labelWidth * 1.5 : ''">
-							@:<JnpfInput v-model="item.val" disabled placeholder="" />
+							@:<CeriInput v-model="item.val" disabled placeholder="" />
 						@:</u-form-item>
 					@:</view>
 				@:</view>
@@ -656,13 +656,13 @@ case "colorPicker":
 break;
 @*富文本框*@
 case "editor":
-					@:<JnpfEditor  v-model="@(Model.FormModel).@(item.LowerName)" detailed />
+					@:<CeriEditor  v-model="@(Model.FormModel).@(item.LowerName)" detailed />
 break;
 case "input":
-					@:<JnpfInput v-model="@(Model.FormModel).@(item.LowerName)" detailed  @(item.UseMask)@(item.MaskConfig)@(item.AddonBefore)@(item.AddonAfter)/>
+					@:<CeriInput v-model="@(Model.FormModel).@(item.LowerName)" detailed  @(item.UseMask)@(item.MaskConfig)@(item.AddonBefore)@(item.AddonAfter)/>
 break;
 case "uploadImg":
-					@:<JnpfUploadImg v-model="@(Model.FormModel).@(item.LowerName)" detailed />
+					@:<CeriUploadImg v-model="@(Model.FormModel).@(item.LowerName)" detailed />
 break;
 case "uploadFile":
 					@:<@(item.Tag) v-model="@(Model.FormModel).@(item.LowerName)" :noShowBtn="false" @(item.Limit)@(item.SizeUnit)@(item.FileSize)@(item.Accept) detailed/>
@@ -830,7 +830,7 @@ case "uploadFile":
 							@:<@(children.Tag) v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" :noShowBtn="false" @(children.Limit)@(children.SizeUnit)@(children.FileSize)@(children.Accept) detailed/>
 break;
 case "uploadImg":
-							@:<JnpfUploadImg v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" detailed />
+							@:<CeriUploadImg v-model="@(Model.FormModel).@(item.Name)[i].@(children.LowerName)" detailed />
 break;
 @*关联表单*@
 case "relationForm":
@@ -870,7 +870,7 @@ break;
 					@:</view>
 					@:<view class="u-p-l-20 u-p-r-20 form-item-box">
 						@:<u-form-item v-for="(item,i) in @(item.LowerChildTableName)()" :key="i" :label="item.name" :label-width="item?.labelWidth? item.labelWidth * 1.5 : ''">
-							@:<JnpfInput v-model="item.val" disabled placeholder="" />
+							@:<CeriInput v-model="item.val" disabled placeholder="" />
 						@:</u-form-item>
 					@:</view>
 				@:</view>
@@ -947,13 +947,13 @@ case "colorPicker":
 break;
 @*富文本框*@
 case "editor":
-					@:<JnpfEditor  v-model="@(Model.FormModel).@(item.LowerName)" detailed />
+					@:<CeriEditor  v-model="@(Model.FormModel).@(item.LowerName)" detailed />
 break;
 case "input":
-					@:<JnpfInput v-model="@(Model.FormModel).@(item.LowerName)" detailed  @(item.UseMask)@(item.MaskConfig)@(item.AddonBefore)@(item.AddonAfter)/>
+					@:<CeriInput v-model="@(Model.FormModel).@(item.LowerName)" detailed  @(item.UseMask)@(item.MaskConfig)@(item.AddonBefore)@(item.AddonAfter)/>
 break;
 case "uploadImg":
-					@:<JnpfUploadImg v-model="@(Model.FormModel).@(item.LowerName)" detailed />
+					@:<CeriUploadImg v-model="@(Model.FormModel).@(item.LowerName)" detailed />
 break;
 case "uploadFile":
 					@:<@(item.Tag) v-model="@(Model.FormModel).@(item.LowerName)" :noShowBtn="false" @(item.Limit)@(item.SizeUnit)@(item.FileSize)@(item.Accept) detailed/>

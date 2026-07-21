@@ -1,4 +1,4 @@
-﻿@if(Model.IsUploading)
+﻿﻿@if(Model.IsUploading)
 {
 @:using JNPF.Common.Models;
 @:
