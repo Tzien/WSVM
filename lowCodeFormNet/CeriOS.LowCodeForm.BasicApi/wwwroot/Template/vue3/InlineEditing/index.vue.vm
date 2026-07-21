@@ -513,10 +513,19 @@ break;
     const sortField = defaultSortConfig.map(o => (o.sort === 'desc' ? '-' : '') + o.field); 
     const data: any = {
 @if(Model.TableConfig.HasPage){
-      @:pagination: { pageSize: @Model.TableConfig.PageSize }, //有分页
+      @:pagination: {
+      @:  pageSize: @Model.TableConfig.PageSize,
+      @:  pageSizeOptions: ['20', '30', '45', '60'],
+      @:  showSizeChanger: true,
+      @:  showTotal: (total) => `${t('message.drawer.TotalOf')} ${total} ${t('message.drawer.Items')}`,
+      @:  size: 'default',
+      @:}, //有分页
 }else{
       @:pagination: false, //没有分页，树形，分组
 }
+      maxHeight: 585,
+      striped: true,
+      resizeHeightOffset: 20,
       searchInfo: unref(searchInfo),
 	  ellipsis: @Model.TableConfig.ShowOverflow.ToString().ToLower(),
       defSort: { sidx: sortField.join(',') },
