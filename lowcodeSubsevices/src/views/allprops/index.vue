@@ -2,7 +2,12 @@
   <div class="ceri-content-wrapper">
     <div class="ceri-content-wrapper-center">
       <div class="ceri-content-wrapper-search-box" v-if="getSearchList.length">
-        <BasicForm @register="registerSearchForm" :schemas="searchSchemas" @advanced-change="redoHeight" @submit="handleSearchSubmit" @reset="handleSearchReset" class="search-form" />
+        <BasicForm @register="registerSearchForm" :schemas="getSearchList" @advanced-change="redoHeight" @submit="handleSearchSubmit" class="search-form">
+        </BasicForm>
+        <div class="demos-search-actions">
+          <a-button type="primary" @click="handleClickSearch()">{{ t('common.queryText', '查询') }}</a-button>
+          <a-button class="ml-10" @click="handleSearchReset()">{{ t('common.resetText', '重置') }}</a-button>
+        </div>
       </div>
       <div class="ceri-content-wrapper-content bg-white">
         <BasicTable @register="registerTable" v-bind="getTableBindValue" ref="tableRef" @columns-change="handleColumnChange">
@@ -290,10 +295,10 @@
   const searchInfo:any = reactive({
     ...cloneDeep(defaultSearchInfo),
   });
-  const [registerSearchForm, { updateSchema, resetFields, submit: searchFormSubmit }] = useForm({
+  const [registerSearchForm, { updateSchema, resetFields, submit: searchFormSubmit, getFieldsValue }] = useForm({
     baseColProps: { span: 6 },
-    showActionButtonGroup: true,
-    showAdvancedButton: true,
+    showActionButtonGroup: false,
+    showAdvancedButton: false,
     compact: true,
   });
   const [ registerTable, { reload, setLoading, getFetchParams, getSelectRows, getSelectRowKeys, redoHeight, insertTableDataRecord, updateTableDataRecord, deleteTableDataRecord, clearSelectedRowKeys }] = useTable({
@@ -530,8 +535,14 @@
   function handleColumnChange(data) {
     state.columnSettingList = data;
   }
-  function handleSearchReset() {
-    searchFormSubmit();
+  function handleClickSearch() {
+    const data = getFieldsValue();
+    handleSearchSubmit(data);
+  }
+  async function handleSearchReset() {
+    await resetFields();
+    const data = getFieldsValue();
+    handleSearchSubmit(data);
   }
   function handleSearchSubmit(data) {
     clearSelectedRowKeys();
@@ -683,3 +694,21 @@ function initViewList(currentId = '') {
     init();
   });
 </script>
+
+<style lang="less" scoped>
+  // 查询/重置按钮定位在搜索区域右上角，与第一行表单项同一行
+  .ceri-content-wrapper-search-box {
+    position: relative;
+    padding-right: 220px;
+  }
+
+  .demos-search-actions {
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    z-index: 2;
+  }
+</style>
