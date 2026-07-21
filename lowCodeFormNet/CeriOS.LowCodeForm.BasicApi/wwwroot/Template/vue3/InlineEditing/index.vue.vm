@@ -1,7 +1,7 @@
 <template>
-  <div class="jnpf-content-wrapper">
-    <div class="jnpf-content-wrapper-center">
-      <div class="jnpf-content-wrapper-search-box" v-if="getSearchList.length">
+  <div class="ceri-content-wrapper">
+    <div class="ceri-content-wrapper-center">
+      <div class="ceri-content-wrapper-search-box" v-if="getSearchList.length">
         <BasicForm @@register="registerSearchForm" :schemas="getSearchList" @@advanced-change="redoHeight" @@submit="handleSearchSubmit" class="search-form">
         </BasicForm>
         <div class="demos-search-actions">
@@ -9,9 +9,9 @@
           <a-button class="ml-10" @@click="handleSearchReset()">{{ t('common.resetText', '重置') }}</a-button>
         </div>
       </div>
-      <div class="jnpf-content-wrapper-content bg-white">
+      <div class="ceri-content-wrapper-content bg-white">
       @if(Model.IsTabConfig){
-        <a-tabs v-if="tabList.length" v-model:activeKey="tabActiveKey" class="jnpf-content-wrapper-tabs jnpf-content-wrapper-tabs-header" destroyInactiveTabPane @@change="onTabChange">
+        <a-tabs v-if="tabList.length" v-model:activeKey="tabActiveKey" class="ceri-content-wrapper-tabs ceri-content-wrapper-tabs-header" destroyInactiveTabPane @@change="onTabChange">
             <a-tab-pane v-for="item in tabList" :key="item.id" :tab="item.fullName"></a-tab-pane>
         </a-tabs>
       }
@@ -48,25 +48,25 @@
             </template>
             <template v-if="record.rowEdit">
               <template v-if="column.ceriKey === 'inputNumber'">
-				<jnpf-input-number v-model:value="record[column.prop]" :placeholder="column.placeholder" :min="column.min" :max="column.max" :step="column.step" :controls="column.controls" :addonBefore="column.addonBefore" :addonAfter="column.addonAfter" :precision="column.precision" :thousands="column.thousands" :disabled="column.disabled" />
+				<ceri-input-number v-model:value="record[column.prop]" :placeholder="column.placeholder" :min="column.min" :max="column.max" :step="column.step" :controls="column.controls" :addonBefore="column.addonBefore" :addonAfter="column.addonAfter" :precision="column.precision" :thousands="column.thousands" :disabled="column.disabled" />
               </template>
               <template v-else-if="column.ceriKey === 'sign'">
-				<jnpf-sign v-model:value="record[column.prop]" :disabled="column.disabled" :isInvoke="column.isInvoke" />
+				<ceri-sign v-model:value="record[column.prop]" :disabled="column.disabled" :isInvoke="column.isInvoke" />
               </template>
 			  <template v-else-if="column.ceriKey === 'signature'">
-				 <jnpf-signature v-model:value="record[column.prop]" :disabled="column.disabled" :ableIds="column.ableIds" />
+				 <ceri-signature v-model:value="record[column.prop]" :disabled="column.disabled" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'location'">
-				<jnpf-location v-model:value="record[column.prop]" :enableLocationScope='column.enableLocationScope' :autoLocation='column.autoLocation' :adjustmentScope='column.adjustmentScope' :enableDesktopLocation='column.enableDesktopLocation' :locationScope='column.locationScope' :disabled="column.disabled" />
+				<ceri-location v-model:value="record[column.prop]" :enableLocationScope='column.enableLocationScope' :autoLocation='column.autoLocation' :adjustmentScope='column.adjustmentScope' :enableDesktopLocation='column.enableDesktopLocation' :locationScope='column.locationScope' :disabled="column.disabled" />
               </template>
 				<template v-else-if="column.ceriKey === 'rate'">
-                  <jnpf-rate v-model:value="record[column.prop]" :count="column.count" :allowHalf="column.allowHalf" :disabled="column.disabled" />
+                  <ceri-rate v-model:value="record[column.prop]" :count="column.count" :allowHalf="column.allowHalf" :disabled="column.disabled" />
                 </template>
                 <template v-else-if="column.ceriKey === 'slider'">
-                  <jnpf-slider v-model:value="record[column.prop]" :min="column.min" :max="column.max" :step="column.step" :disabled="column.disabled" />
+                  <ceri-slider v-model:value="record[column.prop]" :min="column.min" :max="column.max" :step="column.step" :disabled="column.disabled" />
                 </template>
                 <template v-else-if="column.ceriKey === 'uploadImg'">
-                  <jnpf-upload-img
+                  <ceri-upload-img
                     v-model:value="record[column.prop]"
                     :fileSize="column.fileSize"
                     :sizeUnit="column.sizeUnit"
@@ -80,7 +80,7 @@
                     :disabled="column.disabled" />
                 </template>
                 <template v-else-if="column.ceriKey === 'uploadFile'">
-                  <jnpf-upload-file
+                  <ceri-upload-file
                     v-model:value="record[column.prop]"
                     :accept="column.accept"
                     :fileSize="column.fileSize"
@@ -96,64 +96,64 @@
                     :disabled="column.disabled" />
                 </template>
               <template v-else-if="column.ceriKey === 'calculate'">
-                <jnpf-calculate v-model:value="record[column.prop]" :isStorage="column.isStorage" :precision="column.precision" :thousands="column.thousands" detailed />
+                <ceri-calculate v-model:value="record[column.prop]" :isStorage="column.isStorage" :precision="column.precision" :thousands="column.thousands" detailed />
               </template>
               <template v-else-if="['rate', 'slider'].includes(column.ceriKey)">
-				<jnpf-input-number v-model:value="record[column.prop]" placeholder="请输入" :disabled="column.disabled" />
+				<ceri-input-number v-model:value="record[column.prop]" placeholder="请输入" :disabled="column.disabled" />
               </template>
               <template v-else-if="column.ceriKey === 'switch'">
-                <jnpf-switch v-model:value="record[column.prop]" :disabled="column.disabled" />
+                <ceri-switch v-model:value="record[column.prop]" :disabled="column.disabled" />
               </template>
               <template v-else-if="column.ceriKey === 'timePicker'">
-				<jnpf-time-picker v-model:value="record[column.prop]" :format="column.format" :placeholder="column.placeholder" :allowClear="column.clearable" :startTime="column.startTime" :endTime="column.endTime" :disabled="column.disabled" />
+				<ceri-time-picker v-model:value="record[column.prop]" :format="column.format" :placeholder="column.placeholder" :allowClear="column.clearable" :startTime="column.startTime" :endTime="column.endTime" :disabled="column.disabled" />
               </template>
               <template v-else-if="column.ceriKey === 'datePicker'">
-                <jnpf-date-picker v-model:value="record[column.prop]" :type="column.type" :allowClear="column.clearable" :placeholder="column.placeholder" :startTime="column.startTime" :endTime="column.endTime" :format="column.format" :disabled="column.disabled" />
+                <ceri-date-picker v-model:value="record[column.prop]" :type="column.type" :allowClear="column.clearable" :placeholder="column.placeholder" :startTime="column.startTime" :endTime="column.endTime" :format="column.format" :disabled="column.disabled" />
 			  </template>
               <template v-else-if="column.ceriKey === 'organizeSelect'">
-                <jnpf-organize-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
+                <ceri-organize-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'depSelect'">
-                <jnpf-dep-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
+                <ceri-dep-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'roleSelect'">
-                <jnpf-role-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
+                <ceri-role-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'groupSelect'">
-                <jnpf-group-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
+                <ceri-group-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'posSelect'">
-                <jnpf-pos-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
+                <ceri-pos-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'userSelect'">
-                <jnpf-user-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="['all', 'custom'].includes(column.selectType) ? column.selectType : 'all'" :ableIds="column.ableIds" />
+                <ceri-user-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="['all', 'custom'].includes(column.selectType) ? column.selectType : 'all'" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'usersSelect'">
-                <jnpf-users-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
+                <ceri-users-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :selectType="column.selectType" :ableIds="column.ableIds" />
 			  </template>
               <template v-else-if="column.ceriKey === 'areaSelect'">
-                <jnpf-area-select v-model:value="record[column.prop]" :level="column.level" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" />
+                <ceri-area-select v-model:value="record[column.prop]" :level="column.level" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" />
 			  </template>
               <template v-else-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
-                <jnpf-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple || column.ceriKey === 'checkbox'" :allowClear="column.clearable || ['radio', 'checkbox'].includes(column.ceriKey)" :showSearch="column.filterable" :disabled="column.disabled" :options="column.options" :fieldNames="column.props" />
+                <ceri-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple || column.ceriKey === 'checkbox'" :allowClear="column.clearable || ['radio', 'checkbox'].includes(column.ceriKey)" :showSearch="column.filterable" :disabled="column.disabled" :options="column.options" :fieldNames="column.props" />
 			  </template>
               <template v-else-if="column.ceriKey === 'cascader'">
-                <jnpf-cascader v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :showSearch="column.filterable" :disabled="column.disabled" :options="column.options" :fieldNames="column.props" :showAllLevels="column.showAllLevels" />
+                <ceri-cascader v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :showSearch="column.filterable" :disabled="column.disabled" :options="column.options" :fieldNames="column.props" :showAllLevels="column.showAllLevels" />
 			  </template>
               <template v-else-if="column.ceriKey === 'treeSelect'">
-                <jnpf-tree-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :showSearch="column.filterable" :disabled="column.disabled" :options="column.options" :fieldNames="column.props" />
+                <ceri-tree-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :showSearch="column.filterable" :disabled="column.disabled" :options="column.options" :fieldNames="column.props" />
 			  </template>
               <template v-else-if="column.ceriKey === 'relationForm'">
-                <jnpf-relation-form v-model:value="record[column.prop]" :placeholder="column.placeholder" :allowClear="column.clearable" :disabled="column.disabled" :modelId="column.modelId" :columnOptions="column.columnOptions" :relationField="column.relationField" :hasPage="column.hasPage" :pageSize="column.pageSize" :popupType="column.popupType" :popupTitle="column.popupTitle" :popupWidth="column.popupWidth" :queryType="column.queryType" :propsValue="column.propsValue" />
+                <ceri-relation-form v-model:value="record[column.prop]" :placeholder="column.placeholder" :allowClear="column.clearable" :disabled="column.disabled" :modelId="column.modelId" :columnOptions="column.columnOptions" :relationField="column.relationField" :hasPage="column.hasPage" :pageSize="column.pageSize" :popupType="column.popupType" :popupTitle="column.popupTitle" :popupWidth="column.popupWidth" :queryType="column.queryType" :propsValue="column.propsValue" />
 			  </template>
               <template v-else-if="column.ceriKey === 'popupSelect' || column.ceriKey === 'popupTableSelect'">
-				<jnpf-popup-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :interfaceId="column.interfaceId" :columnOptions="column.columnOptions" :propsValue="column.propsValue" :relationField="column.relationField" :hasPage="column.hasPage" :pageSize="column.pageSize" :popupType="column.popupType" :popupTitle="column.popupTitle" :templateJson="column.templateJson" :popupWidth="column.popupWidth" />
+				<ceri-popup-select v-model:value="record[column.prop]" :placeholder="column.placeholder" :multiple="column.multiple" :allowClear="column.clearable" :disabled="column.disabled" :interfaceId="column.interfaceId" :columnOptions="column.columnOptions" :propsValue="column.propsValue" :relationField="column.relationField" :hasPage="column.hasPage" :pageSize="column.pageSize" :popupType="column.popupType" :popupTitle="column.popupTitle" :templateJson="column.templateJson" :popupWidth="column.popupWidth" />
               </template>
               <template v-else-if="['input', 'textarea'].includes(column.ceriKey)">
-                <jnpf-input v-model:value="record[column.prop]" :placeholder="column.placeholder" :allowClear="column.clearable" :disabled="column.disabled" :readonly="column.readonly" :prefixIcon="column.prefixIcon" :suffixIcon="column.suffixIcon" :addonBefore="column.addonBefore" :addonAfter="column.addonAfter" :maxlength="column.maxlength" :showPassword="column.showPassword" />
+                <ceri-input v-model:value="record[column.prop]" :placeholder="column.placeholder" :allowClear="column.clearable" :disabled="column.disabled" :readonly="column.readonly" :prefixIcon="column.prefixIcon" :suffixIcon="column.suffixIcon" :addonBefore="column.addonBefore" :addonAfter="column.addonAfter" :maxlength="column.maxlength" :showPassword="column.showPassword" />
               </template>
               <template v-else-if="column.ceriKey === 'autoComplete'">
-				<jnpf-auto-complete v-model:value="record[column.prop]" :placeholder="column.placeholder" :allowClear="column.clearable" :disabled="column.disabled" :interfaceId="column.interfaceId" :relationField="column.relationField" :templateJson="column.templateJson" :total="column.total" />
+				<ceri-auto-complete v-model:value="record[column.prop]" :placeholder="column.placeholder" :allowClear="column.clearable" :disabled="column.disabled" :interfaceId="column.interfaceId" :relationField="column.relationField" :templateJson="column.templateJson" :total="column.total" />
               </template>
               <template v-else-if="systemComponentsList.includes(column.ceriKey)">
                 {{ record[column.prop + '_name'] || record[column.prop] }}
@@ -164,28 +164,28 @@
             </template>
             <template v-else>
               <template v-if="column.ceriKey === 'inputNumber'">
-                <jnpf-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
+                <ceri-input-number v-model:value="record[column.prop]" :precision="column.precision" :thousands="column.thousands" disabled detailed />
               </template>
               <template v-else-if="column.ceriKey === 'sign'">
-                <jnpf-sign v-model:value="record[column.prop]" detailed />
+                <ceri-sign v-model:value="record[column.prop]" detailed />
               </template>
 				<template v-else-if="column.ceriKey === 'signature'">
-					<jnpf-signature v-model:value="record[column.prop]" detailed />
+					<ceri-signature v-model:value="record[column.prop]" detailed />
 				</template>
 				<template v-else-if="column.ceriKey === 'rate'">
-                  <jnpf-rate v-model:value="record[column.prop]" :count="column.count" :allowHalf="column.allowHalf" disabled />
+                  <ceri-rate v-model:value="record[column.prop]" :count="column.count" :allowHalf="column.allowHalf" disabled />
                 </template>
                 <template v-else-if="column.ceriKey === 'slider'">
-                  <jnpf-slider v-model:value="record[column.prop]" :min="column.min" :max="column.max" :step="column.step" disabled />
+                  <ceri-slider v-model:value="record[column.prop]" :min="column.min" :max="column.max" :step="column.step" disabled />
                 </template>
                 <template v-else-if="column.ceriKey === 'uploadImg'">
-                  <jnpf-upload-img v-model:value="record[column.prop]" disabled detailed simple v-if="record[column.prop]?.length" />
+                  <ceri-upload-img v-model:value="record[column.prop]" disabled detailed simple v-if="record[column.prop]?.length" />
                 </template>
                 <template v-else-if="column.ceriKey === 'uploadFile'">
-                  <jnpf-upload-file v-model:value="record[column.prop]" disabled detailed simple v-if="record[column.prop]?.length" />
+                  <ceri-upload-file v-model:value="record[column.prop]" disabled detailed simple v-if="record[column.prop]?.length" />
                 </template>
                 <template v-else-if="column.ceriKey === 'input'">
-                  <jnpf-input
+                  <ceri-input
                     v-model:value="record[column.prop]"
                     :useMask="column.useMask"
                     :maskConfig="column.maskConfig"
@@ -193,7 +193,7 @@
                     detailed />
                 </template>
               <template v-else-if="column.ceriKey === 'calculate'">
-                <jnpf-calculate v-model:value="record[column.prop]" :isStorage="column.isStorage" :precision="column.precision" :thousands="column.thousands" detailed />
+                <ceri-calculate v-model:value="record[column.prop]" :isStorage="column.isStorage" :precision="column.precision" :thousands="column.thousands" detailed />
               </template>
               <template v-else-if="column.ceriKey === 'relationForm'">
                 <p class="link-text" @@click="toDetail(column.modelId, record[`${column.prop}_id`])">{{ record[column.prop + '_name'] || record[column.prop] }}</p>
@@ -205,7 +205,7 @@
 @if(Model.HasFlow){
             <!-- 有工作流：开始 -->
             <template v-if="column.key === 'flowState' && !record.top">
-              <JnpfTextTag :content="getFlowStatusContent(record.flowState)" :color="getFlowStatusColor(record.flowState)" />
+              <CeriTextTag :content="getFlowStatusContent(record.flowState)" :color="getFlowStatusColor(record.flowState)" />
             </template>
             <!-- 有工作流：结束 -->
 }
@@ -308,7 +308,7 @@
   import { CeriRelationForm } from '@@/components/CeriOS';
   import dayjs from 'dayjs';
   import { noGroupList } from '@@/components/FormGenerator/src/helper/config';
-  import { useBaseStore } from '@@/store/modules/base';
+  import { useBaseStore } from '@@/store/base';
   import ViewSetting from '@@/views/common/dynamicModel/list/components/ViewSetting.vue';
   import ViewList from '@@/views/common/dynamicModel/list/components/ViewList.vue';
 @if(Model.HasBatchPrint){
@@ -669,15 +669,15 @@ break;
   }
 
   function cancelRowEdit(record, index) {
-    const id = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'jnpfAdd' ? '' : record.@(Model.PrimaryKeyField);
-    if (!id) return deleteTableDataRecord('jnpfAdd');
+    const id = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'ceriAdd' ? '' : record.@(Model.PrimaryKeyField);
+    if (!id) return deleteTableDataRecord('ceriAdd');
     record.rowEdit = false;
     const item = cloneDeep(state.cacheList[index]);
     updateTableDataRecord(item.id, item);
   }
   // 行内编辑保存
   function saveForRowEdit(record, status = 0, candidateData: any = null) {
-    const id = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'jnpfAdd' ? '' : record.@(Model.PrimaryKeyField);
+    const id = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'ceriAdd' ? '' : record.@(Model.PrimaryKeyField);
 @if(Model.HasFlow){
     @:// 工作流
     @:let query = {
@@ -708,7 +708,7 @@ break;
 @if(Model.HasFlow){
   @:// 行内编辑提交审核
   @:function submitForRowEdit(record) {
-    @:record.@(Model.PrimaryKeyField) = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'jnpfAdd' ? '' : record.@(Model.PrimaryKeyField);
+    @:record.@(Model.PrimaryKeyField) = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'ceriAdd' ? '' : record.@(Model.PrimaryKeyField);
     @:state.currRow = record;
     @:state.workFlowFormData = {
       @:id: record.@(Model.PrimaryKeyField),
@@ -744,7 +744,7 @@ break;
     @:// 不带流程新增
     @:let record = { 
       @:rowEdit: true, 
-      @:@(Model.PrimaryKeyField): 'jnpfAdd',
+      @:@(Model.PrimaryKeyField): 'ceriAdd',
 @foreach (var item in Model.FormScript.InlineEditorDataForm) {
       @:@(item.Name): @(item.Value),
 }
@@ -1231,7 +1231,7 @@ function initViewList(currentId = '') {
 
 <style lang="less" scoped>
   // 查询/重置按钮定位在搜索区域右上角，与第一行表单项同一行
-  .jnpf-content-wrapper-search-box {
+  .ceri-content-wrapper-search-box {
     position: relative;
     padding-right: 220px;
   }

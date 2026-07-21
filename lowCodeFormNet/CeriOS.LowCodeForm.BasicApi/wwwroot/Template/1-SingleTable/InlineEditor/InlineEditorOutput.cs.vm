@@ -1,9 +1,9 @@
-﻿@if(Model.IsUploading)
+﻿﻿@if(Model.IsUploading)
 {
 @:using JNPF.Common.Models;
 @:
 }
-namespace JNPF.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
+namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
  
 /// <summary>
 /// @(Model.BusName)输出参数.
