@@ -336,7 +336,16 @@
     const defaultSortConfig = []; 
     const sortField = defaultSortConfig.map(o => (o.sort === 'desc' ? '-' : '') + o.field); 
     const data: any = {
-      pagination: { pageSize: 20 }, //有分页
+      pagination: {
+        pageSize: 20,
+        pageSizeOptions: ['20', '30', '45', '60'],
+        showSizeChanger: true,
+        showTotal: (total) => `${t('message.drawer.TotalOf')} ${total} ${t('message.drawer.Items')}`,
+        size: 'default',
+      }, //有分页
+      maxHeight: 585,
+      striped: true,
+      resizeHeightOffset: 20,
       searchInfo: unref(searchInfo),
 	  ellipsis: true,
       defSort: { sidx: sortField.join(',') },
