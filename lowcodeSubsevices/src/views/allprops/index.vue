@@ -1,5 +1,5 @@
 ﻿<template>
-  <div class="ceri-content-wrapper demos-page">
+  <div class="ceri-content-wrapper">
     <div class="ceri-content-wrapper-center">
       <div class="ceri-content-wrapper-search-box" v-if="getSearchList.length">
         <BasicForm @register="registerSearchForm" :schemas="getSearchList" @advanced-change="redoHeight" @submit="handleSearchSubmit" class="search-form">
@@ -698,9 +698,8 @@ function initViewList(currentId = '') {
 </script>
 
 <style lang="less" scoped>
-.demos-page {
   // 查询/重置按钮定位在搜索区域右上角，与第一行表单项同一行
-  :deep(.ceri-content-wrapper-search-box) {
+  .ceri-content-wrapper-search-box {
     position: relative;
     padding-right: 220px;
   }
@@ -732,5 +731,4 @@ function initViewList(currentId = '') {
     display: flex;
     align-items: center;
   }
-}
 </style>
