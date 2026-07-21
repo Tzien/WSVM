@@ -421,31 +421,13 @@
     showAdvancedButton: true,
     compact: true,
   });
-  function getColumnFieldKey(key: string) {
-    const columns = state.columnList?.length ? state.columnList : columnList;
-    const matchedKey = (columns || []).map((item) => item?.prop).find((item) => item && item.toLowerCase() === key.toLowerCase());
-    return matchedKey || key.replace(/^[a-z]/, (s) => s.toUpperCase());
-  }
   const [ registerTable, { reload, setLoading, getFetchParams, getSelectRows, getSelectRowKeys, redoHeight, insertTableDataRecord, updateTableDataRecord, deleteTableDataRecord, clearSelectedRowKeys }] = useTable({
     api: getList,
     immediate: false,
     clickToRowSelect: false,
 	tableSetting: { setting: false },
     afterFetch: data => {
-      const rows = (Array.isArray(data) ? data : data?.list || []).map(o => {
-        const mapped: any = { ...o };
-        Object.keys(o || {}).forEach(key => {
-          const fieldKey = getColumnFieldKey(key);
-          if (!(fieldKey in mapped)) mapped[fieldKey] = o[key];
-        });
-        const rowId = mapped.id ?? mapped.Id;
-        if (rowId !== undefined && rowId !== null) {
-          mapped.id = rowId;
-          mapped.Id = rowId;
-        }
-        return mapped;
-      });
-      const list = rows.map(o => ({ 
+      const list = data.map(o => ({ 
         ...o, 
         rowEdit: false,
 @foreach (var item in Model.FormScript.SubTableDesign){
