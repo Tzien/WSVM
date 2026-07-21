@@ -190,6 +190,16 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
             if (__sortColumn == null) continue;
             __orderFields.Add(__sortColumn.DbColumnName + (__isDesc ? " DESC" : " ASC"));
         }
+        if (__orderFields.Count == 0)
+        {
+            var __defaultSortColumn = entityInfo.Columns.FirstOrDefault(o =>
+                string.Equals(o?.PropertyName, "Sort", System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(o?.DbColumnName, "Sort", System.StringComparison.OrdinalIgnoreCase));
+            if (__defaultSortColumn != null)
+            {
+                __orderFields.Add(__defaultSortColumn.DbColumnName + " ASC");
+            }
+        }
         if (__orderFields.Count > 0)
         {
             query = query.OrderBy(string.Join(",", __orderFields));

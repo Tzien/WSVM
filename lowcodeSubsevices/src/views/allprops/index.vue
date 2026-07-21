@@ -357,7 +357,9 @@
       columns,
       bordered: true,
       actionColumn: {
-        width: 150,
+        width: 100,
+        fixed: 'right',
+        align: 'center',
         title: t('component.table.action'),
         dataIndex: 'action',
       },
@@ -710,5 +712,23 @@ function initViewList(currentId = '') {
     align-items: center;
     flex-wrap: nowrap;
     z-index: 2;
+  }
+
+  // 分页样式，与普通列表页面保持一致
+  :deep(.ant-table-pagination.ant-pagination) {
+    margin-top: 5px;
+    text-align: right;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+    padding: 0 30px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  :deep(.ant-table-pagination.ant-pagination .ant-pagination-options) {
+    display: flex;
+    align-items: center;
   }
 </style>
