@@ -13,6 +13,7 @@
         <BasicTable @register="registerTable" v-bind="getTableBindValue" ref="tableRef" @columns-change="handleColumnChange">
           <template #tableTitle>
             <a-button type="primary" preIcon="icon-ym icon-ym-btn-add" @click="addHandle()">{{t('common.add2Text','新增')}}</a-button>
+            <a-button v-if="getAddingCount > 1" type="primary" @click="saveAllHandle()">{{t('common.saveAllText','保存全部')}}</a-button>
           </template>
           <template #toolbarAfter>
             <ViewList :menuId="searchInfo.menuId" :viewList="viewList" @itemClick="handleViewClick" @reload="initViewList" />
@@ -301,7 +302,7 @@
     showAdvancedButton: false,
     compact: true,
   });
-  const [ registerTable, { reload, setLoading, getFetchParams, getSelectRows, getSelectRowKeys, redoHeight, insertTableDataRecord, updateTableDataRecord, deleteTableDataRecord, clearSelectedRowKeys }] = useTable({
+  const [ registerTable, { reload, setLoading, getFetchParams, getSelectRows, getSelectRowKeys, redoHeight, insertTableDataRecord, updateTableDataRecord, deleteTableDataRecord, clearSelectedRowKeys, getDataSource }] = useTable({
     api: getList,
     immediate: false,
     clickToRowSelect: false,
@@ -312,9 +313,18 @@
         rowEdit: false,
       }));
       state.cacheList = cloneDeep(list);
+      addingCount.value = 0;
       return list;
     },
   });
+
+  // 新增行计数与临时 id，支持同时新增多行
+  const addingCount = ref(0);
+  let addRowSeq = 0;
+  const getAddingCount = computed(() => addingCount.value);
+  function isAddRowId(id) {
+    return !id || String(id).startsWith('ceriAdd');
+  }
 
   const getColumns = computed(() => {
     const columns: any[] = state.columns;
@@ -404,19 +414,36 @@
   }
 
   function cancelRowEdit(record, index) {
-    const id = !record.id || record.id === 'ceriAdd' ? '' : record.id;
-    if (!id) return deleteTableDataRecord('ceriAdd');
+    if (isAddRowId(record.id)) {
+      deleteTableDataRecord(record.id);
+      if (addingCount.value > 0) addingCount.value--;
+      return;
+    }
     record.rowEdit = false;
     const item = cloneDeep(state.cacheList[index]);
     updateTableDataRecord(item.id, item);
   }
   // 行内编辑保存
   function saveForRowEdit(record, status = 0, candidateData: any = null) {
-    const id = !record.id || record.id === 'ceriAdd' ? '' : record.id;
+    const id = isAddRowId(record.id) ? '' : record.id;
     const query = { ...record, id };
     const formMethod = query.id ? update : create;
     formMethod(query).then(res => {
       createMessage.success(res.msg);
+      reload({ page: 1 });
+    });
+  }
+  // 保存全部：保存所有处于行编辑状态的数据（新增 + 编辑中）
+  function saveAllHandle() {
+    const rows = getDataSource().filter(o => o.rowEdit);
+    if (!rows.length) return;
+    const requests = rows.map(record => {
+      const id = isAddRowId(record.id) ? '' : record.id;
+      const query = { ...record, id };
+      return query.id ? update(query) : create(query);
+    });
+    Promise.all(requests).then(() => {
+      createMessage.success(t('common.saveSuccess', '保存成功'));
       reload({ page: 1 });
     });
   }
@@ -426,13 +453,14 @@
     // 不带流程新增
     let record = { 
       rowEdit: true, 
-      id: 'ceriAdd',
+      id: 'ceriAdd_' + ++addRowSeq,
       Name: undefined,
       Remark: undefined,
       Sort: undefined,
       Enabled: 0,
     };
     insertTableDataRecord(record, 0);
+    addingCount.value++;
   }
   // 编辑
   function updateHandle(record) {
