@@ -317,6 +317,9 @@
   });
   const getSearchList = computed(() => {
     const searchSchemas = cloneDeep(state.searchSchemas).map(o => ({ ...o, show: true }));
+    if (!state.currentView || !Array.isArray(state.currentView.searchList) || !state.currentView.searchList.length) {
+      return searchSchemas;
+    }
     return setListValue(state.currentView?.searchList, searchSchemas, 'field');
   });
   const getHasBatchBtn = computed(() => {
