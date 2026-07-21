@@ -349,7 +349,9 @@
       columns,
       bordered: true,
       actionColumn: {
-        width: 150,
+        width: 100,
+        fixed: 'right',
+        align: 'center',
         title: t('component.table.action'),
         dataIndex: 'action',
       },
