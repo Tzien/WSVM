@@ -20,7 +20,12 @@ builder.AddLog4netSetup();
 builder.AddRedisSetup();
 InitTableAndData.InitTable();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    // 保持属性原始大小写（PascalCase），与代码生成的前端列表字段一致
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    options.JsonSerializerOptions.DictionaryKeyPolicy = null;
+});
 
 
 // 添加 Swagger/OpenAPI 支持
