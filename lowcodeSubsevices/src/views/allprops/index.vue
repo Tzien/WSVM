@@ -16,7 +16,7 @@
             <a-button v-if="getAddingCount > 1" type="primary" @click="saveAllHandle()">{{t('common.saveAllText','保存全部')}}</a-button>
           </template>
           <template #toolbarAfter>
-            <ViewList :menuId="searchInfo.menuId" :viewList="viewList" @itemClick="handleViewClick" @reload="initViewList" />
+            <ViewList :userId="userStore.userid" :menuId="searchInfo.menuId" :viewList="viewList" @itemClick="handleViewClick" @reload="initViewList" />
             <ViewSetting :menuId="searchInfo.menuId" :viewList="viewList" :currentView="currentView" @reload="initViewList" />
           </template>
           <template #bodyCell="{ column, record, index }">
@@ -289,7 +289,7 @@
   });
   const { childColumnList, searchSchemas, viewList, currentView  } = toRefs(state);
     const defaultSearchInfo = {
-    menuId: route.meta.modelId as string,
+    menuId: route.path as string,
     moduleId:'50a206bf-ec22-4f28-bfb2-66434ef9bcb0',
     superQueryJson: '',
   };
@@ -476,7 +476,7 @@
   }
   function init() {
     state.config = {};
-    searchInfo.menuId = route.meta.modelId as string;
+    searchInfo.menuId = route.path as string;
     state.columnList = columnList;
     setLoading(true);
     getSearchSchemas();
@@ -701,6 +701,7 @@ function buildRowRelation() {
 function initViewList(currentId = '') {
     const query = {
       menuId: searchInfo.menuId,
+      userId: userStore.userid,
     };
     getViewList(query).then(res => {
       const columns: any[] = state.columns;
