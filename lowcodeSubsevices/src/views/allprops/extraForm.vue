@@ -4,27 +4,51 @@
       <a-form :colon="false" size="middle" layout="vertical" labelAlign="left" :model="dataForm" :rules="dataRule" ref="formRef">
         <a-row :gutter="15">
           <a-col :span="24" class="ant-col-item" >
-            <a-form-item name="Name" :labelCol="{ style: { width: '100px' } }">
-              <template #label>单行输入</template>
-              <CeriInput v-model:value="dataForm.Name" placeholder='请输入' allowClear :style='{"width":"100%"}'  :showCount='false'  />
+            <a-form-item name="Enmu" :labelCol="{ style: { width: '100px' } }">
+              <template #label>单选框组</template>
+              <CeriRadio v-model:value="dataForm.Enmu" :options="optionsObj.EnmuOptions" :fieldNames="optionsObj.EnmuProps" direction="horizontal" optionType="default" :style='{"width":"100%"}'  />
             </a-form-item>
           </a-col>
           <a-col :span="24" class="ant-col-item" >
-            <a-form-item name="Remark" :labelCol="{ style: { width: '100px' } }">
-              <template #label>多行输入</template>
-              <CeriTextarea v-model:value="dataForm.Remark" placeholder='请输入' allowClear :autoSize='{"minRows":4,"maxRows":4}' :style='{"width":"100%"}'  :showCount='false'  />
-            </a-form-item>
-          </a-col>
-          <a-col :span="24" class="ant-col-item" >
-            <a-form-item name="Sort" :labelCol="{ style: { width: '100px' } }">
-              <template #label>数字输入</template>
-              <CeriInputNumber v-model:value="dataForm.Sort" placeholder='请输入' :controls=false :style='{"width":"100%"}'  />
+            <a-form-item name="Text" :labelCol="{ style: { width: '100px' } }">
+              <template #label>多选框组</template>
+              <CeriCheckbox v-model:value="dataForm.Text" :options="optionsObj.TextOptions" :fieldNames="optionsObj.TextProps" direction="horizontal" :style='{"width":"100%"}'  />
             </a-form-item>
           </a-col>
           <a-col :span="24" class="ant-col-item" >
             <a-form-item name="Enabled" :labelCol="{ style: { width: '100px' } }">
-              <template #label>开关</template>
-              <CeriSwitch v-model:value="dataForm.Enabled"  />
+              <template #label>下拉选择</template>
+              <CeriSelect v-model:value="dataForm.Enabled" placeholder='请选择' :options="optionsObj.EnabledOptions" :fieldNames="optionsObj.EnabledProps" allowClear :style='{"width":"100%"}'  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="Name" :labelCol="{ style: { width: '100px' } }">
+              <template #label>级联选择</template>
+              <CeriCascader v-model:value="dataForm.Name" placeholder='请选择' :options="optionsObj.NameOptions" :fieldNames="optionsObj.NameProps" allowClear :style='{"width":"100%"}'  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="CreateTime" :labelCol="{ style: { width: '100px' } }">
+              <template #label>日期选择</template>
+              <CeriDatePicker v-model:value="dataForm.CreateTime" placeholder='请选择' format="yyyy-MM-dd" allowClear :style='{"width":"100%"}'  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="LastLoginTime" :labelCol="{ style: { width: '100px' } }">
+              <template #label>时间选择</template>
+              <CeriTimePicker v-model:value="dataForm.LastLoginTime" placeholder='请选择' format="HH:mm:ss" allowClear :style='{"width":"100%"}'  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="PF" :labelCol="{ style: { width: '100px' } }">
+              <template #label>评分</template>
+              <CeriRate v-model:value="dataForm.PF" :count="5"  />
+            </a-form-item>
+          </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="HK" :labelCol="{ style: { width: '100px' } }">
+              <template #label>滑块</template>
+              <CeriSlider v-model:value="dataForm.HK" :min="0" :max="100" :step="1.0" :style='{"width":"100%"}'  />
             </a-form-item>
           </a-col>
         </a-row>
@@ -49,6 +73,7 @@
   interface State {
     dataForm: any;
     dataRule: any;
+    optionsObj: any;
     isEdit: any;
     isContinue: boolean;
     title: string;
@@ -65,19 +90,39 @@
   const state = reactive<State>({
     dataForm: {
       id: '',
-      Name: undefined,
-      Remark: undefined,
-      Sort: undefined,
-      Enabled: 0,
+      Enmu: undefined,
+      Text: [],
+      Enabled: undefined,
+      Name: [],
+      CreateTime: undefined,
+      LastLoginTime: undefined,
+      Color: undefined,
+      PF: 0,
+      HK: 0,
+      FWB: undefined,
     },
     dataRule: {
+    },
+    optionsObj:{
+      EnmuOptions: [{'fullName':"单选一",'id':"1"},{'fullName':"单选二",'id':"2"}],
+      EnmuProps: {'label':'fullName','value':'id'},
+      TextOptions: [{'fullName':"多选一",'id':"1"},{'fullName':"多选二",'id':"2"}],
+      TextProps: {'label':'fullName','value':'id'},
+      EnabledOptions: [{'fullName':"是",'id':"1"},{'fullName':"否",'id':"2"}],
+      EnabledProps: {'label':'fullName','value':'id'},
+      NameOptions: [{'id':"1",'fullName':"级联1",'children':[{"fullName":"级联1-1","id":"11"}]},{'fullName':"级联2",'id':"2",'children':[{"fullName":"级联2-1","id":"21"}]}],
+      NameProps: {
+  "label": "fullName",
+  "value": "id",
+  "children": "children"
+},
     },
     title: '',
     isContinue: false,
     isEdit: false,
     allList: [],
   });
-  const { title, dataForm, dataRule } = toRefs(state);
+  const { title, dataForm, dataRule, optionsObj } = toRefs(state);
 
   defineExpose({ init });
 
