@@ -1,24 +1,24 @@
 ﻿const searchList = [
   {
-    "label": "单行输入",
+    "label": "单选框组",
     "labelI18nCode": "",
-    "prop": "Name",
-    "ceriKey": "input",
-    "searchType": 2,
+    "prop": "Enmu",
+    "ceriKey": "radio",
+    "searchType": 1,
     "searchMultiple": false,
     "isKeyword": false,
-    "id": "Name",
-    "fullName": "单行输入",
+    "id": "Enmu",
+    "fullName": "单选框组",
     "fullNameI18nCode": [
       ""
     ],
     "__config__": {
-      "ceriKey": "input",
-      "label": "单行输入",
+      "ceriKey": "radio",
+      "label": "单选框组",
       "tipLabel": "",
       "showLabel": true,
-      "tag": "CeriInput",
-      "tagIcon": "icon-ym icon-ym-generator-input",
+      "tag": "CeriRadio",
+      "tagIcon": "icon-ym icon-ym-generator-radio",
       "tableAlign": "left",
       "tableFixed": "none",
       "className": [],
@@ -33,9 +33,87 @@
       "tableName": "allprops",
       "noShow": false,
       "regList": [],
-      "trigger": "blur",
-      "formId": "formItem5997e6",
-      "renderKey": 1784538921969
+      "trigger": "change",
+      "dataType": "static",
+      "dictionaryType": "",
+      "propsUrl": "",
+      "propsName": "",
+      "useCache": true,
+      "templateJson": [],
+      "formId": "formItemfe87aa",
+      "renderKey": 1784872030657
+    },
+    "on": {
+      "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}"
+    },
+    "style": {
+      "width": "100%"
+    },
+    "options": [
+      {
+        "fullName": "单选一",
+        "id": "1"
+      },
+      {
+        "fullName": "单选二",
+        "id": "2"
+      }
+    ],
+    "props": {
+      "label": "fullName",
+      "value": "id"
+    },
+    "direction": "horizontal",
+    "optionType": "default",
+    "buttonStyle": "solid",
+    "size": "default",
+    "disabled": false,
+    "__vModel__": "Enmu"
+  },
+  {
+    "label": "级联选择",
+    "labelI18nCode": "",
+    "prop": "Name",
+    "ceriKey": "cascader",
+    "searchType": 1,
+    "searchMultiple": false,
+    "isKeyword": false,
+    "id": "Name",
+    "fullName": "级联选择",
+    "fullNameI18nCode": [
+      ""
+    ],
+    "__config__": {
+      "ceriKey": "cascader",
+      "label": "级联选择",
+      "tipLabel": "",
+      "showLabel": true,
+      "tag": "CeriCascader",
+      "tagIcon": "icon-ym icon-ym-generator-cascader",
+      "tableAlign": "left",
+      "tableFixed": "none",
+      "className": [],
+      "defaultValue": [],
+      "required": false,
+      "layout": "colFormItem",
+      "span": 24,
+      "dragDisabled": false,
+      "visibility": [
+        "pc",
+        "app"
+      ],
+      "tableName": "allprops",
+      "noShow": false,
+      "regList": [],
+      "trigger": "change",
+      "dataType": "static",
+      "propsUrl": "",
+      "propsName": "",
+      "useCache": true,
+      "templateJson": [],
+      "dictionaryType": "",
+      "formId": "formItemd414f8",
+      "renderKey": 1784872032177
     },
     "on": {
       "change": "({ data, rowIndex, formData, setFormData, setShowOrHide, setRequired, setDisabled, onlineUtils }) => {\n    // 在此编写代码\n    \n}",
@@ -44,32 +122,38 @@
     "style": {
       "width": "100%"
     },
-    "placeholder": "请输入",
-    "useScan": false,
-    "useMask": false,
-    "maskConfig": {
-      "filler": "*",
-      "maskType": 1,
-      "prefixType": 1,
-      "prefixLimit": 0,
-      "prefixSpecifyChar": "",
-      "suffixType": 1,
-      "suffixLimit": 0,
-      "suffixSpecifyChar": "",
-      "ignoreChar": "",
-      "useUnrealMask": false,
-      "unrealMaskLength": 1
+    "options": [
+      {
+        "id": "1",
+        "fullName": "级联1",
+        "children": [
+          {
+            "fullName": "级联1-1",
+            "id": "11"
+          }
+        ]
+      },
+      {
+        "fullName": "级联2",
+        "id": "2",
+        "children": [
+          {
+            "fullName": "级联2-1",
+            "id": "21"
+          }
+        ]
+      }
+    ],
+    "props": {
+      "value": "id",
+      "label": "fullName",
+      "children": "children"
     },
-    "clearable": true,
-    "addonBefore": "",
-    "addonAfter": "",
-    "prefixIcon": "",
-    "suffixIcon": "",
-    "maxlength": null,
-    "showCount": false,
-    "showPassword": false,
-    "readonly": false,
+    "placeholder": "请选择",
     "disabled": false,
+    "clearable": true,
+    "filterable": false,
+    "multiple": false,
     "__vModel__": "Name"
   }
 ]

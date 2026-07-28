@@ -290,7 +290,7 @@
   const { childColumnList, searchSchemas, viewList, currentView  } = toRefs(state);
     const defaultSearchInfo = {
     menuId: route.path as string,
-    moduleId:'50a206bf-ec22-4f28-bfb2-66434ef9bcb0',
+    moduleId:'93d6cde2-0e5f-4131-9e0b-a4f39b924e74',
     superQueryJson: '',
   };
   const searchInfo:any = reactive({
@@ -454,13 +454,31 @@
     let record = { 
       rowEdit: true, 
       id: 'ceriAdd_' + ++addRowSeq,
-      Name: undefined,
-      Remark: undefined,
-      Sort: undefined,
-      Enabled: 0,
+      Enmu: undefined,
+      Text: [],
+      Enabled: undefined,
+      Name: [],
+      CreateTime: undefined,
+      LastLoginTime: undefined,
+      PF: 0,
+      HK: 0,
     };
     insertTableDataRecord(record, 0);
     addingCount.value++;
+  }
+  // 保存全部：保存所有处于行编辑状态的数据（新增 + 编辑中）
+  function saveAllHandle() {
+    const rows = getDataSource().filter(o => o.rowEdit);
+    if (!rows.length) return;
+    const requests = rows.map(record => {
+      const id = isAddRowId(record.id) ? '' : record.id;
+      const query = { ...record, id };
+      return query.id ? update(query) : create(query);
+    });
+    Promise.all(requests).then(() => {
+      createMessage.success(t('common.saveSuccess', '保存成功'));
+      reload({ page: 1 });
+    });
   }
   // 编辑
   function updateHandle(record) {
@@ -752,7 +770,7 @@ function initViewList(currentId = '') {
     z-index: 2;
   }
 
-  // 分页样式，与普通列表页面保持一致
+  // 分页样式，与普通列表模板保持一致
   :deep(.ant-table-pagination.ant-pagination) {
     margin-top: 5px;
     text-align: right;

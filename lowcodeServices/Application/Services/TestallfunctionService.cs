@@ -1,6 +1,4 @@
-﻿﻿using CeriOS.Core.Common.DB;
-using JNPF.Common.Dtos;
-using JNPF.Common.Filter;
+﻿﻿﻿using CeriOS.Core.Common.DB;
 using CeriOS.示例.Entitys.Dto.Testallfunction;
 using CeriOS.示例.Entitys;
 using CeriOS.示例.Interfaces;

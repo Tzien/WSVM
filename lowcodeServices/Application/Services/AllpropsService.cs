@@ -17,7 +17,7 @@ using CeriOS.Core.Common.Helper;
 namespace Application.Services;
 
 /// <summary>
-/// 业务实现：测试其他模板2.
+/// 业务实现：测试编辑模板其他控件.
 /// </summary>
 [ApiDescriptionSettings(Tag = "示例", Name = "Allprops", Order = 200)]
 [Route("api/[controller]")]
@@ -69,7 +69,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
 
 
     /// <summary>
-    /// 获取测试其他模板2.
+    /// 获取测试编辑模板其他控件.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>
@@ -86,7 +86,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 获取测试其他模板2列表.
+    /// 获取测试编辑模板其他控件列表.
     /// </summary>
     /// <param name="input">请求参数.</param>
     /// <returns></returns>
@@ -223,7 +223,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 新建测试其他模板2.
+    /// 新建测试编辑模板其他控件.
     /// </summary>
     /// <param name="input">参数.</param>
     /// <returns></returns>
@@ -240,6 +240,8 @@ public class AllpropsService : ControllerBase, IAllpropsService
             };
         }
         var entity = input.Adapt<AllpropsEntity>();
+        entity.Name = input.Name != null && input.Name.Count > 0 ? JsonToString(input.Name).Replace("\r\n", "").Replace(" ", "") : null;
+        entity.Text = input.Text != null && input.Text.Count > 0 ? JsonToString(input.Text).Replace("\r\n", "").Replace(" ", "") : null;
         entity.id = Guid.NewGuid().ToString("N");
         var isOk = await _db.InsertAsync(entity);
         if (!isOk)
@@ -260,7 +262,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 更新测试其他模板2.
+    /// 更新测试编辑模板其他控件.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <param name="input">参数.</param>
@@ -269,6 +271,8 @@ public class AllpropsService : ControllerBase, IAllpropsService
     public async Task<dynamic> Update(string id, [FromBody] AllpropsUpInput input)
     {
         var entity = input.Adapt<AllpropsEntity>();
+        entity.Name = input.Name != null && input.Name.Count > 0 ? JsonToString(input.Name).Replace("\r\n", "").Replace(" ", "") : null;
+        entity.Text = input.Text != null && input.Text.Count > 0 ? JsonToString(input.Text).Replace("\r\n", "").Replace(" ", "") : null;
         var isOk = await _db.UpdateAsync(entity);
         if (!isOk)
         {
@@ -288,7 +292,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 删除测试其他模板2.
+    /// 删除测试编辑模板其他控件.
     /// </summary>
     /// <returns></returns>
     [HttpDelete("{id}")]
@@ -313,7 +317,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 批量删除测试其他模板2.
+    /// 批量删除测试编辑模板其他控件.
     /// </summary>
     /// <param name="input">主键数组.</param>
     /// <returns></returns>
@@ -326,7 +330,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
             var entitys = await _db.Context.Queryable<AllpropsEntity>().In(it => it.id, ids).ToListAsync();
             if (entitys.Count > 0)
             {
-                 // 批量删除测试其他模板2
+                 // 批量删除测试编辑模板其他控件
                 await _db.Context.Deleteable<AllpropsEntity>().In(it => it.id, ids).ExecuteCommandAsync();
             }
         }
@@ -339,7 +343,7 @@ public class AllpropsService : ControllerBase, IAllpropsService
     }
 
     /// <summary>
-    /// 测试其他模板2详情.
+    /// 测试编辑模板其他控件详情.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>
