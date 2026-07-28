@@ -16,7 +16,7 @@ public class AllpropsCrInput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? CreateTime { get; set; }
+    public long? CreateTime { get; set; }
 
     /// <summary>
     /// .
@@ -41,7 +41,7 @@ public class AllpropsCrInput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? LastLoginTime { get; set; }
+    public string? LastLoginTime { get; set; }
 
     /// <summary>
     /// .

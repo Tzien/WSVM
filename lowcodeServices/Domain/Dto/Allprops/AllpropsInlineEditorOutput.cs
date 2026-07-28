@@ -11,7 +11,7 @@ public class AllpropsInlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? CreateTime { get; set; }
+    public long? CreateTime { get; set; }
 
     /// <summary>
     /// .
@@ -31,7 +31,7 @@ public class AllpropsInlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public int? Enmu { get; set; }
+    public string? Enmu { get; set; }
 
     /// <summary>
     /// .
@@ -56,12 +56,12 @@ public class AllpropsInlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? LastLoginTime { get; set; }
+    public string? LastLoginTime { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? LastLoginTime_name { get; set; }
+    public string? LastLoginTime_name { get; set; }
 
     /// <summary>
     /// .

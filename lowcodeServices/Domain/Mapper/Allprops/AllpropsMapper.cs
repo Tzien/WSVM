@@ -1,6 +1,7 @@
 ﻿﻿﻿
 using CeriOS.示例.Entitys.Dto.Allprops;
 using Mapster;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
@@ -57,12 +58,12 @@ public class Mapper : IRegister
 	{
 		config.ForType<AllpropsCrInput, AllpropsEntity>()
 			.Map(dest => dest.Color, src => src.Color != null ? src.Color : null)
-			.Map(dest => dest.CreateTime, src => src.CreateTime != null ? src.CreateTime : null)
+			.Map(dest => dest.CreateTime, src => src.CreateTime != null ? (DateTime?)DateTimeOffset.FromUnixTimeMilliseconds(src.CreateTime.Value).LocalDateTime : null)
 			.Map(dest => dest.Enabled, src => src.Enabled != null ? src.Enabled : null)
 			.Map(dest => dest.Enmu, src => src.Enmu != null ? src.Enmu : null)
 			.Map(dest => dest.FWB, src => src.FWB != null ? src.FWB : null)
 			.Map(dest => dest.HK, src => src.HK != null ? src.HK : null)
-			.Map(dest => dest.LastLoginTime, src => src.LastLoginTime != null ? src.LastLoginTime : null)
+			.Map(dest => dest.LastLoginTime, src => !string.IsNullOrWhiteSpace(src.LastLoginTime) ? (DateTime?)DateTime.Today.Add(TimeSpan.Parse(src.LastLoginTime)) : null)
 			.Map(dest => dest.Name, src => ToJson(src.Name))
 			.Map(dest => dest.PF, src => src.PF != null ? src.PF : null)
 			.Map(dest => dest.Text, src => ToJson(src.Text))
@@ -80,11 +81,11 @@ public class Mapper : IRegister
 			.Map(dest => dest.Text, src => ParseStringList(src.Text))
 		;
 		config.ForType<AllpropsListOutput, AllpropsInlineEditorOutput>()
-			.Map(dest => dest.CreateTime, src => src.CreateTime != null ? src.CreateTime : null)
+			.Map(dest => dest.CreateTime, src => src.CreateTime != null ? (long?)new DateTimeOffset(src.CreateTime.Value).ToUnixTimeMilliseconds() : null)
 			.Map(dest => dest.Enabled, src => src.Enabled != null ? src.Enabled : null)
 			.Map(dest => dest.Enmu, src => src.Enmu != null ? src.Enmu : null)
 			.Map(dest => dest.HK, src => src.HK != null ? src.HK : null)
-			.Map(dest => dest.LastLoginTime, src => src.LastLoginTime != null ? src.LastLoginTime : null)
+			.Map(dest => dest.LastLoginTime, src => src.LastLoginTime != null ? src.LastLoginTime.Value.ToString("HH:mm:ss") : null)
 			.Map(dest => dest.Name, src => ParseStringList(src.Name))
 			.Map(dest => dest.PF, src => src.PF != null ? src.PF : null)
 			.Map(dest => dest.Text, src => ParseStringList(src.Text))

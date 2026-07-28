@@ -71,6 +71,14 @@ case "radio":
     @:public string @column.LowerColumnName { get; set; }
 @:
 break;
+case "datePicker":
+    @:public long? @column.LowerColumnName { get; set; }
+@:
+break;
+case "timePicker":
+    @:public string @column.LowerColumnName { get; set; }
+@:
+break;
 case "uploadImg":
 case "uploadFile":
     @:public List<FileControlsModel> @column.LowerColumnName { get; set; }

@@ -36,7 +36,19 @@ case "datePicker":
     @:/// <summary>
     @:/// @column.ColumnComment.
     @:/// </summary>
-    @:public @column.NetType @column.LowerColumnName { get; set; }
+    @:public long? @column.LowerColumnName { get; set; }
+@:
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public string @(column.LowerColumnName)_name { get; set; }
+@:
+break;
+case "timePicker":
+    @:/// <summary>
+    @:/// @column.ColumnComment.
+    @:/// </summary>
+    @:public string @column.LowerColumnName { get; set; }
 @:
     @:/// <summary>
     @:/// @column.ColumnComment.
@@ -155,7 +167,7 @@ case "radio":
     @:/// <summary>
     @:/// @column.ColumnComment.
     @:/// </summary>
-    @:public @column.NetType @column.LowerColumnName { get; set; }
+    @:public string @column.LowerColumnName { get; set; }
 @:
     @:/// <summary>
     @:/// @column.ColumnComment.
