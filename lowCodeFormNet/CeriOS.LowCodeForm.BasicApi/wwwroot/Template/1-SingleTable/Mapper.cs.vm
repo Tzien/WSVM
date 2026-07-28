@@ -131,18 +131,26 @@ case "switch":
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName))
 break;
 case "datePicker":
-@if(column.NetType != null && column.NetType.Contains("DateTime"))
+@if(Model.TableType == 4 && column.NetType != null && column.NetType.Contains("DateTime"))
 {
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? (System.DateTime?)System.DateTimeOffset.FromUnixTimeMilliseconds(src.@(column.LowerColumnName).Value).LocalDateTime : null)
-}else{
+}
+else if(Model.TableType == 4)
+{
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? System.DateTimeOffset.FromUnixTimeMilliseconds(src.@(column.LowerColumnName).Value).LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss") : null)
+}
+else
+{
+			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
 }
 break;
 case "timePicker":
-@if(column.NetType != null && column.NetType.Contains("DateTime"))
+@if(Model.TableType == 4 && column.NetType != null && column.NetType.Contains("DateTime"))
 {
 			@:.Map(dest => dest.@(column.ColumnName), src => !string.IsNullOrWhiteSpace(src.@(column.LowerColumnName)) ? (System.DateTime?)System.DateTime.Today.Add(System.TimeSpan.Parse(src.@(column.LowerColumnName))) : null)
-}else{
+}
+else
+{
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
 }
 break;
