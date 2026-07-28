@@ -1,6 +1,7 @@
 ﻿﻿﻿
 using CeriOS.示例.Entitys.Dto.Allprops2;
 using Mapster;
+using System;
 using System.Collections.Generic;
 using System.Text.Json;
 
@@ -65,7 +66,7 @@ public class Mapper : IRegister
 			.Map(dest => dest.JiLian, src => ToJson(src.JiLian))
 			.Map(dest => dest.KaiGuan, src => src.KaiGuan)
 			.Map(dest => dest.PF, src => src.PF != null ? src.PF : null)
-			.Map(dest => dest.RiQi, src => src.RiQi != null ? src.RiQi : null)
+			.Map(dest => dest.RiQi, src => src.RiQi != null ? (DateTime?)DateTimeOffset.FromUnixTimeMilliseconds(src.RiQi.Value).LocalDateTime : null)
 			.Map(dest => dest.ShiJian, src => src.ShiJian != null ? src.ShiJian : null)
 			.Map(dest => dest.ShuZi, src => src.ShuZi != null ? src.ShuZi : null)
 			.Map(dest => dest.XiaLa, src => src.XiaLa != null ? src.XiaLa : null)
@@ -96,7 +97,7 @@ public class Mapper : IRegister
 			.Map(dest => dest.JiLian, src => ParseStringList(src.JiLian))
 			.Map(dest => dest.KaiGuan, src => src.KaiGuan)
 			.Map(dest => dest.PF, src => src.PF != null ? src.PF : null)
-			.Map(dest => dest.RiQi, src => src.RiQi != null ? src.RiQi : null)
+			.Map(dest => dest.RiQi, src => src.RiQi != null ? (long?)new DateTimeOffset(src.RiQi.Value).ToUnixTimeMilliseconds() : null)
 			.Map(dest => dest.ShiJian, src => src.ShiJian != null ? src.ShiJian : null)
 			.Map(dest => dest.ShuZi, src => src.ShuZi != null ? src.ShuZi : null)
 			.Map(dest => dest.XiaLa, src => src.XiaLa != null ? src.XiaLa : null)

@@ -96,7 +96,7 @@ public class Allprops2InlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? RiQi { get; set; }
+    public long? RiQi { get; set; }
 
     /// <summary>
     /// .
