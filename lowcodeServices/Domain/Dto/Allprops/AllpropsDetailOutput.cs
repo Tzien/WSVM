@@ -2,14 +2,39 @@
 namespace CeriOS.示例.Entitys.Dto.Allprops;
 
 /// <summary>
-/// 测试其他模板2详情输出参数.
+/// 测试编辑模板其他控件详情输出参数.
 /// </summary>
 public class AllpropsDetailOutput
 {
     /// <summary>
     /// .
     /// </summary>
-    public string Enabled { get; set; }
+    public string? Color { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string CreateTime { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public byte? Enabled { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string Enmu { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string? FWB { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public int HK { get; set; }
 
     /// <summary>
     /// .
@@ -19,16 +44,21 @@ public class AllpropsDetailOutput
     /// <summary>
     /// .
     /// </summary>
+    public DateTime? LastLoginTime { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string? Remark { get; set; }
+    public string PF { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string Sort { get; set; }
+    public string? Text { get; set; }
 
 }

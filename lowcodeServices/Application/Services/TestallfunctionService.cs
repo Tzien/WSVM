@@ -1,6 +1,4 @@
-﻿﻿using CeriOS.Core.Common.DB;
-using JNPF.Common.Dtos;
-using JNPF.Common.Filter;
+﻿﻿﻿using CeriOS.Core.Common.DB;
 using CeriOS.示例.Entitys.Dto.Testallfunction;
 using CeriOS.示例.Entitys;
 using CeriOS.示例.Interfaces;
@@ -189,6 +187,16 @@ public class TestallfunctionService : ControllerBase, ITestallfunctionService
                 string.Equals(o?.DbColumnName, __sortFieldName, System.StringComparison.OrdinalIgnoreCase));
             if (__sortColumn == null) continue;
             __orderFields.Add(__sortColumn.DbColumnName + (__isDesc ? " DESC" : " ASC"));
+        }
+        if (__orderFields.Count == 0)
+        {
+            var __defaultSortColumn = entityInfo.Columns.FirstOrDefault(o =>
+                string.Equals(o?.PropertyName, "Sort", System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(o?.DbColumnName, "Sort", System.StringComparison.OrdinalIgnoreCase));
+            if (__defaultSortColumn != null)
+            {
+                __orderFields.Add(__defaultSortColumn.DbColumnName + " ASC");
+            }
         }
         if (__orderFields.Count > 0)
         {

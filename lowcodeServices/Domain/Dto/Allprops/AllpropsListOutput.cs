@@ -1,19 +1,41 @@
-﻿﻿namespace CeriOS.示例.Entitys.Dto.Allprops;
+﻿using System;
+
+namespace CeriOS.示例.Entitys.Dto.Allprops;
 
 /// <summary>
-/// 测试其他模板2输入参数.
+/// 测试编辑模板其他控件输入参数.
 /// </summary>
 public class AllpropsListOutput
 {
     /// <summary>
     /// .
     /// </summary>
-    public int Enabled { get; set; }
+    public DateTime? CreateTime { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string Enabled_name { get; set; }
+    public string CreateTime_name { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string Enabled { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string Enmu { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public int? HK { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public int? HK_name { get; set; }
 
     /// <summary>
     /// .
@@ -23,31 +45,41 @@ public class AllpropsListOutput
     /// <summary>
     /// .
     /// </summary>
+    public DateTime? LastLoginTime { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
+    public string LastLoginTime_name { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     public string? Name { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string Name_name { get; set; }
+    public string? Name_name { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string? Remark { get; set; }
+    public int? PF { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string Remark_name { get; set; }
+    public int? PF_name { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public int? Sort { get; set; }
+    public string? Text { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public int? Sort_name { get; set; }
+    public string? Text_name { get; set; }
 
 }
