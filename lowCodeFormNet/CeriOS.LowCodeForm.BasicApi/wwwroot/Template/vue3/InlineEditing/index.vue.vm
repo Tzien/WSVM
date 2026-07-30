@@ -201,15 +201,6 @@
               <template v-else-if="column.ceriKey === 'relationForm'">
                 <p class="link-text" @@click="toDetail(column.modelId, record[`${column.prop}_id`])">{{ record[column.prop + '_name'] || record[column.prop] }}</p>
               </template>
-              <template v-else-if="column.ceriKey === 'switch'">
-                <ceri-switch v-model:value="record[column.prop]" disabled />
-              </template>
-              <template v-else-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
-                <ceri-select v-model:value="record[column.prop]" :multiple="column.multiple || column.ceriKey === 'checkbox'" :options="column.options" :fieldNames="column.props" disabled />
-              </template>
-              <template v-else-if="column.ceriKey === 'cascader'">
-                <ceri-cascader v-model:value="record[column.prop]" :multiple="column.multiple" :options="column.options" :fieldNames="column.props" :showAllLevels="column.showAllLevels" disabled />
-              </template>
               <template v-else>
                 {{ record[column.prop + '_name'] || record[column.prop] }}
               </template>

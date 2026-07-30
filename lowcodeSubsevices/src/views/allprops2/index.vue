@@ -182,10 +182,13 @@
                 <ceri-switch v-model:value="record[column.prop]" disabled />
               </template>
               <template v-else-if="['select', 'radio', 'checkbox'].includes(column.ceriKey)">
-                <ceri-select v-model:value="record[column.prop]" :multiple="column.multiple || column.ceriKey === 'checkbox'" :options="column.options" :fieldNames="column.props" disabled />
+                {{ getOptionsText(record[column.prop], column) }}
               </template>
               <template v-else-if="column.ceriKey === 'cascader'">
-                <ceri-cascader v-model:value="record[column.prop]" :multiple="column.multiple" :options="column.options" :fieldNames="column.props" :showAllLevels="column.showAllLevels" disabled />
+                {{ getCascaderText(record[column.prop], column) }}
+              </template>
+              <template v-else-if="column.ceriKey === 'datePicker'">
+                {{ getDateText(record[column.prop], column) }}
               </template>
               <template v-else>
                 {{ record[column.prop + '_name'] || record[column.prop] }}
@@ -226,7 +229,7 @@
   import columnList from './helper/columnList';
   import searchList from './helper/searchList';
   import { dyOptionsList, systemComponentsList } from '@/components/FormGenerator/src/helper/config';
-  import { thousandsFormat, getTimeUnit, getDateTimeUnit,getParamList } from '@/utils/ceri';
+  import { thousandsFormat, getTimeUnit, getDateTimeUnit, getDateFormat, getParamList } from '@/utils/ceri';
   import { CeriRelationForm } from '@/components/CeriOS';
   import dayjs from 'dayjs';
   import { noGroupList } from '@/components/FormGenerator/src/helper/config';
@@ -615,6 +618,58 @@
       searchInfo[key.replaceAll('-', '_')] = value;
     }
     reload({ page: 1 });
+  }
+  function parseCellValue(value) {
+    if (typeof value === 'string' && value.startsWith('[')) {
+      try {
+        return JSON.parse(value);
+      } catch (_) {
+        return value;
+      }
+    }
+    return value;
+  }
+  function getOptionsText(value, column) {
+    const val = parseCellValue(value);
+    if (val === null || val === undefined || val === '') return '';
+    const labelKey = column.props?.label || 'fullName';
+    const valueKey = column.props?.value || 'id';
+    const options = column.options || [];
+    const values = Array.isArray(val) ? val : [val];
+    return values
+      .map(v => {
+        const item = options.find(o => o[valueKey] == v);
+        return item ? item[labelKey] : v;
+      })
+      .join(',');
+  }
+  function getCascaderText(value, column) {
+    const val = parseCellValue(value);
+    if (val === null || val === undefined || val === '') return '';
+    if (!Array.isArray(val)) return val;
+    if (!val.length) return '';
+    const labelKey = column.props?.label || 'fullName';
+    const valueKey = column.props?.value || 'id';
+    const childrenKey = column.props?.children || 'children';
+    const getPathText = path => {
+      let options = column.options || [];
+      const labels: any[] = [];
+      for (const v of path) {
+        const item = options.find(o => o[valueKey] == v);
+        if (!item) {
+          labels.push(v);
+          break;
+        }
+        labels.push(item[labelKey]);
+        options = item[childrenKey] || [];
+      }
+      return column.showAllLevels === false ? labels[labels.length - 1] : labels.join('/');
+    };
+    return Array.isArray(val[0]) ? val.map(getPathText).join(',') : getPathText(val);
+  }
+  function getDateText(value, column) {
+    if (!value && value !== 0) return '';
+    return dayjs(value).format(getDateFormat(column.format));
   }
   // 行内编辑获取选项
   function buildOptions() {
