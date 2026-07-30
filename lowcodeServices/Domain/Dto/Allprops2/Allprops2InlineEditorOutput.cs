@@ -1,5 +1,4 @@
-﻿﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace CeriOS.示例.Entitys.Dto.Allprops2;
  
@@ -21,7 +20,7 @@ public class Allprops2InlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public string? DanXuan { get; set; }
+    public string DanXuan { get; set; }
 
     /// <summary>
     /// .
@@ -96,7 +95,7 @@ public class Allprops2InlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? RiQi { get; set; }
+    public long? RiQi { get; set; }
 
     /// <summary>
     /// .
@@ -106,12 +105,12 @@ public class Allprops2InlineEditorOutput
     /// <summary>
     /// .
     /// </summary>
-    public string? ShiJian { get; set; }
+    public string ShiJian { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string? ShiJian_name { get; set; }
+    public string ShiJian_name { get; set; }
 
     /// <summary>
     /// .

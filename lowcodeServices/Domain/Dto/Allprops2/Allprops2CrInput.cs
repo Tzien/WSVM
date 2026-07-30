@@ -56,12 +56,12 @@ public class Allprops2CrInput
     /// <summary>
     /// .
     /// </summary>
-    public DateTime? RiQi { get; set; }
+    public long? RiQi { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string? ShiJian { get; set; }
+    public string ShiJian { get; set; }
 
     /// <summary>
     /// .
