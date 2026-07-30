@@ -1,4 +1,6 @@
-﻿﻿namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
+﻿using System;
+﻿
+namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 
 /// <summary>
 /// @(Model.BusName)输入参数.

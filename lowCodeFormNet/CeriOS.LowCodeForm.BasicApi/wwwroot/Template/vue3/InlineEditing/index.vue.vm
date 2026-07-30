@@ -22,6 +22,9 @@
             @:<a-button type="@(item.Type)" preIcon="@(item.Icon)" @@click="@(item.Method)"@(Model.UseBtnPermission ? " v-auth=\"'btn_" + @item.Value + "'\"" : "")>@item.Label</a-button>
 		}
 }
+@if(Model.HasAdd && !Model.HasFlow){
+            @:<a-button v-if="getAddingCount > 1" type="primary" @@click="saveAllHandle()">{{t('common.saveAllText','保存全部')}}</a-button>
+}
           </template>
 @if(Model.TableConfig.HasSuperQuery){
           <template #toolbar>
@@ -34,7 +37,7 @@
           </template>
 }
           <template #toolbarAfter>
-            <ViewList :menuId="searchInfo.menuId" :viewList="viewList" @@itemClick="handleViewClick" @@reload="initViewList" />
+            <ViewList :userId="userStore.userid" :menuId="searchInfo.menuId" :viewList="viewList" @@itemClick="handleViewClick" @@reload="initViewList" />
             <ViewSetting :menuId="searchInfo.menuId" :viewList="viewList" :currentView="currentView" @@reload="initViewList" />
           </template>
           <template #bodyCell="{ column, record, index }">
@@ -407,7 +410,7 @@
   });
   const { childColumnList, searchSchemas, viewList, currentView @((Model.IsTabConfig) ? ",tabActiveKey,tabList" : "") } = toRefs(state);
     const defaultSearchInfo = {
-    menuId: route.meta.modelId as string,
+    menuId: route.path as string,
     moduleId:'@(Model.BasicInfo.Id)',
     superQueryJson: '',
 @if(Model.HasFlow){
@@ -426,7 +429,7 @@
     showAdvancedButton: false,
     compact: true,
   });
-  const [ registerTable, { reload, setLoading, getFetchParams, getSelectRows, getSelectRowKeys, redoHeight, insertTableDataRecord, updateTableDataRecord, deleteTableDataRecord, clearSelectedRowKeys }] = useTable({
+  const [ registerTable, { reload, setLoading, getFetchParams, getSelectRows, getSelectRowKeys, redoHeight, insertTableDataRecord, updateTableDataRecord, deleteTableDataRecord, clearSelectedRowKeys, getDataSource }] = useTable({
     api: getList,
     immediate: false,
     clickToRowSelect: false,
@@ -472,9 +475,18 @@ break;
 }
       }));
       state.cacheList = cloneDeep(list);
+      addingCount.value = 0;
       return list;
     },
   });
+
+  // 新增行计数与临时 id，支持同时新增多行
+  const addingCount = ref(0);
+  let addRowSeq = 0;
+  const getAddingCount = computed(() => addingCount.value);
+  function isAddRowId(id) {
+    return !id || String(id).startsWith('ceriAdd');
+  }
 
   const getColumns = computed(() => {
     const columns: any[] = state.columns;
@@ -513,10 +525,19 @@ break;
     const sortField = defaultSortConfig.map(o => (o.sort === 'desc' ? '-' : '') + o.field); 
     const data: any = {
 @if(Model.TableConfig.HasPage){
-      @:pagination: { pageSize: @Model.TableConfig.PageSize }, //有分页
+      @:pagination: {
+      @:  pageSize: @Model.TableConfig.PageSize,
+      @:  pageSizeOptions: ['20', '30', '45', '60'],
+      @:  showSizeChanger: true,
+      @:  showTotal: (total) => `${t('message.drawer.TotalOf')} ${total} ${t('message.drawer.Items')}`,
+      @:  size: 'default',
+      @:}, //有分页
 }else{
       @:pagination: false, //没有分页，树形，分组
 }
+      maxHeight: 585,
+      striped: true,
+      resizeHeightOffset: 20,
       searchInfo: unref(searchInfo),
 	  ellipsis: @Model.TableConfig.ShowOverflow.ToString().ToLower(),
       defSort: { sidx: sortField.join(',') },
@@ -541,7 +562,9 @@ break;
 }
 @if(Model.ColumnButtonDesignAny){
       @:actionColumn: {
-        @:width: 150,
+        @:width: 100,
+        @:fixed: 'right',
+        @:align: 'center',
         @:title: t('component.table.action'),
         @:dataIndex: 'action',
       @:},
@@ -669,15 +692,18 @@ break;
   }
 
   function cancelRowEdit(record, index) {
-    const id = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'ceriAdd' ? '' : record.@(Model.PrimaryKeyField);
-    if (!id) return deleteTableDataRecord('ceriAdd');
+    if (isAddRowId(record.@(Model.PrimaryKeyField))) {
+      deleteTableDataRecord(record.@(Model.PrimaryKeyField));
+      if (addingCount.value > 0) addingCount.value--;
+      return;
+    }
     record.rowEdit = false;
     const item = cloneDeep(state.cacheList[index]);
     updateTableDataRecord(item.id, item);
   }
   // 行内编辑保存
   function saveForRowEdit(record, status = 0, candidateData: any = null) {
-    const id = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'ceriAdd' ? '' : record.@(Model.PrimaryKeyField);
+    const id = isAddRowId(record.@(Model.PrimaryKeyField)) ? '' : record.@(Model.PrimaryKeyField);
 @if(Model.HasFlow){
     @:// 工作流
     @:let query = {
@@ -708,7 +734,7 @@ break;
 @if(Model.HasFlow){
   @:// 行内编辑提交审核
   @:function submitForRowEdit(record) {
-    @:record.@(Model.PrimaryKeyField) = !record.@(Model.PrimaryKeyField) || record.@(Model.PrimaryKeyField) === 'ceriAdd' ? '' : record.@(Model.PrimaryKeyField);
+    @:record.@(Model.PrimaryKeyField) = isAddRowId(record.@(Model.PrimaryKeyField)) ? '' : record.@(Model.PrimaryKeyField);
     @:state.currRow = record;
     @:state.workFlowFormData = {
       @:id: record.@(Model.PrimaryKeyField),
@@ -744,12 +770,29 @@ break;
     @:// 不带流程新增
     @:let record = { 
       @:rowEdit: true, 
-      @:@(Model.PrimaryKeyField): 'ceriAdd',
+      @:@(Model.PrimaryKeyField): 'ceriAdd_' + ++addRowSeq,
 @foreach (var item in Model.FormScript.InlineEditorDataForm) {
       @:@(item.Name): @(item.Value),
 }
     @:};
     @:insertTableDataRecord(record, 0);
+    @:addingCount.value++;
+  @:}
+}
+@if(Model.HasAdd && !Model.HasFlow){
+  @:// 保存全部：保存所有处于行编辑状态的数据（新增 + 编辑中）
+  @:function saveAllHandle() {
+    @:const rows = getDataSource().filter(o => o.rowEdit);
+    @:if (!rows.length) return;
+    @:const requests = rows.map(record => {
+      @:const id = isAddRowId(record.@(Model.PrimaryKeyField)) ? '' : record.@(Model.PrimaryKeyField);
+      @:const query = { ...record, id };
+      @:return query.id ? update(query) : create(query);
+    @:});
+    @:Promise.all(requests).then(() => {
+      @:createMessage.success(t('common.saveSuccess', '保存成功'));
+      @:reload({ page: 1 });
+    @:});
   @:}
 }
 @if(Model.HasDownload){
@@ -832,7 +875,7 @@ break;
 }
   function init() {
     state.config = {};
-    searchInfo.menuId = route.meta.modelId as string;
+    searchInfo.menuId = route.path as string;
     state.columnList = columnList;
     setLoading(true);
     getSearchSchemas();
@@ -1175,6 +1218,7 @@ function buildRowRelation() {
 function initViewList(currentId = '') {
     const query = {
       menuId: searchInfo.menuId,
+      userId: userStore.userid,
     };
     getViewList(query).then(res => {
       const columns: any[] = state.columns;
@@ -1244,5 +1288,23 @@ function initViewList(currentId = '') {
     align-items: center;
     flex-wrap: nowrap;
     z-index: 2;
+  }
+
+  // 分页样式，与普通列表模板保持一致
+  :deep(.ant-table-pagination.ant-pagination) {
+    margin-top: 5px;
+    text-align: right;
+    height: 50px;
+    line-height: 50px;
+    font-size: 14px;
+    padding: 0 30px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  :deep(.ant-table-pagination.ant-pagination .ant-pagination-options) {
+    display: flex;
+    align-items: center;
   }
 </style>

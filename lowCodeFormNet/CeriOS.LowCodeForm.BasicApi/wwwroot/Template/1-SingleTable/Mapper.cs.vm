@@ -130,6 +130,30 @@ break;
 case "switch":
 			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName))
 break;
+case "datePicker":
+@if(Model.TableType == 4 && column.NetType != null && column.NetType.Contains("DateTime"))
+{
+			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? (System.DateTime?)System.DateTimeOffset.FromUnixTimeMilliseconds(src.@(column.LowerColumnName).Value).LocalDateTime : null)
+}
+else if(Model.TableType == 4)
+{
+			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? System.DateTimeOffset.FromUnixTimeMilliseconds(src.@(column.LowerColumnName).Value).LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss") : null)
+}
+else
+{
+			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
+}
+break;
+case "timePicker":
+@if(Model.TableType == 4 && column.NetType != null && column.NetType.Contains("DateTime"))
+{
+			@:.Map(dest => dest.@(column.ColumnName), src => !string.IsNullOrWhiteSpace(src.@(column.LowerColumnName)) ? (System.DateTime?)System.DateTime.Today.Add(System.TimeSpan.Parse(src.@(column.LowerColumnName))) : null)
+}
+else
+{
+			@:.Map(dest => dest.@(column.ColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
+}
+break;
 case "createTime":
 case "modifyTime":
 break;
@@ -359,6 +383,22 @@ case "checkbox":
 break;
 case "switch":
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName))
+break;
+case "datePicker":
+@if(column.NetType != null && column.NetType.Contains("DateTime"))
+{
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName) != null ? (long?)new System.DateTimeOffset(src.@(column.LowerColumnName).Value).ToUnixTimeMilliseconds() : null)
+}else{
+			@:.Map(dest => dest.@(column.LowerColumnName), src => !string.IsNullOrWhiteSpace(src.@(column.LowerColumnName)) ? (long?)new System.DateTimeOffset(System.DateTime.Parse(src.@(column.LowerColumnName))).ToUnixTimeMilliseconds() : null)
+}
+break;
+case "timePicker":
+@if(column.NetType != null && column.NetType.Contains("DateTime"))
+{
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName).Value.ToString("HH:mm:ss") : null)
+}else{
+			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)
+}
 break;
 default:
 			@:.Map(dest => dest.@(column.LowerColumnName), src => src.@(column.LowerColumnName) != null ? src.@(column.LowerColumnName) : null)

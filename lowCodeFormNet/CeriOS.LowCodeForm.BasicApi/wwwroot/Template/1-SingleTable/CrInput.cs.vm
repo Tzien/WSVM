@@ -71,6 +71,30 @@ case "radio":
     @:public string @column.LowerColumnName { get; set; }
 @:
 break;
+case "datePicker":
+@if(Model.TableType == 4)
+{
+    @:public long? @column.LowerColumnName { get; set; }
+@:
+}
+else
+{
+    @:public @column.NetType @column.LowerColumnName { get; set; }
+@:
+}
+break;
+case "timePicker":
+@if(Model.TableType == 4)
+{
+    @:public string @column.LowerColumnName { get; set; }
+@:
+}
+else
+{
+    @:public @column.NetType @column.LowerColumnName { get; set; }
+@:
+}
+break;
 case "uploadImg":
 case "uploadFile":
     @:public List<FileControlsModel> @column.LowerColumnName { get; set; }

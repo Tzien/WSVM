@@ -20,46 +20,55 @@ namespace CeriOS.LowCodeForm.Repository.Repository
 
         public async Task<QueryResponseDto<List<FormDbDto>>> GetFormDbAsync(int pageIndex, int pageSize)
         {
-            
-                QueryResponseDto<List<FormDbDto>> queryResponseDto = new QueryResponseDto<List<FormDbDto>>();
-                var fromDesignQuery = _db.Context.Queryable<FormDesign>().Where(x => !x.IsDeleted);
-                queryResponseDto.Total = await fromDesignQuery.CountAsync();
-                List<FormDbDto> list = new List<FormDbDto>();
-                var formDesigns = await fromDesignQuery.ToPageListAsync(pageIndex, pageSize);
-                var formDesignIds = formDesigns.Select(x => x.FormDesignId).ToList();
-                var formdbs = await _db.Context.Queryable<FormDb>().Where(x => !x.IsDeleted && formDesignIds.Contains(x.FormDesignId)).ToListAsync();
-                foreach (var item in formDesigns)
+            QueryResponseDto<List<FormDbDto>> queryResponseDto = new QueryResponseDto<List<FormDbDto>>();
+
+            // 加上 OrderBy 升序
+            var fromDesignQuery = _db.Context.Queryable<FormDesign>()
+                                            .Where(x => !x.IsDeleted)
+                                            .OrderBy(x => x.Sort);
+
+            queryResponseDto.Total = await fromDesignQuery.CountAsync();
+            List<FormDbDto> list = new List<FormDbDto>();
+            var formDesigns = await fromDesignQuery.ToPageListAsync(pageIndex, pageSize);
+            var formDesignIds = formDesigns.Select(x => x.FormDesignId).ToList();
+
+            var formdbs = await _db.Context.Queryable<FormDb>()
+                                           .Where(x => !x.IsDeleted && formDesignIds.Contains(x.FormDesignId))
+                                           .ToListAsync();
+
+            foreach (var item in formDesigns)
+            {
+                var fromdb = formdbs.Where(x => x.FormDesignId == item.FormDesignId).ToList();
+                list.Add(new FormDbDto()
                 {
-                    var fromdb = formdbs.Where(x => x.FormDesignId == item.FormDesignId).ToList();
-                    list.Add(new FormDbDto()
-                    {
-                        FormDesignId = item.FormDesignId,
-                        FormCategoryId = item.FormCategoryId,
-                        Code = item.Code,
-                        Name = item.Name,
-                        DbId = item.DbId,
-                        Remark = item.Remark,
-                        WebType = item.WebType,
-                        Sort = item.Sort,
-                        FormJson = item.FormJson,
-                        TableJson = item.TableJson,
-                        Status = item.Status,
-                        CreateId = item.CreateId,
-                        CreateName = item.CreateName,
-                        CreateTime = item.CreateTime,
-                        ModifyId = item.ModifyId,
-                        ModifyName = item.ModifyName,
-                        ModifyTime = item.ModifyTime,
-                        ColumnDataStr = item.ColumnDataStr,
-                        AppColumnDataStr = item.AppColumnDataStr,
-                        ColumnData = item.ColumnData,
-                        AppColumnData = item.AppColumnData,
-                        FormDbs = fromdb.OrderByDescending(x => x.TypeId).ToList()
-                    });
-                }
-                queryResponseDto.Data = list;
-                queryResponseDto.OK(true, "查询成功");
-                return queryResponseDto;
+                    FormDesignId = item.FormDesignId,
+                    FormCategoryId = item.FormCategoryId,
+                    Code = item.Code,
+                    Name = item.Name,
+                    DbId = item.DbId,
+                    Remark = item.Remark,
+                    WebType = item.WebType,
+                    Sort = item.Sort,
+                    FormJson = item.FormJson,
+                    TableJson = item.TableJson,
+                    Status = item.Status,
+                    CreateId = item.CreateId,
+                    CreateName = item.CreateName,
+                    CreateTime = item.CreateTime,
+                    ModifyId = item.ModifyId,
+                    ModifyName = item.ModifyName,
+                    ModifyTime = item.ModifyTime,
+                    ColumnDataStr = item.ColumnDataStr,
+                    AppColumnDataStr = item.AppColumnDataStr,
+                    ColumnData = item.ColumnData,
+                    AppColumnData = item.AppColumnData,
+                    FormDbs = fromdb.OrderByDescending(x => x.TypeId).ToList()  // 内部子列表保持原排序
+                });
+            }
+
+            queryResponseDto.Data = list;
+            queryResponseDto.OK(true, "查询成功");
+            return queryResponseDto;
         }
 
         public async Task<bool> InsertFormDbAsync(FormDb parameter)
