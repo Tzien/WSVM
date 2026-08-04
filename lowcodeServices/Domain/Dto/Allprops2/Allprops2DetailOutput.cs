@@ -2,10 +2,15 @@
 namespace CeriOS.示例.Entitys.Dto.Allprops2;
 
 /// <summary>
-/// 测试编辑模板详情输出参数.
+/// 第三模板详情输出参数.
 /// </summary>
 public class Allprops2DetailOutput
 {
+    /// <summary>
+    /// .
+    /// </summary>
+    public string CreateTime { get; set; }
+
     /// <summary>
     /// .
     /// </summary>
@@ -54,17 +59,12 @@ public class Allprops2DetailOutput
     /// <summary>
     /// .
     /// </summary>
+    public DateTime? ModifyTime { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     public string PF { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string RiQi { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string? ShiJian { get; set; }
 
     /// <summary>
     /// .

@@ -4,10 +4,15 @@ using System.Collections.Generic;
 namespace CeriOS.示例.Entitys.Dto.Allprops2;
  
 /// <summary>
-/// 测试编辑模板输出参数.
+/// 第三模板输出参数.
 /// </summary>
 public class Allprops2InfoOutput
 {
+    /// <summary>
+    /// .
+    /// </summary>
+    public DateTime? CreateTime { get; set; }
+
     /// <summary>
     /// .
     /// </summary>
@@ -56,17 +61,12 @@ public class Allprops2InfoOutput
     /// <summary>
     /// .
     /// </summary>
+    public DateTime? ModifyTime { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     public int PF { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public DateTime? RiQi { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string? ShiJian { get; set; }
 
     /// <summary>
     /// .

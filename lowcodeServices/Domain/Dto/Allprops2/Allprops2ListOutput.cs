@@ -1,12 +1,17 @@
 ﻿using System;
-﻿
+using System.Collections.Generic;
 namespace CeriOS.示例.Entitys.Dto.Allprops2;
 
 /// <summary>
-/// 测试编辑模板输入参数.
+/// 第三模板输入参数.
 /// </summary>
 public class Allprops2ListOutput
 {
+    /// <summary>
+    /// .
+    /// </summary>
+    public string CreateTime { get; set; }
+
     /// <summary>
     /// .
     /// </summary>
@@ -15,12 +20,7 @@ public class Allprops2ListOutput
     /// <summary>
     /// .
     /// </summary>
-    public string DanHang_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string DanXuan { get; set; }
+    public string? DanXuan { get; set; }
 
     /// <summary>
     /// .
@@ -30,27 +30,12 @@ public class Allprops2ListOutput
     /// <summary>
     /// .
     /// </summary>
-    public string DuoHang_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
     public string? DuoXuan { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string? DuoXuan_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public int? HK { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public int? HK_name { get; set; }
+    public string HK { get; set; }
 
     /// <summary>
     /// .
@@ -65,61 +50,26 @@ public class Allprops2ListOutput
     /// <summary>
     /// .
     /// </summary>
-    public string? JiLian_name { get; set; }
+    public string KaiGuan { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public int KaiGuan { get; set; }
+    public DateTime? ModifyTime { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public string KaiGuan_name { get; set; }
+    public string PF { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public int? PF { get; set; }
+    public string ShuZi { get; set; }
 
     /// <summary>
     /// .
     /// </summary>
-    public int? PF_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public DateTime? RiQi { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string RiQi_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string? ShiJian { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string ShiJian_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public int? ShuZi { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public int? ShuZi_name { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    public string XiaLa { get; set; }
+    public string? XiaLa { get; set; }
 
 }

@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 namespace CeriOS.示例.Entitys.Dto.Allprops2;
 
 /// <summary>
-/// 测试编辑模板列表查询输入.
+/// 第三模板列表查询输入.
 /// </summary>
 public class Allprops2ListQueryInput : PageInputBase
 {

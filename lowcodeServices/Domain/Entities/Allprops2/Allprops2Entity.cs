@@ -4,11 +4,17 @@ using System;
 namespace CeriOS.示例.Entitys;
 
 /// <summary>
-/// 测试编辑模板实体.
+/// 第三模板实体.
 /// </summary>
 [SugarTable("allprops2")]
 public class Allprops2Entity
 {
+    /// <summary>
+    /// .
+    /// </summary>
+    [SugarColumn(ColumnName = "CreateTime")]
+    public DateTime? CreateTime { get; set; }
+
     /// <summary>
     /// .
     /// </summary>
@@ -66,20 +72,14 @@ public class Allprops2Entity
     /// <summary>
     /// .
     /// </summary>
+    [SugarColumn(ColumnName = "ModifyTime")]
+    public DateTime? ModifyTime { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     [SugarColumn(ColumnName = "PF")]
     public int? PF { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    [SugarColumn(ColumnName = "RiQi")]
-    public DateTime? RiQi { get; set; }
-
-    /// <summary>
-    /// .
-    /// </summary>
-    [SugarColumn(ColumnName = "ShiJian")]
-    public string? ShiJian { get; set; }
 
     /// <summary>
     /// .

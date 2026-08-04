@@ -1,6 +1,4 @@
 ﻿﻿﻿using CeriOS.Core.Common.DB;
-using JNPF.Common.Dtos;
-using JNPF.Common.Filter;
 using CeriOS.示例.Entitys.Dto.Allprops2;
 using CeriOS.示例.Entitys;
 using CeriOS.示例.Interfaces;
@@ -17,7 +15,7 @@ using CeriOS.Core.Common.Helper;
 namespace Application.Services;
 
 /// <summary>
-/// 业务实现：测试编辑模板.
+/// 业务实现：第三模板.
 /// </summary>
 [ApiDescriptionSettings(Tag = "示例", Name = "Allprops2", Order = 200)]
 [Route("api/[controller]")]
@@ -69,7 +67,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
 
 
     /// <summary>
-    /// 获取测试编辑模板.
+    /// 获取第三模板.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>
@@ -86,7 +84,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
     }
 
     /// <summary>
-    /// 获取测试编辑模板列表.
+    /// 获取第三模板列表.
     /// </summary>
     /// <param name="input">请求参数.</param>
     /// <returns></returns>
@@ -208,8 +206,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
         var __pageSize = input.pageSize <= 0 ? 20 : input.pageSize;
         var __totalCount = await query.CountAsync();
         var data = await query.ToPagedListAsync(__currentPage, __pageSize);
-      var listOutputs = data.list.Adapt<List<Allprops2ListOutput>>();
-      var inlineEditorList = listOutputs.Adapt<List<Allprops2InlineEditorOutput>>();
+      var inlineEditorList = data.list.Adapt<List<Allprops2ListOutput>>();
         return new
         {
            list = inlineEditorList,
@@ -223,7 +220,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
     }
 
     /// <summary>
-    /// 新建测试编辑模板.
+    /// 新建第三模板.
     /// </summary>
     /// <param name="input">参数.</param>
     /// <returns></returns>
@@ -262,7 +259,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
     }
 
     /// <summary>
-    /// 更新测试编辑模板.
+    /// 更新第三模板.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <param name="input">参数.</param>
@@ -292,7 +289,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
     }
 
     /// <summary>
-    /// 删除测试编辑模板.
+    /// 删除第三模板.
     /// </summary>
     /// <returns></returns>
     [HttpDelete("{id}")]
@@ -317,7 +314,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
     }
 
     /// <summary>
-    /// 批量删除测试编辑模板.
+    /// 批量删除第三模板.
     /// </summary>
     /// <param name="input">主键数组.</param>
     /// <returns></returns>
@@ -330,7 +327,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
             var entitys = await _db.Context.Queryable<Allprops2Entity>().In(it => it.id, ids).ToListAsync();
             if (entitys.Count > 0)
             {
-                 // 批量删除测试编辑模板
+                 // 批量删除第三模板
                 await _db.Context.Deleteable<Allprops2Entity>().In(it => it.id, ids).ExecuteCommandAsync();
             }
         }
@@ -343,7 +340,7 @@ public class Allprops2Service : ControllerBase, IAllprops2Service
     }
 
     /// <summary>
-    /// 测试编辑模板详情.
+    /// 第三模板详情.
     /// </summary>
     /// <param name="id">主键值.</param>
     /// <returns></returns>
