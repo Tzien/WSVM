@@ -76,6 +76,7 @@
   import { getDictionaryDataSelector } from '@/api/systemData/dictionary';
   import { getDataInterfaceRes } from '@/api/systemData/dataInterface';
   //import { getOrgByOrganizeCondition, getDepartmentSelectAsyncList } from '@/api/permission/organize';
+  import { useGetOraganizeTreeAsync } from '@/api/system/organization';
   import { ref, reactive, onMounted, toRefs, computed, unref, nextTick, provide } from 'vue';
   import dayjs from 'dayjs'
   import { useMessage } from '@/hooks/web/useMessage';
@@ -153,6 +154,14 @@
       return trimmed.split(',').map((item: string) => item.trim()).filter(Boolean);
     }
     return value;
+  }
+  function convertOrgTreeData(data: any[]) {
+    return (data || []).map((item: any) => ({
+      id: item.id,
+      fullName: item.name,
+      isLeaf: !(item.oraganizeTrees && item.oraganizeTrees.length),
+      children: item.oraganizeTrees && item.oraganizeTrees.length ? convertOrgTreeData(item.oraganizeTrees) : [],
+    }));
   }
   function getRowId(row: any) {
     return row?.id ?? row?.id ?? row?.Id;
@@ -449,8 +458,8 @@ function addHandle() {
     state.leftTreeData = [];
     let leftTreeData:any=[];
     // 组织或者部门
-    const res = await getDepartmentSelectAsyncList();
-    state.leftTreeData = res.data.list;
+    const res = await useGetOraganizeTreeAsync();
+    state.leftTreeData = res?.code === 200 ? convertOrgTreeData(res.data) : [];
       state.leftTreeLoading = false;
       nextTick(() => {
           if (state.leftTreeData.length) leftTreeRef.value?.setExpandedKeys([state.leftTreeData[0].id]);
@@ -459,9 +468,10 @@ function addHandle() {
   }
   function getSearchSchemas() {
     // 有左侧树，有关联字段
-    for (let i = 0; i < superQueryJson.length; i++) {
-      const e = superQueryJson[i];
-      if (e.id === 'DanHang') {
+    const treeRelationList: any[] = [...(searchList || []), ...(columnList || [])];
+    for (let i = 0; i < treeRelationList.length; i++) {
+      const e = treeRelationList[i];
+      if (e.id === 'DanHang' || e.prop === 'DanHang') {
         state.treeRelationObj = e;
         break;
       }
@@ -645,8 +655,8 @@ function addHandle() {
       // 左侧树异步加载
       function onLoadData(node) {
         return new Promise((resolve: (value?: unknown) => void) => {
-          getDepartmentSelectAsyncList(node.id).then(res => {
-            const list = res.data.list;
+          useGetOraganizeTreeAsync(node.id).then(res => {
+            const list = res?.code === 200 ? convertOrgTreeData(res.data) : [];
             leftTreeRef.value?.updateNodeByKey(node.eventKey, { children: list, isLeaf: !list.length });
             resolve();
          });
