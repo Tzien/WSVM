@@ -12,7 +12,7 @@ namespace CeriOS.@(Model.NameSpace).Entitys.Dto.@Model.ClassName;
 public class @(Model.ClassName)InlineEditorOutput
 {
 @foreach (var column in Model.TableField){
-@if (column.PrimaryKey){
+@if (column.PrimaryKey){ 
     @:/// <summary>
     @:/// @column.ColumnComment.
     @:/// </summary>
