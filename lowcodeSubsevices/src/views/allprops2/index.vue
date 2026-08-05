@@ -157,6 +157,7 @@
   // 左侧树枚举配置：treeDictionary 为字典分类 enCode（在“数据字典管理”创建后填入），为空时直接用字段自身选项
   const treeDictionary = '';
   const treeRelationField = 'XiaLa';
+  __searchTypes[treeRelationField] = 1; // 左侧枚举过滤用精确匹配
   const baseStore = useBaseStore();
   function getRowId(row: any) {
     return row?.id ?? row?.id ?? row?.Id;
@@ -395,7 +396,7 @@ function getTableActions(record): ActionItem[] {
     },
   ];
 }
-  function handleLeftTreeSelect(id, _node, nodePath) {
+  async function handleLeftTreeSelect(id, _node, nodePath) {
     if (state.treeActiveId == id) return;
     state.treeActiveId = id;
     state.treeActiveNodePath = nodePath;
@@ -405,7 +406,8 @@ function getTableActions(record): ActionItem[] {
     leftTreeActiveInfo = { [treeRelationField]: state.treeRelationObj?.multiple ? [state.treeActiveId] : state.treeActiveId };
     state.treeQueryJson = queryJson;
     state.leftTreeActiveInfo = leftTreeActiveInfo;
-    unref(getSearchList).length ? resetFields() : handleSearchSubmit({});
+    if (unref(getSearchList).length) await resetFields();
+    handleSearchSubmit({});
 }
 // 新增
 function addHandle() {
