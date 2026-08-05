@@ -753,5 +753,20 @@ function initViewList(currentId = '') {
     display: flex;
     align-items: center;
   }
+
+  // 左侧枚举树：标题栏与树节点内边距
+  .ceri-content-wrapper-left {
+    :deep(.ceri-basic-left-tree__header) {
+      padding: 10px 16px 0;
+
+      .icon-ym-mpMenu {
+        padding: 4px 8px;
+      }
+    }
+
+    :deep(.tree-main .ant-tree) {
+      padding: 4px 12px;
+    }
+  }
 }
 </style>
