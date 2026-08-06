@@ -75,7 +75,7 @@
   import { getViewList } from '@/api/onlineDev/visualDev';
   import { getDictionaryDataSelector } from '@/api/systemData/dictionary';
   import { getDataInterfaceRes } from '@/api/systemData/dataInterface';
-  //import { getOrgByOrganizeCondition, getDepartmentSelectAsyncList } from '@/api/permission/organize';
+  import { useBaseStore } from '@/store/base';
   import { ref, reactive, onMounted, toRefs, computed, unref, nextTick, provide } from 'vue';
   import dayjs from 'dayjs'
   import { useMessage } from '@/hooks/web/useMessage';
@@ -154,6 +154,8 @@
     }
     return value;
   }
+  const baseStore = useBaseStore();
+  __searchTypes['Enmu'] = 1; // 左侧枚举过滤用精确匹配
   function getRowId(row: any) {
     return row?.id ?? row?.id ?? row?.Id;
   }
@@ -391,7 +393,7 @@ function getTableActions(record): ActionItem[] {
     },
   ];
 }
-  function handleLeftTreeSelect(id, _node, nodePath) {
+  async function handleLeftTreeSelect(id, _node, nodePath) {
     if (state.treeActiveId == id) return;
     state.treeActiveId = id;
     state.treeActiveNodePath = nodePath;
@@ -402,7 +404,8 @@ function getTableActions(record): ActionItem[] {
     leftTreeActiveInfo = { 'Enmu': state.treeRelationObj?.multiple ? [state.treeActiveId] : state.treeActiveId };
     state.treeQueryJson = queryJson;
     state.leftTreeActiveInfo = leftTreeActiveInfo;
-    unref(getSearchList).length ? resetFields() : handleSearchSubmit({});
+    if (unref(getSearchList).length) await resetFields();
+    handleSearchSubmit({});
 }
 // 新增
 function addHandle() {
@@ -447,11 +450,9 @@ function addHandle() {
   async function getTreeView(isInit = false) {
     state.leftTreeLoading = true;
     state.leftTreeData = [];
-    let leftTreeData:any=[];
-    // 左侧数据字典
-    getDictionaryDataSelector('a0075b5e89f14411b42cfb3b03e7a6e6').then(res => {
-      state.leftTreeData = res.data.list;
-    });
+    // 左侧数据字典（通过 AllDict 缓存获取字典项）
+    const dicList: any[] = (await baseStore.getDicDataSelector('a0075b5e89f14411b42cfb3b03e7a6e6', 'id')) || [];
+    state.leftTreeData = dicList;
       state.leftTreeLoading = false;
       nextTick(() => {
           if (isInit) unref(getSearchList).length ? searchFormSubmit() : reload({ page: 1 });
@@ -459,9 +460,10 @@ function addHandle() {
   }
   function getSearchSchemas() {
     // 有左侧树，有关联字段
-    for (let i = 0; i < superQueryJson.length; i++) {
-      const e = superQueryJson[i];
-      if (e.id === 'Enmu') {
+    const treeRelationList: any[] = [...(searchList || []), ...(columnList || [])];
+    for (let i = 0; i < treeRelationList.length; i++) {
+      const e = treeRelationList[i];
+      if (e.id === 'Enmu' || e.prop === 'Enmu') {
         state.treeRelationObj = e;
         break;
       }
@@ -737,6 +739,17 @@ function initViewList(currentId = '') {
    :deep(.ant-table-pagination.ant-pagination .ant-pagination-options) {
     display: flex;
     align-items: center;
+  }
+
+  // 左侧枚举树：标题栏与树节点内边距
+  .ceri-content-wrapper-left {
+    :deep(.ceri-basic-left-tree__header) {
+      padding: 0px 15px 0;
+
+      .icon-ym-mpMenu {
+        padding: 4px 8px;
+      }
+    }
   }
 }
 </style>
