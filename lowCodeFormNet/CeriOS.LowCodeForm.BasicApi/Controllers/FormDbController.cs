@@ -476,7 +476,16 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
                 }
                 else
                 {
-                    item.dictionaryList = dictionaryDetail.FindAll(d => d.DictBaseInfoId == item.id).Adapt<List<DictionaryDataListOutput>>();
+                    item.dictionaryList = dictionaryDetail.FindAll(d => d.DictBaseInfoId == item.id)
+                        .Select(d => new DictionaryDataListOutput()
+                        {
+                            id = d.DictDetailId,
+                            parentId = d.DictBaseInfoId,
+                            fullName = d.ItemName,
+                            enCode = Convert.ToString(d.Code),
+                            enabledMark = d.IsActive ? 1 : 0,
+                            sortCode = d.ItemSort,
+                        }).ToList();
                 }
             }
             return new QueryByIdResponseDto<List<DictionaryDataAllListOutput>>()
