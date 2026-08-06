@@ -1,4 +1,4 @@
-﻿﻿﻿<template>
+﻿<template>
   <div class="ceri-content-wrapper demos-page">
     <div class="ceri-content-wrapper-left">
       <BasicLeftTree v-bind="getLeftTreeBindValue" ref="leftTreeRef" @reload="getTreeView()" @select="handleLeftTreeSelect" />

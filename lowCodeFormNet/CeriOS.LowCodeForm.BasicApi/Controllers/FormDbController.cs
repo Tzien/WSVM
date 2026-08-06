@@ -456,8 +456,9 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
                     {
                         list.Add(new DictionaryDataTreeOutput()
                         {
+                            parentId = item2.ParentId,
                             fullName = item2.ItemName,
-                            enCode = item2.Code.ToString(),
+                            enCode = Convert.ToString(item2.Code),
                             enabledMark = item2.IsActive ? 1 : 0,
                             sortCode = item2.ItemSort,
                             id = item2.DictDetailId
