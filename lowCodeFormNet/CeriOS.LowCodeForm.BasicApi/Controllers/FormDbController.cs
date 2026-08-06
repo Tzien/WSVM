@@ -482,7 +482,7 @@ namespace CeriOS.LowCodeForm.BasicApi.Controller
                             id = d.DictDetailId,
                             parentId = d.DictBaseInfoId,
                             fullName = d.ItemName,
-                            enCode = d.Code.ToString(),
+                            enCode = Convert.ToString(d.Code),
                             enabledMark = d.IsActive ? 1 : 0,
                             sortCode = d.ItemSort,
                         }).ToList();
