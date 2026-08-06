@@ -996,7 +996,7 @@ namespace CeriOS.LowCodeForm.Model.ViewModel.LowCode.CodeGen
                     result.TreePropsLabel = columnDesignModel?.treePropsLabel;
                     result.TreeRelationControlKey = treeRelationControlKey;
                     result.IsTreeRelationMultiple = isTreeRelationMultiple;
-                    result.IsExistQuery = templateEntity.Type == 3 ? false : columnDesignModel?.searchList?.Any(it => it.prop.Equals(columnDesignModel?.treeRelation)) ?? false ;
+                    result.IsExistQuery = templateEntity.Type == 3 ? false : columnDesignModel?.searchList?.Any(it => it.prop.Equals(columnDesignModel?.treeRelation)) ?? false;
                     result.PrimaryKey = tableColumns?.Find(it => it.PrimaryKey.Equals(true))?.LowerColumnName;
                     result.FormList = formScriptDesign;
                     result.PopupType = formDataModel.popupType;
@@ -1382,7 +1382,7 @@ namespace CeriOS.LowCodeForm.Model.ViewModel.LowCode.CodeGen
                     }
                     break;
                 case 5:
-                    columnDesignModel = JsonConvert.DeserializeObject<ColumnDesignModel>(templateEntity.AppColumnData); 
+                    columnDesignModel = JsonConvert.DeserializeObject<ColumnDesignModel>(templateEntity.AppColumnData);
                     columnDesignModel ??= new ColumnDesignModel();
                     break;
             }
@@ -1955,18 +1955,21 @@ namespace CeriOS.LowCodeForm.Model.ViewModel.LowCode.CodeGen
             ColumnDesignModel appColumnDesignModel = JsonConvert.DeserializeObject<ColumnDesignModel>(templateEntity.AppColumnData);
 
             // 当查询列表内没有选中某个字段 该字段又被作为左侧树查询字段 读取表单内该字段的多选属性 查询多选全由查询列表配置 
-            if (templateEntity.Type != 3 && controls != null && pcColumnDesignModel?.type == 2 && (pcColumnDesignModel.searchList.Count == 0 || !pcColumnDesignModel.searchList.Any(it => it.prop.Equals(pcColumnDesignModel.treeRelation))))
+            if (templateEntity.Type != 3 && controls != null && pcColumnDesignModel?.type == 2 && (pcColumnDesignModel.searchList == null || pcColumnDesignModel.searchList.Count == 0 || !pcColumnDesignModel.searchList.Any(it => it.prop.Equals(pcColumnDesignModel.treeRelation))))
             {
+                pcColumnDesignModel.searchList ??= new List<IndexSearchFieldModel>();
+
                 var search = new IndexGridFieldModel();
 
                 // 读取app查询列表 再读取表单内字段
-                switch (appColumnDesignModel.searchList.Any(it => it.prop.Equals(pcColumnDesignModel.treeRelation)))
+                switch (appColumnDesignModel?.searchList != null && appColumnDesignModel.searchList.Any(it => it.prop.Equals(pcColumnDesignModel.treeRelation)))
                 {
                     case true:
                         pcColumnDesignModel.searchList.Add(appColumnDesignModel.searchList.Find(it => it.prop.Equals(pcColumnDesignModel.treeRelation)));
                         break;
                     default:
-                        search = pcColumnDesignModel.columnOptions.Find(it => it.id.Equals(pcColumnDesignModel.treeRelation));
+                        search = pcColumnDesignModel.columnOptions?.Find(it => it.id.Equals(pcColumnDesignModel.treeRelation));
+                        if (search == null) break;
                         var newobj = new IndexSearchFieldModel()
                         {
                             ableIds = search.ableIds,
@@ -2140,7 +2143,7 @@ namespace CeriOS.LowCodeForm.Model.ViewModel.LowCode.CodeGen
                             __vModel__ = search.__vModel__,
                             __config__ = search.__config__,
                             __slot__ = search.__slot__,
-                            width = search.width.Value
+                            width = search.width ?? 0
                         };
                         var treeRelation = newobj; //search?.Adapt<IndexSearchFieldModel>();
                         treeRelation.multiple = false;
