@@ -603,6 +603,7 @@ import DefaultSortConfigModal from './DefaultSortConfigModal.vue'
 import ExtraConfigModal from './ExtraConfigModal.vue'
 import { useMessage } from '@/hooks/web/useMessage'
 import { useAppStore } from '@/store/app'
+import { useBaseStore } from '@/store/base'
 import Sortablejs from 'sortablejs'
 import { dyOptionsList } from '@/views/WebDesign/component/StepForm/src/helper/config'
 import { getDictionaryDataSelector } from '@/api/systemData/dictionary'
@@ -883,9 +884,10 @@ function getData() {
   return state.columnData
 }
 function getDictionaryType() {
-  // getDictionaryTypeSelector().then((res) => {
-  //   dicOptions.value = res.data.list.filter((o) => o.children && o.children.length)
-  // })
+  const baseStore = useBaseStore()
+  baseStore.getDictionaryAll().then((list) => {
+    dicOptions.value = (list || []).map((o: any) => ({ id: o.id, fullName: o.fullName, enCode: o.enCode }))
+  })
 }
 function getPrintTplList() {
   // getPrintDevSelector().then((res) => {
