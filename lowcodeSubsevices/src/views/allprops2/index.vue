@@ -215,7 +215,7 @@
     treeFieldNames: {
       children: 'children',
       title: 'fullName',
-      key: 'id',
+      key: 'enCode',
       isLeaf: 'isLeaf',
     },
     leftTreeData: [],
@@ -315,13 +315,12 @@
     const key = +new Date();
     const data: any = {
       title: '枚举',
-      showSearch: false,
+      showSearch: true,
       fieldNames: state.treeFieldNames,
-      defaultExpandAll: false, //异步的时候为false
+      defaultExpandAll: true, //异步的时候为false
       treeData: state.leftTreeData,
       loading: state.leftTreeLoading,
       key,
-      loadData: onLoadData,
     };
     return data;
   });
@@ -398,8 +397,9 @@ function getTableActions(record): ActionItem[] {
     state.treeActiveNodePath = nodePath;
     let queryJson: any = {};
     let leftTreeActiveInfo: any = {};
-    queryJson = { 'DanHang': state.treeActiveId };
-    leftTreeActiveInfo = { 'DanHang': state.treeRelationObj?.multiple ? [state.treeActiveId] : state.treeActiveId };
+    // 左侧树是其他
+    queryJson = { 'Enmu': state.treeActiveId };
+    leftTreeActiveInfo = { 'Enmu': state.treeRelationObj?.multiple ? [state.treeActiveId] : state.treeActiveId };
     state.treeQueryJson = queryJson;
     state.leftTreeActiveInfo = leftTreeActiveInfo;
     unref(getSearchList).length ? resetFields() : handleSearchSubmit({});
@@ -448,12 +448,12 @@ function addHandle() {
     state.leftTreeLoading = true;
     state.leftTreeData = [];
     let leftTreeData:any=[];
-    // 组织或者部门
-    const res = await getDepartmentSelectAsyncList();
-    state.leftTreeData = res.data.list;
+    // 左侧数据字典
+    getDictionaryDataSelector('a0075b5e89f14411b42cfb3b03e7a6e6').then(res => {
+      state.leftTreeData = res.data.list;
+    });
       state.leftTreeLoading = false;
       nextTick(() => {
-          if (state.leftTreeData.length) leftTreeRef.value?.setExpandedKeys([state.leftTreeData[0].id]);
           if (isInit) unref(getSearchList).length ? searchFormSubmit() : reload({ page: 1 });
       });
   }
@@ -461,7 +461,7 @@ function addHandle() {
     // 有左侧树，有关联字段
     for (let i = 0; i < superQueryJson.length; i++) {
       const e = superQueryJson[i];
-      if (e.id === 'DanHang') {
+      if (e.id === 'Enmu') {
         state.treeRelationObj = e;
         break;
       }
@@ -642,16 +642,6 @@ function addHandle() {
     }
     reload({ page: 1 });
   }
-      // 左侧树异步加载
-      function onLoadData(node) {
-        return new Promise((resolve: (value?: unknown) => void) => {
-          getDepartmentSelectAsyncList(node.id).then(res => {
-            const list = res.data.list;
-            leftTreeRef.value?.updateNodeByKey(node.eventKey, { children: list, isLeaf: !list.length });
-            resolve();
-         });
-        });
-      }
 function initViewList(currentId = '') {
     const query = {
       menuId: searchInfo.menuId,
