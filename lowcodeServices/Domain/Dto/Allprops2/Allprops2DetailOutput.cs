@@ -34,6 +34,11 @@ public class Allprops2DetailOutput
     /// <summary>
     /// .
     /// </summary>
+    public string? Enmu { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     public string? FWB { get; set; }
 
     /// <summary>
