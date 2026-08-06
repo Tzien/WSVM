@@ -42,6 +42,12 @@ public class Allprops2Entity
     /// <summary>
     /// .
     /// </summary>
+    [SugarColumn(ColumnName = "Enmu")]
+    public string? Enmu { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     [SugarColumn(ColumnName = "FWB")]
     public string? FWB { get; set; }
 

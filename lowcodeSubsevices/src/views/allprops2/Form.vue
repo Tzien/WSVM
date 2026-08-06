@@ -109,6 +109,12 @@
               <CeriEditor v-model:value="dataForm.FWB" :style='{"width":"100%"}'  />
             </a-form-item>
           </a-col>
+          <a-col :span="24" class="ant-col-item" >
+            <a-form-item name="Enmu" :labelCol="{ style: { width: '100px' } }">
+              <template #label>关联树</template>
+              <CeriInput v-model:value="dataForm.Enmu" placeholder='请输入' allowClear :style='{"width":"100%"}'  :showCount='false'  />
+            </a-form-item>
+          </a-col>
         </a-row>
       </a-form>
     </a-row>
@@ -176,6 +182,7 @@
       PF: 0,
       HK: 0,
       FWB: undefined,
+      Enmu: undefined,
     },
     dataRule: {
     },
@@ -273,6 +280,7 @@
         PF: 0,
         HK: 0,
         FWB: undefined,
+        Enmu: undefined,
       };
       if (getLeftTreeActiveInfo) state.dataForm = {...state.dataForm, ...(getLeftTreeActiveInfo() || {}) };
       changeLoading(false);

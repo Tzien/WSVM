@@ -36,6 +36,11 @@ public class Allprops2CrInput
     /// <summary>
     /// .
     /// </summary>
+    public string? Enmu { get; set; }
+
+    /// <summary>
+    /// .
+    /// </summary>
     public string? FWB { get; set; }
 
     /// <summary>

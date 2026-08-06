@@ -75,7 +75,7 @@
   import { getViewList } from '@/api/onlineDev/visualDev';
   import { getDictionaryDataSelector } from '@/api/systemData/dictionary';
   import { getDataInterfaceRes } from '@/api/systemData/dataInterface';
-  import { useBaseStore } from '@/store/base';
+  //import { getOrgByOrganizeCondition, getDepartmentSelectAsyncList } from '@/api/permission/organize';
   import { ref, reactive, onMounted, toRefs, computed, unref, nextTick, provide } from 'vue';
   import dayjs from 'dayjs'
   import { useMessage } from '@/hooks/web/useMessage';
@@ -154,11 +154,6 @@
     }
     return value;
   }
-  // 左侧树枚举配置：treeDictionary 为字典分类 enCode（在“数据字典管理”创建后填入），为空时直接用字段自身选项
-  const treeDictionary = '';
-  const treeRelationField = 'XiaLa';
-  __searchTypes[treeRelationField] = 1; // 左侧枚举过滤用精确匹配
-  const baseStore = useBaseStore();
   function getRowId(row: any) {
     return row?.id ?? row?.id ?? row?.Id;
   }
@@ -220,7 +215,7 @@
     treeFieldNames: {
       children: 'children',
       title: 'fullName',
-      key: 'id',
+      key: 'enCode',
       isLeaf: 'isLeaf',
     },
     leftTreeData: [],
@@ -322,7 +317,7 @@
       title: '枚举',
       showSearch: true,
       fieldNames: state.treeFieldNames,
-      defaultExpandAll: true,
+      defaultExpandAll: true, //异步的时候为false
       treeData: state.leftTreeData,
       loading: state.leftTreeLoading,
       key,
@@ -396,18 +391,18 @@ function getTableActions(record): ActionItem[] {
     },
   ];
 }
-  async function handleLeftTreeSelect(id, _node, nodePath) {
+  function handleLeftTreeSelect(id, _node, nodePath) {
     if (state.treeActiveId == id) return;
     state.treeActiveId = id;
     state.treeActiveNodePath = nodePath;
     let queryJson: any = {};
     let leftTreeActiveInfo: any = {};
-    queryJson = { [treeRelationField]: state.treeActiveId };
-    leftTreeActiveInfo = { [treeRelationField]: state.treeRelationObj?.multiple ? [state.treeActiveId] : state.treeActiveId };
+    // 左侧树是其他
+    queryJson = { 'Enmu': state.treeActiveId };
+    leftTreeActiveInfo = { 'Enmu': state.treeRelationObj?.multiple ? [state.treeActiveId] : state.treeActiveId };
     state.treeQueryJson = queryJson;
     state.leftTreeActiveInfo = leftTreeActiveInfo;
-    if (unref(getSearchList).length) await resetFields();
-    handleSearchSubmit({});
+    unref(getSearchList).length ? resetFields() : handleSearchSubmit({});
 }
 // 新增
 function addHandle() {
@@ -452,20 +447,11 @@ function addHandle() {
   async function getTreeView(isInit = false) {
     state.leftTreeLoading = true;
     state.leftTreeData = [];
-    // 左侧数据字典（枚举）
-    let list: any[] = [];
-    if (treeDictionary) {
-      const dicList: any[] = (await baseStore.getDicDataSelector(treeDictionary, 'enCode')) || [];
-      list = dicList.map((o: any) => ({ id: o.enCode, fullName: o.fullName, isLeaf: true }));
-    }
-    if (!list.length) {
-      // 字典未配置时，用字段自身选项生成枚举树
-      const col: any = (columnList || []).find((o: any) => o.prop === treeRelationField);
-      const valueKey = col?.props?.value || 'id';
-      const labelKey = col?.props?.label || 'fullName';
-      list = (col?.options || []).map((o: any) => ({ id: o[valueKey], fullName: o[labelKey], isLeaf: true }));
-    }
-    state.leftTreeData = list;
+    let leftTreeData:any=[];
+    // 左侧数据字典
+    getDictionaryDataSelector('a0075b5e89f14411b42cfb3b03e7a6e6').then(res => {
+      state.leftTreeData = res.data.list;
+    });
       state.leftTreeLoading = false;
       nextTick(() => {
           if (isInit) unref(getSearchList).length ? searchFormSubmit() : reload({ page: 1 });
@@ -473,10 +459,9 @@ function addHandle() {
   }
   function getSearchSchemas() {
     // 有左侧树，有关联字段
-    const treeRelationList: any[] = [...(searchList || []), ...(columnList || [])];
-    for (let i = 0; i < treeRelationList.length; i++) {
-      const e = treeRelationList[i];
-      if (e.id === treeRelationField || e.prop === treeRelationField) {
+    for (let i = 0; i < superQueryJson.length; i++) {
+      const e = superQueryJson[i];
+      if (e.id === 'Enmu') {
         state.treeRelationObj = e;
         break;
       }
@@ -752,17 +737,6 @@ function initViewList(currentId = '') {
    :deep(.ant-table-pagination.ant-pagination .ant-pagination-options) {
     display: flex;
     align-items: center;
-  }
-
-  // 左侧枚举树：标题栏与树节点内边距
-  .ceri-content-wrapper-left {
-    :deep(.ceri-basic-left-tree__header) {
-      padding: 0px 15px 0;
-
-      .icon-ym-mpMenu {
-        padding: 4px 8px;
-      }
-    }
   }
 }
 </style>
